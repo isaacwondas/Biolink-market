@@ -24,7 +24,6 @@ export default function AdminSignup() {
 
       const result = await signupAction(formData);
 
-      // Inspect if next server threw an unhandled or blank action error object
       if (!result) {
         setMessage({
           type: "error",
@@ -60,27 +59,27 @@ export default function AdminSignup() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex flex-col justify-center items-center p-4 antialiased">
+    <div className="min-h-screen bg-white text-[#111827] flex flex-col justify-center items-center p-4 antialiased">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xl mb-2">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[#22C55E]/10 border border-[#22C55E]/20 text-xl mb-2">
             🚀
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-neutral-50">
+          <h1 className="text-3xl font-black tracking-tight text-[#15803D]">
             Create Merchant Account
           </h1>
-          <p className="text-xs text-neutral-400">
+          <p className="text-xs text-[#374151]">
             Launch your premium payment link storefront in seconds.
           </p>
         </div>
 
-        <div className="bg-neutral-900/40 backdrop-blur-md border border-neutral-800/80 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
+        <div className="bg-white border border-[#E5E7EB] rounded-3xl p-6 md:p-8 shadow-2xl space-y-6">
           {message && (
             <div
               className={`p-4 rounded-xl text-xs border font-medium ${
                 message.type === "success"
-                  ? "bg-emerald-950/40 border-emerald-800 text-emerald-400"
-                  : "bg-rose-950/40 border-rose-800 text-rose-400"
+                  ? "bg-green-50 border-[#22C55E] text-[#15803D]"
+                  : "bg-red-50 border-red-200 text-red-600"
               }`}
             >
               {message.text}
@@ -89,7 +88,7 @@ export default function AdminSignup() {
 
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">
+              <label className="text-xs text-[#374151] font-semibold uppercase tracking-wider">
                 Email Address
               </label>
               <input
@@ -98,12 +97,12 @@ export default function AdminSignup() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="newmerchant@biomarket.com"
-                className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-sm text-neutral-100 focus:outline-none focus:border-amber-500 transition-colors placeholder:text-neutral-600"
+                className="w-full bg-white border border-[#E5E7EB] rounded-xl p-3 text-sm text-[#111827] focus:outline-none focus:border-[#22C55E] transition-colors placeholder:text-gray-400"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs text-neutral-400 font-semibold uppercase tracking-wider">
+              <label className="text-xs text-[#374151] font-semibold uppercase tracking-wider">
                 Password
               </label>
               <input
@@ -112,14 +111,14 @@ export default function AdminSignup() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••••••"
-                className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-sm text-neutral-100 focus:outline-none focus:border-amber-500 transition-colors tracking-widest placeholder:text-neutral-600"
+                className="w-full bg-white border border-[#E5E7EB] rounded-xl p-3 text-sm text-[#111827] focus:outline-none focus:border-[#22C55E] transition-colors tracking-widest placeholder:text-gray-400"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-neutral-800 disabled:text-neutral-500 text-neutral-950 font-bold py-3 px-4 rounded-xl text-center transition-all shadow-xl font-medium tracking-wide text-sm mt-2 active:scale-[0.99]"
+              className="w-full bg-[#22C55E] hover:bg-[#15803D] disabled:bg-gray-200 disabled:text-gray-500 text-white font-bold py-3 px-4 rounded-xl text-center transition-all shadow-xl font-medium tracking-wide text-sm mt-2 active:scale-[0.99]"
             >
               {loading ? "Creating Account..." : "Register & Start Setup"}
             </button>

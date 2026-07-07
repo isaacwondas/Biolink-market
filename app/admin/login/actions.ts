@@ -52,14 +52,13 @@ export async function loginAction(formData: FormData) {
       .eq("email", user.email.toLowerCase())
       .maybeSingle();
 
+    // Brand new user — create the row WITHOUT a username
     if (!existingVendor) {
-      // Brand new user — create the row and send to onboard
-      const generatedUsername = `vendor-${Math.floor(1000 + Math.random() * 9000)}`;
       const { error: insertError } = await supabase.from("vendors").insert([
         {
           email: user.email.toLowerCase(),
           name: user.email.split("@")[0],
-          username: generatedUsername,
+          username: null, // ← leave null until onboard
           views: 0,
           is_onboarded: false,
         },
@@ -77,7 +76,8 @@ export async function loginAction(formData: FormData) {
       // Fully onboarded existing user
       redirectTo = "/admin/dashboard";
     }
-  }
+  } // <-- This closes the "if (user && user.email)" block correctly
 
+  // Now this return statement is safely inside the loginAction function!
   return { success: true, redirectTo };
 }

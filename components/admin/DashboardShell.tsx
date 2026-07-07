@@ -109,7 +109,7 @@ function Field({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#22C55E] focus:ring-1 focus:ring-[#22C55E] transition-all"
+        className="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766] focus:ring-1 focus:ring-[#044766] transition-all"
       />
     </div>
   );
@@ -235,7 +235,7 @@ function ProfileTab({ vendor }: { vendor: any }) {
           Your Store URL
         </p>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[#22C55E] font-mono font-bold">
+          <span className="text-xs text-[#FFF5D9] font-mono font-bold">
             biomarket.com/{vendor.username}
           </span>
           <button
@@ -295,7 +295,7 @@ function ProfileTab({ vendor }: { vendor: any }) {
       <button
         onClick={handleSave}
         disabled={loading}
-        className="w-full bg-[#22C55E] hover:bg-[#15803D] disabled:bg-neutral-800 disabled:text-neutral-500 text-white font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
+        className="w-full bg-[#044766] hover:bg-[#044766]/80 disabled:bg-neutral-800 disabled:text-neutral-500 text-[#FFF5D9] font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
       >
         {loading ? "Saving..." : "Save Profile"}
       </button>
@@ -368,7 +368,7 @@ function BanksTab({ vendor }: { vendor: any }) {
                 { bank_name: "OPay", account_number: "", account_name: "" },
               ])
             }
-            className="text-xs text-[#22C55E] border border-[#22C55E]/30 px-3 py-1.5 rounded-lg hover:bg-[#22C55E]/10 transition-colors"
+            className="text-xs text-[#FFF5D9] border border-[#044766]/50 px-3 py-1.5 rounded-lg hover:bg-[#044766]/30 transition-colors"
           >
             + Add Bank
           </button>
@@ -406,7 +406,7 @@ function BanksTab({ vendor }: { vendor: any }) {
                   onChange={(e) =>
                     handleBankChange(idx, "bank_name", e.target.value)
                   }
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#22C55E]"
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
                 >
                   {POPULAR_BANKS.map((b) => (
                     <option key={b} value={b}>
@@ -426,7 +426,7 @@ function BanksTab({ vendor }: { vendor: any }) {
                     handleBankChange(idx, "account_number", e.target.value)
                   }
                   placeholder="0472567510"
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 font-mono focus:outline-none focus:border-[#22C55E]"
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 font-mono focus:outline-none focus:border-[#044766]"
                 />
               </div>
               <div className="space-y-1">
@@ -440,7 +440,7 @@ function BanksTab({ vendor }: { vendor: any }) {
                     handleBankChange(idx, "account_name", e.target.value)
                   }
                   placeholder="Ada Fabrics Ltd"
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#22C55E]"
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
                 />
               </div>
             </div>
@@ -451,7 +451,7 @@ function BanksTab({ vendor }: { vendor: any }) {
       <button
         onClick={handleSave}
         disabled={loading}
-        className="w-full bg-[#22C55E] hover:bg-[#15803D] disabled:bg-neutral-800 disabled:text-neutral-500 text-white font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
+        className="w-full bg-[#044766] hover:bg-[#044766]/80 disabled:bg-neutral-800 disabled:text-neutral-500 text-[#FFF5D9] font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
       >
         {loading ? "Saving..." : "Save Bank Details"}
       </button>
@@ -552,8 +552,8 @@ function ProductsTab({ vendor }: { vendor: any }) {
       <Toast msg={msg} />
 
       {/* Add new product */}
-      <div className="bg-neutral-900 border border-[#22C55E]/20 rounded-2xl p-5 space-y-4">
-        <h3 className="text-xs font-bold text-[#22C55E] uppercase tracking-wider">
+      <div className="bg-neutral-900 border border-[#044766]/40 rounded-2xl p-5 space-y-4">
+        <h3 className="text-xs font-bold text-[#FFF5D9] uppercase tracking-wider">
           Add New Product
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -568,7 +568,7 @@ function ProductsTab({ vendor }: { vendor: any }) {
                 setNewProduct((p) => ({ ...p, name: e.target.value }))
               }
               placeholder="Ankara Gown Style Alpha"
-              className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#22C55E]"
+              className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
             />
           </div>
           <div className="space-y-1">
@@ -582,7 +582,7 @@ function ProductsTab({ vendor }: { vendor: any }) {
                 setNewProduct((p) => ({ ...p, price: e.target.value }))
               }
               placeholder="12500"
-              className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#22C55E]"
+              className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
             />
           </div>
         </div>
@@ -597,7 +597,7 @@ function ProductsTab({ vendor }: { vendor: any }) {
               setNewProduct((p) => ({ ...p, description: e.target.value }))
             }
             placeholder="Short product description"
-            className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#22C55E]"
+            className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
           />
         </div>
         <div className="space-y-1">
@@ -614,7 +614,7 @@ function ProductsTab({ vendor }: { vendor: any }) {
         <button
           onClick={handleAddProduct}
           disabled={loading}
-          className="w-full bg-[#22C55E] hover:bg-[#15803D] disabled:bg-neutral-800 disabled:text-neutral-500 text-white font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors"
+          className="w-full bg-[#044766] hover:bg-[#044766]/80 disabled:bg-neutral-800 disabled:text-neutral-500 text-[#FFF5D9] font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors"
         >
           {loading ? "Uploading..." : "+ Add Product"}
         </button>
@@ -648,7 +648,7 @@ function ProductsTab({ vendor }: { vendor: any }) {
                     {product.name}
                   </p>
                   {product.price > 0 && (
-                    <p className="text-xs font-black text-[#22C55E]">
+                    <p className="text-xs font-black text-[#FFF5D9]">
                       ₦{Number(product.price).toLocaleString()}
                     </p>
                   )}
@@ -693,7 +693,14 @@ function SocialTab({ vendor }: { vendor: any }) {
     instagram_handle: vendor.instagram_handle || "",
     tiktok_handle: vendor.tiktok_handle || "",
     facebook_handle: vendor.facebook_handle || "",
+    website: vendor.website || "",
   });
+
+  // Extra custom links — loaded from jsonb column
+  const [extraLinks, setExtraLinks] = useState<
+    { platform: string; url: string }[]
+  >(vendor.social_links || []);
+
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{
     type: "success" | "error";
@@ -703,13 +710,32 @@ function SocialTab({ vendor }: { vendor: any }) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
+  const handleExtraChange = (
+    idx: number,
+    field: "platform" | "url",
+    value: string,
+  ) => {
+    const updated = [...extraLinks];
+    updated[idx] = { ...updated[idx], [field]: value };
+    setExtraLinks(updated);
+  };
+
+  const addExtraLink = () =>
+    setExtraLinks((prev) => [...prev, { platform: "", url: "" }]);
+
+  const removeExtraLink = (idx: number) =>
+    setExtraLinks((prev) => prev.filter((_, i) => i !== idx));
+
   const handleSave = async () => {
     setLoading(true);
     setMsg(null);
     try {
       const { error } = await supabase
         .from("vendors")
-        .update(form)
+        .update({
+          ...form,
+          social_links: extraLinks.filter((l) => l.url.trim() !== ""),
+        })
         .eq("id", vendor.id);
       if (error) throw error;
       setMsg({ type: "success", text: "Social links updated!" });
@@ -720,6 +746,18 @@ function SocialTab({ vendor }: { vendor: any }) {
     }
   };
 
+  const PLATFORM_SUGGESTIONS = [
+    "YouTube",
+    "Twitter / X",
+    "LinkedIn",
+    "Snapchat",
+    "Telegram",
+    "Pinterest",
+    "Threads",
+    "Website",
+    "Other",
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -727,13 +765,17 @@ function SocialTab({ vendor }: { vendor: any }) {
           Social & Contact
         </h2>
         <p className="text-xs text-neutral-500 mt-0.5">
-          Links appear as buttons on your public storefront.
+          All links appear as buttons on your public storefront.
         </p>
       </div>
 
       <Toast msg={msg} />
 
+      {/* Core platforms */}
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 space-y-4">
+        <h3 className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+          Core Platforms
+        </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field
             label="WhatsApp Number"
@@ -741,6 +783,14 @@ function SocialTab({ vendor }: { vendor: any }) {
             value={form.whatsapp}
             onChange={handleChange}
             placeholder="2348030000000"
+          />
+          <Field
+            label="Website URL"
+            name="website"
+            value={form.website}
+            onChange={handleChange}
+            placeholder="https://mystore.com"
+            type="url"
           />
           <Field
             label="Instagram URL"
@@ -769,17 +819,100 @@ function SocialTab({ vendor }: { vendor: any }) {
         </div>
       </div>
 
+      {/* Extra / custom links */}
+      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+              Additional Links
+            </h3>
+            <p className="text-[10px] text-neutral-600 mt-0.5">
+              YouTube, LinkedIn, Telegram, custom URLs — unlimited.
+            </p>
+          </div>
+          <button
+            onClick={addExtraLink}
+            className="text-xs text-[#FFF5D9] border border-[#044766]/50 px-3 py-1.5 rounded-lg hover:bg-[#044766]/30 transition-colors"
+          >
+            + Add Link
+          </button>
+        </div>
+
+        {extraLinks.length === 0 && (
+          <div className="border border-dashed border-neutral-800 rounded-xl p-4 text-center">
+            <p className="text-[11px] text-neutral-600">
+              No extra links yet. Click "+ Add Link" to add YouTube, LinkedIn,
+              Telegram, etc.
+            </p>
+          </div>
+        )}
+
+        <div className="space-y-3">
+          {extraLinks.map((link, idx) => (
+            <div
+              key={idx}
+              className="grid grid-cols-[1fr_2fr_auto] gap-2 items-end"
+            >
+              {/* Platform label — datalist gives suggestions but allows freeform */}
+              <div className="space-y-1">
+                <label className="text-[11px] text-neutral-500 font-medium uppercase">
+                  Platform
+                </label>
+                <input
+                  type="text"
+                  list="platform-suggestions"
+                  value={link.platform}
+                  onChange={(e) =>
+                    handleExtraChange(idx, "platform", e.target.value)
+                  }
+                  placeholder="YouTube"
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
+                />
+                <datalist id="platform-suggestions">
+                  {PLATFORM_SUGGESTIONS.map((s) => (
+                    <option key={s} value={s} />
+                  ))}
+                </datalist>
+              </div>
+
+              {/* URL */}
+              <div className="space-y-1">
+                <label className="text-[11px] text-neutral-500 font-medium uppercase">
+                  URL
+                </label>
+                <input
+                  type="url"
+                  value={link.url}
+                  onChange={(e) =>
+                    handleExtraChange(idx, "url", e.target.value)
+                  }
+                  placeholder="https://youtube.com/@ada_hub"
+                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
+                />
+              </div>
+
+              {/* Remove */}
+              <button
+                onClick={() => removeExtraLink(idx)}
+                className="mb-0.5 text-red-500 hover:text-red-400 text-xs px-2 py-2.5 rounded-xl hover:bg-red-500/10 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <button
         onClick={handleSave}
         disabled={loading}
-        className="w-full bg-[#22C55E] hover:bg-[#15803D] disabled:bg-neutral-800 disabled:text-neutral-500 text-white font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
+        className="w-full bg-[#044766] hover:bg-[#044766]/80 disabled:bg-neutral-800 disabled:text-neutral-500 text-[#FFF5D9] font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
       >
         {loading ? "Saving..." : "Save Social Links"}
       </button>
     </div>
   );
 }
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // TAB: OVERVIEW (existing analytics + receipts)
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -819,7 +952,7 @@ function OverviewTab({
               <h3 className="text-base font-bold uppercase tracking-wider text-neutral-200">
                 Receipt Verification
               </h3>
-              <span className="text-[10px] bg-[#044766]/20 text-sky-400 font-bold px-2 py-0.5 rounded border border-[#044766]/30 uppercase">
+              <span className="text-[10px] bg-[#044766]/20 text-[#FFF5D9] font-bold px-2 py-0.5 rounded border border-[#044766]/30 uppercase">
                 Core Ops
               </span>
             </div>
@@ -856,7 +989,7 @@ function OverviewTab({
           {receiptsQueue.map((receipt) => (
             <div
               key={receipt.id}
-              className={`bg-neutral-950 border p-4 rounded-xl flex flex-col gap-4 transition-all hover:border-neutral-700 ${
+              className={`bg-neutral-950 border p-4 rounded-xl flex flex-col gap-4 transition-all hover borrder-neutral-700 ${
                 receipt.status === "pending"
                   ? "border-amber-500/20"
                   : "border-neutral-800/70"

@@ -18,8 +18,8 @@ export default async function Storefront({ params }: PageProps) {
 
   if (!username) {
     return (
-      <div className="min-h-screen bg-neutral-50 text-neutral-800 flex items-center justify-center p-4">
-        <p className="text-sm text-neutral-500 font-medium">
+      <div className="min-h-screen bg-[#FFFFFF] text-[#111827] flex items-center justify-center p-4">
+        <p className="text-sm text-[#374151] font-medium">
           Invalid Profile Request.
         </p>
       </div>
@@ -57,12 +57,10 @@ export default async function Storefront({ params }: PageProps) {
 
   if (error || !vendor) {
     return (
-      <div className="min-h-screen bg-neutral-50 text-neutral-800 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#FFFFFF] text-[#111827] flex items-center justify-center p-4">
         <div className="text-center space-y-2">
-          <h1 className="text-xl font-bold text-emerald-600">
-            Store Not Found
-          </h1>
-          <p className="text-sm text-neutral-500">
+          <h1 className="text-xl font-bold text-[#15803D]">Store Not Found</h1>
+          <p className="text-sm text-[#374151]">
             The store "{username}" does not exist yet.
           </p>
         </div>
@@ -106,7 +104,7 @@ export default async function Storefront({ params }: PageProps) {
         qrCodeUrl = await QRCode.toDataURL(qrPayload, {
           margin: 1,
           width: 160,
-          color: { dark: "#000000", light: "#ffffff" },
+          color: { dark: "#111827", light: "#FFFFFF" },
         });
       } catch (err) {
         console.error("QR Generation Failure:", err);
@@ -116,12 +114,12 @@ export default async function Storefront({ params }: PageProps) {
   );
 
   return (
-    <div className="min-h-screen bg-neutral-100 text-neutral-900 flex justify-center antialiased selection:bg-[#044766] selection:text-white font-sans">
+    <div className="min-h-screen bg-[#FFFFFF] text-[#111827] flex justify-center antialiased selection:bg-[#22C55E] selection:text-[#FFFFFF] font-sans">
       <StoreTrackerTrigger vendorId={vendor.id} />
 
-      <div className="w-full max-w-md bg-white min-h-screen shadow-2xl relative flex flex-col pb-6">
+      <div className="w-full max-w-md bg-[#FFFFFF] min-h-screen shadow-2xl relative flex flex-col pb-6">
         {/* Profile Header Banner */}
-        <div className="relative w-full h-24 bg-neutral-200 overflow-hidden">
+        <div className="relative w-full h-24 bg-[#E5E7EB] overflow-hidden">
           <Image
             src={bannerImage}
             alt="Merchant Banner"
@@ -134,8 +132,7 @@ export default async function Storefront({ params }: PageProps) {
 
         {/* Profile Details Matrix */}
         <div className="px-4 text-center -mt-8 relative z-10 flex flex-col items-center">
-          {/* FIXED: Swapped invalid w-18 h-18 for standard Tailwind w-20 h-20 metrics */}
-          <div className="w-20 h-20 rounded-full border-4 border-white shadow-sm bg-neutral-100 relative overflow-hidden">
+          <div className="w-20 h-20 rounded-full border-4 border-[#FFFFFF] shadow-sm bg-[#FFFFFF] relative overflow-hidden">
             <Image
               src={avatarImage}
               alt={merchantDisplayName}
@@ -145,12 +142,12 @@ export default async function Storefront({ params }: PageProps) {
             />
           </div>
 
-          <h1 className="text-xl font-bold tracking-tight text-neutral-900 mt-1.5">
+          <h1 className="text-xl font-bold tracking-tight text-[#15803D] mt-1.5">
             {merchantDisplayName}
           </h1>
-          <p className="text-xs font-medium text-neutral-500 px-4 mt-0.5 leading-tight">
+          <p className="text-xs font-medium text-[#374151] px-4 mt-0.5 leading-tight">
             {bioText} |{" "}
-            <span className="text-neutral-400 font-normal">{locationText}</span>
+            <span className="text-[#374151] font-normal">{locationText}</span>
           </p>
 
           {/* WhatsApp Action Link Button */}
@@ -158,10 +155,16 @@ export default async function Storefront({ params }: PageProps) {
             href={`https://wa.me/${vendor.whatsapp || vendor.phone}?text=Hello%20${encodeURIComponent(vendor.name)},%20I%20am%20viewing%20your%20storefront%20and%20would%20like%20to%20make%20an%20enquiry.`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full mt-2.5 bg-[#4caf50] hover:bg-[#43a047] text-white font-bold py-2.5 px-4 rounded-xl text-center shadow-sm transition-all flex items-center justify-center gap-2 tracking-wide text-sm active:scale-[0.99]"
+            className="w-full mt-2.5 bg-[#22C55E] hover:bg-[#15803D] text-white font-bold py-2.5 px-4 rounded-xl text-center shadow-sm transition-all flex items-center justify-center gap-2.5 tracking-wide text-sm active:scale-[0.99]"
           >
-            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.513 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.717-1.456L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.825 1.451 5.436 0 9.86-4.37 9.864-9.799.002-2.63-1.023-5.101-2.885-6.963C16.528 2.02 14.058.993 11.438.993c-5.44 0-9.866 4.372-9.87 9.802 0 1.68.463 3.321 1.34 4.773L1.875 21.75l6.32-1.637l.452.24zM16.9 14.18c-.29-.145-1.716-.848-1.98-.942-.266-.096-.458-.145-.652.146-.194.29-.75.942-.918 1.133-.168.193-.338.217-.628.072-.29-.145-1.226-.452-2.335-1.441-.863-.77-1.446-1.72-1.615-2.012-.17-.29-.018-.447.127-.591.13-.13.29-.338.435-.507.145-.168.193-.29.29-.483.096-.193.048-.361-.024-.506-.072-.145-.652-1.57-.893-2.152-.235-.567-.474-.49-.652-.49-.17 0-.361-.012-.551-.012s-.5.072-.76.361c-.26.29-1 1-.1.144-.06.216.505.748.673.94 1.259 1.369 2.766 1.83 3.129 1.89s.616-.011.832-.26c.217-.24.94-1.085 1.193-1.447.253-.362.506-.29.796-.145z" />
+            {/* Official WhatsApp Icon */}
+            <svg
+              className="w-5 h-5"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M12.031 0C5.397 0 0 5.397 0 12.031c0 2.128.553 4.197 1.604 6.012L.03 23.97l6.096-1.597c1.867 1.018 4.015 1.554 6.184 1.554 6.634 0 12.031-5.397 12.031-12.031S18.665 0 12.031 0zm5.666 14.654c-.266.758-1.536 1.488-2.115 1.583-.537.089-1.025.138-3.004-.666-2.529-1.03-4.137-3.766-4.259-3.931-.122-.165-1.004-1.332-1.004-2.539 0-1.207.534-1.791.764-2.019.23-.228.502-.284.673-.284.171 0 .341.006.491.006.143 0 .338-.052.532.428.199.486.677 1.652.735 1.772.059.12.096.26.02.417-.077.157-.115.253-.23.388-.115.135-.244.303-.357.417-.119.121-.247.253-.105.497.142.244.631 1.034 1.353 1.674.928.825 1.711 1.082 1.95 1.223.238.141.378.121.517-.038.139-.159.602-.701.764-.942.162-.241.325-.205.542-.123.217.082 1.373.648 1.607.766.234.118.39.176.448.273.059.097.059.563-.207 1.321z" />
             </svg>
             <span>Chat Now</span>
           </a>
@@ -197,13 +200,46 @@ export default async function Storefront({ params }: PageProps) {
                 )}
             </div>
           )}
+
+          {/* Extra custom social links */}
+          {vendor.social_links && vendor.social_links.length > 0 && (
+            <div className="w-full flex flex-col gap-2 mt-2">
+              {vendor.social_links
+                .filter((l: any) => l.url?.trim())
+                .map((link: any, idx: number) => (
+                  <a
+                    key={idx}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-[#E5E7EB] hover:bg-[#E5E7EB] text-[#111827] font-semibold py-2.5 px-4 rounded-xl text-center text-xs transition-all flex items-center justify-center gap-2"
+                  >
+                    <span>🔗</span>
+                    <span>{link.platform || link.url}</span>
+                  </a>
+                ))}
+            </div>
+          )}
+
+          {/* Website link */}
+          {vendor.website && (
+            <a
+              href={vendor.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full mt-2 bg-[#E5E7EB] hover:bg-[#E5E7EB] text-[#111827] font-semibold py-2.5 px-4 rounded-xl text-center text-xs transition-all flex items-center justify-center gap-2"
+            >
+              <span>🌐</span>
+              <span>Visit Website</span>
+            </a>
+          )}
         </div>
 
-        <hr className="border-neutral-200 my-2.5 mx-4" />
+        <hr className="border-[#E5E7EB] my-2.5 mx-4" />
 
         {/* Bank Matrix Rows */}
         <div className="px-4 space-y-1">
-          <h3 className="text-sm font-bold text-neutral-800 tracking-tight">
+          <h3 className="text-sm font-bold text-[#15803D] tracking-tight">
             Bank Details
           </h3>
           {banksWithQrs.length > 0 ? (
@@ -211,18 +247,18 @@ export default async function Storefront({ params }: PageProps) {
               {banksWithQrs.map((bank: any, idx: number) => (
                 <div
                   key={bank.id || idx}
-                  className="min-w-[135px] flex-1 bg-white border border-neutral-200/80 rounded-xl p-2 flex flex-col items-center justify-center text-center shadow-xs snap-start"
+                  className="min-w-[135px] flex-1 bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-2 flex flex-col items-center justify-center text-center shadow-xs snap-start"
                 >
-                  <span className="text-[11px] font-bold text-neutral-700 truncate w-full">
+                  <span className="text-[11px] font-bold text-[#111827] truncate w-full">
                     {bank.bank_name}
                   </span>
 
-                  <span className="text-[10px] font-medium text-neutral-500 uppercase tracking-tight line-clamp-1 w-full mt-0.5">
+                  <span className="text-[10px] font-medium text-[#374151] uppercase tracking-tight line-clamp-1 w-full mt-0.5">
                     {bank.account_name}
                   </span>
 
                   {bank.qrCodeUrl && (
-                    <div className="p-0.5 bg-white rounded border border-neutral-100 my-1">
+                    <div className="p-0.5 bg-[#FFFFFF] rounded border border-[#E5E7EB] my-1">
                       {/* eslint-disable-next-img-element */}
                       <img
                         src={bank.qrCodeUrl}
@@ -232,15 +268,15 @@ export default async function Storefront({ params }: PageProps) {
                     </div>
                   )}
 
-                  <span className="text-[10px] font-mono font-bold text-[#044766] bg-neutral-50 px-1 py-0.5 rounded border border-neutral-200 select-all tracking-tighter w-full block truncate">
+                  <span className="text-[10px] font-mono font-bold text-[#15803D] bg-[#FFFFFF] px-1 py-0.5 rounded border border-[#E5E7EB] select-all tracking-tighter w-full block truncate">
                     {bank.account_number}
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="bg-neutral-50 border border-dashed border-neutral-200 rounded-xl p-3 text-center">
-              <p className="text-[11px] text-neutral-400 font-medium">
+            <div className="bg-[#FFFFFF] border border-dashed border-[#E5E7EB] rounded-xl p-3 text-center">
+              <p className="text-[11px] text-[#374151] font-medium">
                 Direct Bank Transfers available upon request.
               </p>
             </div>
@@ -248,7 +284,7 @@ export default async function Storefront({ params }: PageProps) {
         </div>
 
         {/* Receipts Container Wrapper */}
-        <div className="px-4 mt-1 text-neutral-900">
+        <div className="px-4 mt-1 text-[#111827]">
           <ReceiptUploadForm
             vendorEmail={vendor.email}
             vendorPhone={vendor.whatsapp || vendor.phone || "08000000000"}
@@ -258,7 +294,7 @@ export default async function Storefront({ params }: PageProps) {
 
         {/* Items Grid Layout Showcase */}
         <div className="px-4 mt-3 space-y-2">
-          <h3 className="text-sm font-bold text-neutral-800 tracking-tight">
+          <h3 className="text-sm font-bold text-[#15803D] tracking-tight">
             My Items
           </h3>
 
@@ -267,9 +303,9 @@ export default async function Storefront({ params }: PageProps) {
               {vendor.vendor_products.map((product: any, idx: number) => (
                 <div
                   key={product.id || idx}
-                  className="bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-xs flex flex-col group"
+                  className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl overflow-hidden shadow-xs flex flex-col group"
                 >
-                  <div className="relative aspect-[4/3] w-full bg-neutral-50 overflow-hidden">
+                  <div className="relative aspect-[4/3] w-full bg-[#FFFFFF] overflow-hidden">
                     <Image
                       src={
                         product.image_url ||
@@ -282,11 +318,11 @@ export default async function Storefront({ params }: PageProps) {
                     />
                   </div>
                   <div className="p-2 flex flex-col justify-between flex-grow gap-0.5">
-                    <h4 className="text-[11px] font-bold text-neutral-800 line-clamp-1 leading-tight">
+                    <h4 className="text-[11px] font-bold text-[#111827] line-clamp-1 leading-tight">
                       {product.name}
                     </h4>
                     {product.price && Number(product.price) > 0 && (
-                      <span className="text-xs font-black text-emerald-600 tracking-tight">
+                      <span className="text-xs font-black text-[#22C55E] tracking-tight">
                         ₦{Number(product.price).toLocaleString()}
                       </span>
                     )}
@@ -296,8 +332,8 @@ export default async function Storefront({ params }: PageProps) {
             </div>
           ) : vendor.product_name ? (
             <div className="grid grid-cols-2 gap-2">
-              <div className="bg-white border border-neutral-200 rounded-xl overflow-hidden shadow-xs flex flex-col">
-                <div className="relative aspect-[4/3] w-full bg-neutral-50 overflow-hidden">
+              <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl overflow-hidden shadow-xs flex flex-col">
+                <div className="relative aspect-[4/3] w-full bg-[#FFFFFF] overflow-hidden">
                   <Image
                     src={
                       vendor.product_image ||
@@ -310,11 +346,11 @@ export default async function Storefront({ params }: PageProps) {
                   />
                 </div>
                 <div className="p-2 flex flex-col justify-between flex-grow gap-0.5">
-                  <h4 className="text-[11px] font-bold text-neutral-800 line-clamp-1 leading-tight">
+                  <h4 className="text-[11px] font-bold text-[#111827] line-clamp-1 leading-tight">
                     {vendor.product_name}
                   </h4>
                   {vendor.product_price && Number(vendor.product_price) > 0 && (
-                    <span className="text-xs font-black text-emerald-600 tracking-tight">
+                    <span className="text-xs font-black text-[#22C55E] tracking-tight">
                       ₦{Number(vendor.product_price).toLocaleString()}
                     </span>
                   )}
@@ -322,8 +358,8 @@ export default async function Storefront({ params }: PageProps) {
               </div>
             </div>
           ) : (
-            <div className="bg-neutral-50 border border-dashed border-neutral-200 rounded-xl p-4 text-center">
-              <p className="text-xs text-neutral-400 font-medium">
+            <div className="bg-[#FFFFFF] border border-dashed border-[#E5E7EB] rounded-xl p-4 text-center">
+              <p className="text-xs text-[#374151] font-medium">
                 No items uploaded yet.
               </p>
             </div>
