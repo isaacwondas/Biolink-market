@@ -945,183 +945,271 @@ function OverviewTab({
       />
 
       {/* Receipt Ledger */}
-      <div className="bg-neutral-900/60 backdrop-blur-md border border-neutral-800/80 rounded-2xl p-6 shadow-xl space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-neutral-800/60 pb-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold uppercase tracking-wider text-neutral-200">
-                Receipt Verification
-              </h3>
-              <span className="text-[10px] bg-[#044766]/20 text-[#FFF5D9] font-bold px-2 py-0.5 rounded border border-[#044766]/30 uppercase">
-                Core Ops
-              </span>
-            </div>
-            <p className="text-xs text-neutral-500 mt-0.5">
-              Audit incoming customer transfers to authorise orders.
-            </p>
-          </div>
-          <div className="flex gap-2 text-[11px] font-mono">
-            <span className="text-amber-400 bg-amber-500/5 px-2 py-1 rounded-md border border-amber-500/10">
-              Awaiting{" "}
-              {
-                receiptsQueue.filter(
-                  (r) =>
-                    r.status === "pending" && r.payment_status !== "fully_paid",
-                ).length
-              }{" "}
-              Receipts
-            </span>
-            <span className="text-emerald-400 bg-emerald-500/5 px-2 py-1 rounded-md border border-emerald-500/10">
-              ✓{" "}
-              {
-                receiptsQueue.filter(
-                  (r) =>
-                    r.status === "approved" ||
-                    r.payment_status === "fully_paid",
-                ).length
-              }{" "}
-              Cleared
-            </span>
-          </div>
-        </div>
 
-        <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
-          {receiptsQueue.map((receipt) => (
-            <div
-              key={receipt.id}
-              className={`bg-neutral-950 border p-4 rounded-xl flex flex-col gap-4 transition-all hover borrder-neutral-700 ${
-                receipt.status === "pending"
-                  ? "border-amber-500/20"
-                  : "border-neutral-800/70"
-              }`}
-            >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-4 min-w-0">
-                  <div className="relative w-14 h-14 rounded-lg bg-neutral-900 border border-neutral-800 overflow-hidden shrink-0">
-                    <Image
-                      src={receipt.receipt_image_url}
-                      alt="Receipt"
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                  <div className="min-w-0 space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-bold text-neutral-200 truncate">
-                        {receipt.customer_name || "Unknown"}
-                      </p>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-neutral-400">
-                        #{receipt.order_reference || "NO-REF"}
-                      </span>
-                    </div>
-                    <p className="text-xs text-neutral-500 truncate font-mono">
-                      {receipt.customer_email}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex sm:flex-col justify-between sm:items-end items-center shrink-0">
-                  <p className="text-sm font-black text-emerald-400">
-                    ₦{Number(receipt.amount_paid).toLocaleString()}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[9px] font-mono text-neutral-500">
-                      {new Date(receipt.created_at).toLocaleDateString(
-                        "en-NG",
-                        {
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        },
-                      )}
-                    </span>
-                    <span
-                      className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${
-                        receipt.payment_status === "fully_paid" ||
-                        receipt.status === "approved"
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                          : receipt.payment_status === "partially_paid"
-                            ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                            : "bg-neutral-500/10 text-neutral-400 border border-neutral-800"
-                      }`}
-                    >
-                      {receipt.payment_status === "fully_paid"
-                        ? "Fully Paid"
-                        : receipt.payment_status === "partially_paid"
-                          ? "Partial"
-                          : receipt.status}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              {receipt.payment_status !== "fully_paid" &&
-                receipt.status !== "approved" && (
-                  <div className="border-t border-neutral-800/60 pt-3 text-neutral-900">
-                    <TransactionApprovalCard
-                      transaction={{
-                        id: receipt.id,
-                        total_order_amount:
-                          receipt.total_order_amount ||
-                          receipt.amount_paid ||
-                          0,
-                        amount_paid: receipt.amount_paid || 0,
-                        balance_due: receipt.balance_due || 0,
-                        payment_status: receipt.payment_status || "unpaid",
-                      }}
-                      onConfirm={onTransactionUpdate}
-                    />
-                  </div>
-                )}
-            </div>
-          ))}
-          {receiptsQueue.length === 0 && (
-            <div className="text-center py-16 border border-dashed border-neutral-800 rounded-xl">
-              <span className="text-2xl block mb-2">🧾</span>
-              <p className="text-xs text-neutral-500">
-                No payment receipts yet.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
+      {(() => {
+        const [receiptFilter, setReceiptFilter] = useState<
+          "pending" | "cleared" | "declined"
+        >("pending");
+        const [localReceipts, setLocalReceipts] = useState(receiptsQueue);
+        const [notification, setNotification] = useState<string | null>(null);
 
-      {/* Traffic Chart */}
-      <div className="bg-neutral-900/60 border border-neutral-800/80 rounded-2xl p-5">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-4">
-          Outbound Traffic — Last 7 Days
-        </h3>
-        <div className="grid grid-cols-7 gap-2 items-end h-28 border-b border-neutral-800/60 px-2">
-          {timelineData.map((day: any) => {
-            const pct =
-              maxClickDayValue > 0
-                ? (Number(day.total_clicks) / maxClickDayValue) * 100
-                : 0;
-            return (
-              <div
-                key={day.period_start}
-                className="flex flex-col items-center h-full justify-end space-y-1"
-              >
-                <div
-                  className="w-full rounded-t relative h-full"
-                  style={{ maxHeight: `${Math.max(pct, 4)}%` }}
-                >
-                  <div className="absolute inset-x-0 bottom-0 bg-[#22C55E]/40 rounded-t-sm h-full" />
-                </div>
-                <span className="text-[9px] text-neutral-600 truncate">
-                  {new Date(day.period_start).toLocaleDateString("en-US", {
-                    weekday: "short",
-                  })}
-                </span>
-              </div>
+        const showNotification = (msg: string) => {
+          setNotification(msg);
+          setTimeout(() => setNotification(null), 4000);
+        };
+
+        const handleDecline = async (id: string) => {
+          const { error } = await supabase
+            .from("receipt_submissions")
+            .update({ status: "declined" })
+            .eq("id", id);
+          if (!error) {
+            setLocalReceipts((prev) =>
+              prev.map((r) => (r.id === id ? { ...r, status: "declined" } : r)),
             );
-          })}
-        </div>
-      </div>
+            showNotification("Receipt declined and flagged.");
+          }
+        };
+
+        const handleApprove = (
+          id: string,
+          updates: { amount_paid: number; payment_status: string },
+        ) => {
+          onTransactionUpdate(id, updates);
+          setLocalReceipts((prev) =>
+            prev.map((r) =>
+              r.id === id
+                ? {
+                    ...r,
+                    ...updates,
+                    status:
+                      updates.payment_status === "fully_paid"
+                        ? "approved"
+                        : r.status,
+                  }
+                : r,
+            ),
+          );
+          showNotification("Payment approved successfully! ✓");
+        };
+
+        const pendingCount = localReceipts.filter(
+          (r) => r.status === "pending" && r.payment_status !== "fully_paid",
+        ).length;
+        const clearedCount = localReceipts.filter(
+          (r) => r.status === "approved" || r.payment_status === "fully_paid",
+        ).length;
+        const declinedCount = localReceipts.filter(
+          (r) => r.status === "declined",
+        ).length;
+
+        const filtered = localReceipts.filter((r) => {
+          if (receiptFilter === "pending")
+            return r.status === "pending" && r.payment_status !== "fully_paid";
+          if (receiptFilter === "cleared")
+            return r.status === "approved" || r.payment_status === "fully_paid";
+          if (receiptFilter === "declined") return r.status === "declined";
+          return true;
+        });
+
+        return (
+          <div className="bg-neutral-900/60 backdrop-blur-md border border-neutral-800/80 rounded-2xl p-6 shadow-xl space-y-4">
+            {/* In-app notification toast */}
+            {notification && (
+              <div className="bg-[#22C55E]/10 border border-[#22C55E]/20 text-[#22C55E] text-xs font-medium px-4 py-2.5 rounded-xl flex items-center gap-2">
+                <span>🔔</span>
+                {notification}
+              </div>
+            )}
+
+            {/* Header */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-neutral-800/60 pb-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-base font-bold uppercase tracking-wider text-neutral-200">
+                    Receipt Verification
+                  </h3>
+                  <span className="text-[10px] bg-[#044766]/20 text-[#FFF5D9] font-bold px-2 py-0.5 rounded border border-[#044766]/30 uppercase">
+                    Core Ops
+                  </span>
+                </div>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Audit incoming customer transfers to authorise orders.
+                </p>
+              </div>
+            </div>
+
+            {/* Filter Tabs */}
+            <div className="flex gap-2">
+              {[
+                {
+                  key: "pending",
+                  label: "Pending",
+                  count: pendingCount,
+                  color: "text-amber-400 border-amber-400/30 bg-amber-500/5",
+                },
+                {
+                  key: "cleared",
+                  label: "Cleared",
+                  count: clearedCount,
+                  color:
+                    "text-emerald-400 border-emerald-400/30 bg-emerald-500/5",
+                },
+                {
+                  key: "declined",
+                  label: "Declined",
+                  count: declinedCount,
+                  color: "text-red-400 border-red-400/30 bg-red-500/5",
+                },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => setReceiptFilter(tab.key as any)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold border transition-all ${
+                    receiptFilter === tab.key
+                      ? tab.color
+                      : "text-neutral-500 border-neutral-800 hover:border-neutral-700"
+                  }`}
+                >
+                  {tab.label}
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${
+                      receiptFilter === tab.key
+                        ? "bg-white/10"
+                        : "bg-neutral-800"
+                    }`}
+                  >
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Receipt rows */}
+            <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+              {filtered.map((receipt) => (
+                <div
+                  key={receipt.id}
+                  className={`bg-neutral-950 border p-4 rounded-xl flex flex-col gap-4 transition-all ${
+                    receipt.status === "pending"
+                      ? "border-amber-500/20"
+                      : receipt.status === "declined"
+                        ? "border-red-500/20"
+                        : "border-neutral-800/70"
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 min-w-0">
+                      <div className="relative w-14 h-14 rounded-lg bg-neutral-900 border border-neutral-800 overflow-hidden shrink-0">
+                        <Image
+                          src={receipt.receipt_image_url}
+                          alt="Receipt"
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </div>
+                      <div className="min-w-0 space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm font-bold text-neutral-200 truncate">
+                            {receipt.customer_name || "Unknown"}
+                          </p>
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-neutral-400">
+                            #{receipt.order_reference || "NO-REF"}
+                          </span>
+                        </div>
+                        <p className="text-xs text-neutral-500 truncate font-mono">
+                          {receipt.customer_email}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex sm:flex-col justify-between sm:items-end items-center shrink-0">
+                      <p className="text-sm font-black text-emerald-400">
+                        ₦{Number(receipt.amount_paid).toLocaleString()}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[9px] font-mono text-neutral-500">
+                          {new Date(receipt.created_at).toLocaleDateString(
+                            "en-NG",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
+                        </span>
+                        <span
+                          className={`text-[9px] font-bold px-2 py-0.5 rounded uppercase ${
+                            receipt.payment_status === "fully_paid" ||
+                            receipt.status === "approved"
+                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              : receipt.status === "declined"
+                                ? "bg-red-500/10 text-red-400 border border-red-500/20"
+                                : receipt.payment_status === "partially_paid"
+                                  ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                                  : "bg-neutral-500/10 text-neutral-400 border border-neutral-800"
+                          }`}
+                        >
+                          {receipt.status === "declined"
+                            ? "Declined"
+                            : receipt.payment_status === "fully_paid"
+                              ? "Fully Paid"
+                              : receipt.payment_status === "partially_paid"
+                                ? "Partial"
+                                : receipt.status}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {receipt.payment_status !== "fully_paid" &&
+                    receipt.status !== "approved" &&
+                    receipt.status !== "declined" && (
+                      <div className="border-t border-neutral-800/60 pt-3 text-neutral-900">
+                        <TransactionApprovalCard
+                          transaction={{
+                            id: receipt.id,
+                            total_order_amount:
+                              receipt.total_order_amount ||
+                              receipt.amount_paid ||
+                              0,
+                            amount_paid: receipt.amount_paid || 0,
+                            balance_due: receipt.balance_due || 0,
+                            payment_status: receipt.payment_status || "unpaid",
+                            customer_name: receipt.customer_name,
+                            customer_phone: receipt.customer_phone,
+                            customer_email: receipt.customer_email,
+                          }}
+                          onConfirm={handleApprove}
+                          onDecline={handleDecline}
+                        />
+                      </div>
+                    )}
+                </div>
+              ))}
+
+              {filtered.length === 0 && (
+                <div className="text-center py-16 border border-dashed border-neutral-800 rounded-xl">
+                  <span className="text-2xl block mb-2">
+                    {receiptFilter === "pending"
+                      ? "🧾"
+                      : receiptFilter === "cleared"
+                        ? "✅"
+                        : "🚩"}
+                  </span>
+                  <p className="text-xs text-neutral-500">
+                    No {receiptFilter} receipts.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
-
 // ═══════════════════════════════════════════════════════════════════════════════
 // MAIN SHELL
 // ═══════════════════════════════════════════════════════════════════════════════
