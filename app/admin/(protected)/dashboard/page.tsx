@@ -127,7 +127,7 @@ export default async function AdminDashboardPage() {
     <DashboardShell
       vendor={vendor}
       timelineData={timelineData}
-      receiptsQueue={receiptsQueue}
+      initialReceipts={receiptsQueue}
       structuralMetrics={structuralMetrics}
       onTransactionUpdate={handleTransactionUpdate}
     />
