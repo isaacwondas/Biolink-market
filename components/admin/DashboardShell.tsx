@@ -6,6 +6,7 @@ import { supabase } from "@/app/lib/supabase";
 import { useRouter } from "next/navigation";
 import AnalyticsGrid from "@/components/admin/AnalyticsGrid";
 import { TransactionApprovalCard } from "@/components/admin/TransactionApprovalCard";
+import ReceiptLedger from "@/components/admin/ReceiptLedger";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -921,13 +922,13 @@ function OverviewTab({
   vendor,
   structuralMetrics,
   timelineData,
-  receiptsQueue,
+  initialReceipts,
   onTransactionUpdate,
 }: {
   vendor: any;
   structuralMetrics: any;
   timelineData: any[];
-  receiptsQueue: any[];
+  initialReceipts: any[];
   onTransactionUpdate: any;
 }) {
   const maxClickDayValue =
@@ -950,7 +951,7 @@ function OverviewTab({
         const [receiptFilter, setReceiptFilter] = useState<
           "pending" | "cleared" | "declined"
         >("pending");
-        const [localReceipts, setLocalReceipts] = useState(receiptsQueue);
+        const [localReceipts, setLocalReceipts] = useState(initialReceipts);
         const [notification, setNotification] = useState<string | null>(null);
 
         const showNotification = (msg: string) => {
@@ -1217,13 +1218,13 @@ function OverviewTab({
 export default function DashboardShell({
   vendor,
   timelineData,
-  receiptsQueue,
+  initialReceipts,
   structuralMetrics,
   onTransactionUpdate,
 }: {
   vendor: any;
   timelineData: any[];
-  receiptsQueue: any[];
+  initialReceipts: any[];
   structuralMetrics: any;
   onTransactionUpdate: any;
 }) {
@@ -1349,7 +1350,8 @@ export default function DashboardShell({
                 vendor={vendor}
                 structuralMetrics={structuralMetrics}
                 timelineData={timelineData}
-                receiptsQueue={receiptsQueue}
+                //receiptsQueue={receiptsQueue}
+                initialReceipts={initialReceipts ?? []}
                 onTransactionUpdate={onTransactionUpdate}
               />
             )}
