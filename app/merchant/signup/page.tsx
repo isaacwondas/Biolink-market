@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { signupAction } from "./actions";
 
 export default function AdminSignup() {
@@ -124,6 +125,17 @@ export default function AdminSignup() {
             </button>
           </form>
         </div>
+
+        {/* login link */}
+        <p className="text-center text-xs text-[#374151] mt-4">
+          Already have an account?{" "}
+          <Link
+            href="/merchant/login"
+            className="text-[#22C55E] font-semibold hover:text-[#15803D] transition-colors"
+          >
+            Log in
+          </Link>
+        </p>
       </div>
     </div>
   );

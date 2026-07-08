@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { loginAction } from "./actions";
 
 export default function AdminLogin() {
@@ -116,7 +117,19 @@ export default function AdminLogin() {
           </form>
         </div>
 
+        {/* Signup link */}
+        <p className="text-center text-xs text-[#374151] mt-4">
+          Don't have an account?{" "}
+          <Link
+            href="/merchant/signup"
+            className="text-[#22C55E] font-semibold hover:text-[#15803D] transition-colors"
+          >
+            Create one free
+          </Link>
+        </p>
+
         {/* Footer info link */}
+
         <p className="text-center text-[11px] text-[#374151]">
           Secured by Supabase Identity Infrastructure
         </p>
