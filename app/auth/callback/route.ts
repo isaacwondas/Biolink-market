@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   // Get the redirect path ('next') or fall back to onboarding configuration
-  const next = searchParams.get("next") || "/admin/onboard";
+  const next = searchParams.get("next") || "/merchant/onboard";
 
   if (code) {
     const cookieStore = await cookies();
@@ -38,6 +38,6 @@ export async function GET(request: Request) {
 
   // If code exchange fails, safely redirect home or to an explicit error fallback
   return NextResponse.redirect(
-    `${origin}/admin/login?error=auth-callback-failed`,
+    `${origin}/merchant/login?error=auth-callback-failed`,
   );
 }

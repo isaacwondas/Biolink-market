@@ -51,7 +51,7 @@ export async function signupAction(formData: FormData) {
       password: password,
       options: {
         // Keeps user flow isolated from your root [username] catch-all segment
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/callback?next=/admin/onboard`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/callback?next=/merchant/onboard`,
       },
     });
 

@@ -49,14 +49,14 @@ export async function proxy(request: NextRequest) {
   const url = request.nextUrl.clone();
 
   // Guard 1: Kick out unauthenticated users trying to access onboarding
-  if (url.pathname.startsWith("/admin/onboard") && !session) {
-    url.pathname = "/admin/login";
+  if (url.pathname.startsWith("/merchant/onboard") && !session) {
+    url.pathname = "/merchant/login";
     return NextResponse.redirect(url);
   }
 
   // Guard 2: Redirect logged-in users away from the login screen
-  if (url.pathname.startsWith("/admin/login") && session) {
-    url.pathname = "/admin/dashboard";
+  if (url.pathname.startsWith("/merchant/login") && session) {
+    url.pathname = "/merchant/dashboard";
     return NextResponse.redirect(url);
   }
 
@@ -64,5 +64,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/merchant/:path*"],
 };
