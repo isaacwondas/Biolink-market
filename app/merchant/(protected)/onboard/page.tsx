@@ -249,7 +249,7 @@ export default function OnboardingForm() {
         : null;
 
       // ── Step 1: Update vendor row ──────────────────────────────────────────
-      const { data: vendorData, error: vendorError } = await supabase
+      const { data: updatedVendor, error: vendorError } = await supabase
         .from("vendors")
         .update({
           username: usernameSlug,
@@ -264,43 +264,36 @@ export default function OnboardingForm() {
           social_links: extraLinks.filter((l) => l.url.trim() !== ""),
           product_name: formData.product_name,
           product_price: formattedPrice,
-          product_image: finalImageUrl || undefined,
+          product_image: finalImageUrl || null,
           description: formData.description,
-          avatar_image: avatarUrl || undefined,
-          banner_image: bannerUrl || undefined,
+          avatar_image: avatarUrl || null,
+          banner_image: bannerUrl || null,
           is_onboarded: true,
         })
         .eq("email", userEmail.toLowerCase())
-        .select("id")
-        .maybeSingle();
+        .select();
+
+      console.log("Updated Vendor:", updatedVendor);
+      console.log("Vendor Error:", vendorError);
 
       if (vendorError) throw vendorError;
 
-      // ── Step 2: Create vendor row if missing (Google OAuth users) ───────────────
-      let vendorRow = vendorData;
-
-      if (!vendorRow) {
-        const { data: newVendor, error: createError } = await supabase
-          .from("vendors")
-          .insert([
-            {
-              email: userEmail.toLowerCase(),
-              name: userEmail.split("@")[0],
-              username: null,
-              views: 0,
-              is_onboarded: false,
-            },
-          ])
-          .select("id")
-          .single();
-
-        if (createError) throw createError;
-        if (!newVendor) {
-          throw new Error("Failed to create vendor account. Please try again.");
-        }
-
-        vendorRow = newVendor;
+      if (!updatedVendor || updatedVendor.length === 0) {
+        throw new Error(`No vendor record was updated for email: ${userEmail}`);
       }
+
+      if (vendorError) throw vendorError;
+
+      // Fetch vendor id
+      const { data: vendorRow, error: vendorFetchError } = await supabase
+        .from("vendors")
+        .select("id")
+        .eq("email", userEmail.toLowerCase())
+        .single();
+
+      if (vendorFetchError) throw vendorFetchError;
+
+      // ── Step 2: Create vendor row if missing (Google OAuth users) ───────────────
 
       // ── Step 3: Insert banks ───────────────────────────────────────────────────
       if (banks.length > 0) {
