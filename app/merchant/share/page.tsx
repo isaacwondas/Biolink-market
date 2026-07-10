@@ -81,7 +81,7 @@ export default function ShareStorePage() {
     );
   }
 
-  const storeUrl = `https://biomarket.com/${vendor.username}`;
+  const storeUrl = `https://biolink-market-wondas.vercel.app/${vendor.username}`;
   const qrValue = storeUrl;
 
   const handleCopyLink = () => {

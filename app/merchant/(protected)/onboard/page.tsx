@@ -185,16 +185,40 @@ export default function OnboardingForm() {
     setExtraLinks((prev) => prev.filter((_, i) => i !== idx));
 
   const uploadImage = async (file: File, folder: string, prefix: string) => {
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${prefix}-${Date.now()}.${fileExt}`;
-    const filePath = `${folder}/${fileName}`;
+    // =============================================
+    // ALLOWED FILE TYPES
+    // =============================================
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error("Only JPG, PNG and WEBP images are allowed.");
+    }
+
+    // =============================================
+    // MAX SIZE = 5MB
+    // =============================================
+
+    const maxSize = 5 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      throw new Error("Image size must not exceed 5MB.");
+    }
+
+    const extension = file.name.split(".").pop();
+
+    const filename = `${prefix}-${Date.now()}.${extension}`;
+
+    const path = `${folder}/${filename}`;
+
     const { error } = await supabase.storage
       .from("product-images")
-      .upload(filePath, file);
+      .upload(path, file);
+
     if (error) throw error;
-    const { data } = supabase.storage
-      .from("product-images")
-      .getPublicUrl(filePath);
+
+    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+
     return data.publicUrl;
   };
 
@@ -226,27 +250,75 @@ export default function OnboardingForm() {
       return;
     }
 
+    // =============================================
+    // VALIDATE WHATSAPP NUMBER
+    // =============================================
+
+    const normalizedWhatsapp = formData.whatsapp.replace(/\s+/g, "");
+
+    const whatsappRegex = /^\+?\d{10,15}$/;
+
+    if (!whatsappRegex.test(normalizedWhatsapp)) {
+      setMessage({
+        type: "error",
+        text: "Please enter a valid WhatsApp number (10–15 digits). Example: 2348012345678",
+      });
+
+      setLoading(false);
+      return;
+    }
+
     try {
       setUploading(true);
       const usernameSlug = formData.username.trim().toLowerCase();
 
       let finalImageUrl = "";
-      if (imageFile)
+      if (imageFile instanceof File)
         finalImageUrl = await uploadImage(imageFile, "products", usernameSlug);
 
       let avatarUrl = "";
-      if (avatarFile)
+      if (avatarFile instanceof File)
         avatarUrl = await uploadImage(avatarFile, "avatars", usernameSlug);
 
       let bannerUrl = "";
-      if (bannerFile)
+      if (bannerFile instanceof File)
         bannerUrl = await uploadImage(bannerFile, "banners", usernameSlug);
 
       setUploading(false);
 
+      // =============================================
+      // FORMAT PRICE
+      // =============================================
+
       const formattedPrice = formData.product_price.trim()
         ? formData.product_price.replace(/[^0-9]/g, "")
         : null;
+
+      // =============================================
+      // CHECK IF USERNAME IS ALREADY TAKEN
+      // =============================================
+
+      const { data: existingUsername, error: usernameError } = await supabase
+        .from("vendors")
+        .select("id, email")
+        .eq("username", usernameSlug)
+        .maybeSingle();
+
+      if (usernameError) throw usernameError;
+
+      if (
+        existingUsername &&
+        existingUsername.email?.toLowerCase() !== userEmail.toLowerCase()
+      ) {
+        setMessage({
+          type: "error",
+          text: "This store handle is already taken. Please choose another one.",
+        });
+
+        setLoading(false);
+        setUploading(false);
+        return;
+      }
 
       // ── Step 1: Update vendor row ──────────────────────────────────────────
       const { data: updatedVendor, error: vendorError } = await supabase
@@ -256,7 +328,7 @@ export default function OnboardingForm() {
           business_name: formData.business_name,
           bio_tagline: formData.bio_tagline,
           location: formData.location,
-          whatsapp: formData.whatsapp,
+          whatsapp: normalizedWhatsapp.replace("+", ""),
           instagram_handle: formData.instagram_handle,
           tiktok_handle: formData.tiktok_handle,
           facebook_handle: formData.facebook_handle,
@@ -281,8 +353,6 @@ export default function OnboardingForm() {
       if (!updatedVendor || updatedVendor.length === 0) {
         throw new Error(`No vendor record was updated for email: ${userEmail}`);
       }
-
-      if (vendorError) throw vendorError;
 
       // Fetch vendor id
       const { data: vendorRow, error: vendorFetchError } = await supabase
@@ -438,7 +508,7 @@ export default function OnboardingForm() {
                 </label>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png,.webp"
                   onChange={(e) =>
                     e.target.files && setAvatarFile(e.target.files[0])
                   }
@@ -451,7 +521,7 @@ export default function OnboardingForm() {
                 </label>
                 <input
                   type="file"
-                  accept="image/*"
+                  accept=".jpg,.jpeg,.png,.webp"
                   onChange={(e) =>
                     e.target.files && setBannerFile(e.target.files[0])
                   }
@@ -758,7 +828,7 @@ export default function OnboardingForm() {
               </label>
               <input
                 type="file"
-                accept="image/*"
+                accept=".jpg,.jpeg,.png,.webp"
                 onChange={(e) =>
                   e.target.files && setImageFile(e.target.files[0])
                 }
