@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { QRCodeSVG } from "qrcode.react";
 //import QRCode from "qrcode.react";
-import { useRef } from "react"; // Add this
+//import { useRef } from "react"; // Add this
 import { supabase } from "@/app/lib/supabase";
 
 export default function ShareStorePage() {
@@ -25,16 +25,29 @@ export default function ShareStorePage() {
         return;
       }
 
-      const { data: vendorData } = await supabase
+      // Add a small delay to ensure database has updated
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const { data: vendorData, error } = await supabase
         .from("vendors")
-        .select("username, business_name")
+        .select("id, username, business_name, email")
         .eq("email", user.email)
         .single();
 
-      if (vendorData) {
-        setVendor(vendorData);
+      if (error || !vendorData) {
+        console.error("Vendor fetch error:", error);
+        router.push("/merchant/dashboard");
+        return;
       }
 
+      // If username is still null, something went wrong in onboarding
+      if (!vendorData.username) {
+        console.warn("Username is null, redirecting to onboard");
+        router.push("/merchant/onboard");
+        return;
+      }
+
+      setVendor(vendorData);
       setLoading(false);
     };
 
