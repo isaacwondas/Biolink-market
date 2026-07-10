@@ -51,76 +51,90 @@ export default function OnboardingForm() {
     "OPay",
     "PalmPay",
     "Moniepoint",
+    "Kuda Bank",
+    "Access Bank",
     "Zenith Bank",
     "GTBank",
-    "Access Bank",
+    "First Bank of Nigeria",
     "UBA",
-    "Kuda Bank",
+    "First City Monument Bank (FCMB)",
+    "Fidelity Bank",
+    "Ecobank Nigeria",
+    "Providus Bank",
+    "Sterling Bank",
+    "Union Bank of Nigeria",
+    "Wema Bank",
+    "Stanbic IBTC Bank",
+    "Polaris Bank",
   ];
 
- useEffect(() => {
-  let isMounted = true;
+  useEffect(() => {
+    let isMounted = true;
 
-  const loadUser = async () => {
-    // Try getUser first (most reliable)
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!isMounted) return;
+    const loadUser = async () => {
+      // Try getUser first (most reliable)
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!isMounted) return;
 
-    if (user?.email) {
-      const email = user.email.toLowerCase();
-      setUserEmail(email);
-      setFormData(prev => ({
-        ...prev,
-        business_name: prev.business_name || email.split("@")[0],
-      }));
-      return;
-    }
+      if (user?.email) {
+        const email = user.email.toLowerCase();
+        setUserEmail(email);
+        setFormData((prev) => ({
+          ...prev,
+          business_name: prev.business_name || email.split("@")[0],
+        }));
+        return;
+      }
 
-    // Fallback to getSession
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!isMounted) return;
-
-    if (session?.user?.email) {
-      const email = session.user.email.toLowerCase();
-      setUserEmail(email);
-      setFormData(prev => ({
-        ...prev,
-        business_name: prev.business_name || email.split("@")[0],
-      }));
-    } else {
-      // OPTIONAL: If no user is found at all, redirect them to sign-in or show an error
-      setMessage({
-        type: "error",
-        text: "Please log in to set up your storefront.",
-      });
-    }
-  };
-
-  loadUser();
-
-  // Listen for auth state changes cleanly without checking stale outer variables
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(
-    (_event, session) => {
+      // Fallback to getSession
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!isMounted) return;
 
       if (session?.user?.email) {
         const email = session.user.email.toLowerCase();
         setUserEmail(email);
-        setFormData(prev => ({
+        setFormData((prev) => ({
+          ...prev,
+          business_name: prev.business_name || email.split("@")[0],
+        }));
+      } else {
+        // OPTIONAL: If no user is found at all, redirect them to sign-in or show an error
+        setMessage({
+          type: "error",
+          text: "Please log in to set up your storefront.",
+        });
+      }
+    };
+
+    loadUser();
+
+    // Listen for auth state changes cleanly without checking stale outer variables
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!isMounted) return;
+
+      if (session?.user?.email) {
+        const email = session.user.email.toLowerCase();
+        setUserEmail(email);
+        setFormData((prev) => ({
           ...prev,
           business_name: prev.business_name || email.split("@")[0],
         }));
       } else {
         setUserEmail(null);
       }
-    }
-  );
+    });
 
-  return () => {
-    isMounted = false;
-    subscription.unsubscribe();
-  };
-}, []);
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -262,24 +276,43 @@ export default function OnboardingForm() {
 
       if (vendorError) throw vendorError;
 
-      // ── Step 2: Guard — if no row was found ───────────────────────────────
-      if (!vendorData) {
-        throw new Error(
-          "Your account record was not found. Please log out and log back in, then try again.",
-        );
+      // ── Step 2: Create vendor row if missing (Google OAuth users) ───────────────
+      let vendorRow = vendorData;
+
+      if (!vendorRow) {
+        const { data: newVendor, error: createError } = await supabase
+          .from("vendors")
+          .insert([
+            {
+              email: userEmail.toLowerCase(),
+              name: userEmail.split("@")[0],
+              username: null,
+              views: 0,
+              is_onboarded: false,
+            },
+          ])
+          .select("id")
+          .single();
+
+        if (createError) throw createError;
+        if (!newVendor) {
+          throw new Error("Failed to create vendor account. Please try again.");
+        }
+
+        vendorRow = newVendor;
       }
 
-      // ── Step 3: Insert banks ───────────────────────────────────────────────
+      // ── Step 3: Insert banks ───────────────────────────────────────────────────
       if (banks.length > 0) {
         await supabase
           .from("vendor_banks")
           .delete()
-          .eq("vendor_id", vendorData.id);
+          .eq("vendor_id", vendorRow.id);
 
         const bankRows = banks
           .filter((b) => b.account_number.trim() !== "")
           .map((b) => ({
-            vendor_id: vendorData.id,
+            vendor_id: vendorRow.id, // ← use vendorRow.id instead of vendorData.id
             bank_name: b.bank_name,
             account_number: b.account_number,
             account_name: b.account_name,
@@ -298,7 +331,7 @@ export default function OnboardingForm() {
         text: "🎉 Setup Complete! Your storefront is now live. Redirecting to your dashboard...",
       });
 
-      setTimeout(() => router.push("/admin/dashboard"), 2000);
+      setTimeout(() => router.push("/merchant/share"), 2000);
 
       setImageFile(null);
       setAvatarFile(null);
@@ -681,7 +714,7 @@ export default function OnboardingForm() {
                     />
                   </div>
                   <button
-                    type="button"                    
+                    type="button"
                     onClick={() => removeExtraLink(idx)}
                     className="mb-0.5 text-red-500 hover:text-red-700 text-xs px-2 py-2.5 rounded-xl hover:bg-red-50 transition-colors"
                   >
