@@ -101,7 +101,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1">
-      <label className="text-[11px] text-neutral-500 font-medium uppercase">
+      <label className="text-[11px] text-[#6B7280] font-medium uppercase">
         {label}
       </label>
       <input
@@ -110,7 +110,7 @@ function Field({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full bg-neutral-900 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766] focus:ring-1 focus:ring-[#044766] transition-all"
+        className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-xs text-[#111827] focus:outline-none focus:border-[#22C55E] focus:ring-1 focus:ring-[#22C55E] transition-all"
       />
     </div>
   );
@@ -172,10 +172,8 @@ function ProfileTab({ vendor }: { vendor: any }) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-base font-bold text-neutral-200">
-          Profile Settings
-        </h2>
-        <p className="text-xs text-neutral-500 mt-0.5">
+        <h2 className="text-base font-bold text-[#111827]">Profile Settings</h2>
+        <p className="text-xs text-[#6B7280] mt-0.5">
           Changes reflect instantly on your storefront.
         </p>
       </div>
@@ -184,12 +182,12 @@ function ProfileTab({ vendor }: { vendor: any }) {
 
       {/* Avatar & Banner previews */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 space-y-3">
-          <p className="text-[11px] text-neutral-500 font-medium uppercase">
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-3">
+          <p className="text-[11px] text-[#6B7280] font-medium uppercase">
             Profile Avatar
           </p>
           {vendor.avatar_image && (
-            <div className="relative w-16 h-16 rounded-full overflow-hidden border border-neutral-700">
+            <div className="relative w-16 h-16 rounded-full overflow-hidden border border-gray-300">
               <Image
                 src={vendor.avatar_image}
                 alt="avatar"
@@ -203,15 +201,15 @@ function ProfileTab({ vendor }: { vendor: any }) {
             type="file"
             accept="image/*"
             onChange={(e) => e.target.files && setAvatarFile(e.target.files[0])}
-            className="w-full text-xs text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-neutral-800 file:text-neutral-300"
+            className="w-full text-xs text-[#4B5563] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-[#374151]"
           />
         </div>
-        <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 space-y-3">
-          <p className="text-[11px] text-neutral-500 font-medium uppercase">
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-3">
+          <p className="text-[11px] text-[#6B7280] font-medium uppercase">
             Banner Image
           </p>
           {vendor.banner_image && (
-            <div className="relative w-full h-16 rounded-xl overflow-hidden border border-neutral-700">
+            <div className="relative w-full h-16 rounded-xl overflow-hidden border border-gray-300">
               <Image
                 src={vendor.banner_image}
                 alt="banner"
@@ -225,18 +223,18 @@ function ProfileTab({ vendor }: { vendor: any }) {
             type="file"
             accept="image/*"
             onChange={(e) => e.target.files && setBannerFile(e.target.files[0])}
-            className="w-full text-xs text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-neutral-800 file:text-neutral-300"
+            className="w-full text-xs text-[#4B5563] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-[#374151]"
           />
         </div>
       </div>
 
       {/* Store URL */}
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-4 space-y-1">
-        <p className="text-[11px] text-neutral-500 font-medium uppercase">
+      <div className="bg-white border border-gray-200 rounded-2xl p-4 space-y-1">
+        <p className="text-[11px] text-[#6B7280] font-medium uppercase">
           Your Store URL
         </p>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[#FFF5D9] font-mono font-bold">
+          <span className="text-xs text-[#15803D] font-mono font-bold">
             biomarket.com/{vendor.username}
           </span>
           <button
@@ -245,14 +243,14 @@ function ProfileTab({ vendor }: { vendor: any }) {
                 `https://biomarket.com/${vendor.username}`,
               )
             }
-            className="text-[10px] text-neutral-500 hover:text-neutral-300 border border-neutral-800 px-2 py-0.5 rounded-lg transition-colors"
+            className="text-[10px] text-[#6B7280] hover:text-[#374151] border border-gray-200 px-2 py-0.5 rounded-lg transition-colors"
           >
             Copy
           </button>
           <a
             href={`/${vendor.username}`}
             target="_blank"
-            className="text-[10px] text-neutral-500 hover:text-neutral-300 border border-neutral-800 px-2 py-0.5 rounded-lg transition-colors"
+            className="text-[10px] text-[#6B7280] hover:text-[#374151] border border-gray-200 px-2 py-0.5 rounded-lg transition-colors"
           >
             Preview {"↗"}
           </a>
@@ -260,7 +258,7 @@ function ProfileTab({ vendor }: { vendor: any }) {
       </div>
 
       {/* Fields */}
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 space-y-4">
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Field
             label="Business Name"
@@ -296,7 +294,7 @@ function ProfileTab({ vendor }: { vendor: any }) {
       <button
         onClick={handleSave}
         disabled={loading}
-        className="w-full bg-[#044766] hover:bg-[#044766]/80 disabled:bg-neutral-800 disabled:text-neutral-500 text-[#FFF5D9] font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
+        className="w-full bg-[#22C55E] hover:bg-[#15803D] disabled:bg-gray-200 disabled:text-gray-500 text-white font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
       >
         {loading ? "Saving..." : "Save Profile"}
       </button>
@@ -356,8 +354,8 @@ function BanksTab({ vendor }: { vendor: any }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-bold text-neutral-200">Bank Details</h2>
-          <p className="text-xs text-neutral-500 mt-0.5">
+          <h2 className="text-base font-bold text-[#111827]">Bank Details</h2>
+          <p className="text-xs text-[#6B7280] mt-0.5">
             Up to 3 payment accounts shown on your storefront.
           </p>
         </div>
@@ -369,7 +367,7 @@ function BanksTab({ vendor }: { vendor: any }) {
                 { bank_name: "OPay", account_number: "", account_name: "" },
               ])
             }
-            className="text-xs text-[#FFF5D9] border border-[#044766]/50 px-3 py-1.5 rounded-lg hover:bg-[#044766]/30 transition-colors"
+            className="text-xs text-[#15803D] border border-[#22C55E]/50 px-3 py-1.5 rounded-lg hover:bg-[#22C55E]/30 transition-colors"
           >
             + Add Bank
           </button>
@@ -382,10 +380,10 @@ function BanksTab({ vendor }: { vendor: any }) {
         {banks.map((bank, idx) => (
           <div
             key={idx}
-            className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 space-y-4"
+            className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4"
           >
             <div className="flex items-center justify-between">
-              <span className="text-[11px] text-neutral-500 font-medium uppercase">
+              <span className="text-[11px] text-[#6B7280] font-medium uppercase">
                 Bank #{idx + 1}
               </span>
               {banks.length > 1 && (
@@ -399,7 +397,7 @@ function BanksTab({ vendor }: { vendor: any }) {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div className="space-y-1">
-                <label className="text-[11px] text-neutral-500 font-medium uppercase">
+                <label className="text-[11px] text-[#6B7280] font-medium uppercase">
                   Bank
                 </label>
                 <select
@@ -407,7 +405,7 @@ function BanksTab({ vendor }: { vendor: any }) {
                   onChange={(e) =>
                     handleBankChange(idx, "bank_name", e.target.value)
                   }
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
+                  className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-xs text-[#111827] focus:outline-none focus:border-[#22C55E]"
                 >
                   {POPULAR_BANKS.map((b) => (
                     <option key={b} value={b}>
@@ -417,7 +415,7 @@ function BanksTab({ vendor }: { vendor: any }) {
                 </select>
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] text-neutral-500 font-medium uppercase">
+                <label className="text-[11px] text-[#6B7280] font-medium uppercase">
                   Account Number
                 </label>
                 <input
@@ -427,11 +425,11 @@ function BanksTab({ vendor }: { vendor: any }) {
                     handleBankChange(idx, "account_number", e.target.value)
                   }
                   placeholder="0472567510"
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 font-mono focus:outline-none focus:border-[#044766]"
+                  className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-xs text-[#111827] font-mono focus:outline-none focus:border-[#22C55E]"
                 />
               </div>
               <div className="space-y-1">
-                <label className="text-[11px] text-neutral-500 font-medium uppercase">
+                <label className="text-[11px] text-[#6B7280] font-medium uppercase">
                   Account Name
                 </label>
                 <input
@@ -441,7 +439,7 @@ function BanksTab({ vendor }: { vendor: any }) {
                     handleBankChange(idx, "account_name", e.target.value)
                   }
                   placeholder="Ada Fabrics Ltd"
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
+                  className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-xs text-[#111827] focus:outline-none focus:border-[#22C55E]"
                 />
               </div>
             </div>
@@ -452,7 +450,7 @@ function BanksTab({ vendor }: { vendor: any }) {
       <button
         onClick={handleSave}
         disabled={loading}
-        className="w-full bg-[#044766] hover:bg-[#044766]/80 disabled:bg-neutral-800 disabled:text-neutral-500 text-[#FFF5D9] font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
+        className="w-full bg-[#22C55E] hover:bg-[#15803D] disabled:bg-gray-200 disabled:text-gray-500 text-white font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
       >
         {loading ? "Saving..." : "Save Bank Details"}
       </button>
@@ -542,10 +540,8 @@ function ProductsTab({ vendor }: { vendor: any }) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-base font-bold text-neutral-200">
-          Product Listings
-        </h2>
-        <p className="text-xs text-neutral-500 mt-0.5">
+        <h2 className="text-base font-bold text-[#111827]">Product Listings</h2>
+        <p className="text-xs text-[#6B7280] mt-0.5">
           Products appear in a grid on your public storefront.
         </p>
       </div>
@@ -553,13 +549,13 @@ function ProductsTab({ vendor }: { vendor: any }) {
       <Toast msg={msg} />
 
       {/* Add new product */}
-      <div className="bg-neutral-900 border border-[#044766]/40 rounded-2xl p-5 space-y-4">
-        <h3 className="text-xs font-bold text-[#FFF5D9] uppercase tracking-wider">
+      <div className="bg-white border border-[#22C55E]/40 rounded-2xl p-5 space-y-4">
+        <h3 className="text-xs font-bold text-[#15803D] uppercase tracking-wider">
           Add New Product
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="text-[11px] text-neutral-500 font-medium uppercase">
+            <label className="text-[11px] text-[#6B7280] font-medium uppercase">
               Product Name*
             </label>
             <input
@@ -569,11 +565,11 @@ function ProductsTab({ vendor }: { vendor: any }) {
                 setNewProduct((p) => ({ ...p, name: e.target.value }))
               }
               placeholder="Ankara Gown Style Alpha"
-              className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
+              className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-xs text-[#111827] focus:outline-none focus:border-[#22C55E]"
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[11px] text-neutral-500 font-medium uppercase">
+            <label className="text-[11px] text-[#6B7280] font-medium uppercase">
               Price (₦)
             </label>
             <input
@@ -583,12 +579,12 @@ function ProductsTab({ vendor }: { vendor: any }) {
                 setNewProduct((p) => ({ ...p, price: e.target.value }))
               }
               placeholder="12500"
-              className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
+              className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-xs text-[#111827] focus:outline-none focus:border-[#22C55E]"
             />
           </div>
         </div>
         <div className="space-y-1">
-          <label className="text-[11px] text-neutral-500 font-medium uppercase">
+          <label className="text-[11px] text-[#6B7280] font-medium uppercase">
             Description
           </label>
           <input
@@ -598,24 +594,24 @@ function ProductsTab({ vendor }: { vendor: any }) {
               setNewProduct((p) => ({ ...p, description: e.target.value }))
             }
             placeholder="Short product description"
-            className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
+            className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-xs text-[#111827] focus:outline-none focus:border-[#22C55E]"
           />
         </div>
         <div className="space-y-1">
-          <label className="text-[11px] text-neutral-500 font-medium uppercase">
+          <label className="text-[11px] text-[#6B7280] font-medium uppercase">
             Product Image
           </label>
           <input
             type="file"
             accept="image/*"
             onChange={(e) => e.target.files && setImageFile(e.target.files[0])}
-            className="w-full text-xs text-neutral-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-neutral-800 file:text-neutral-300"
+            className="w-full text-xs text-[#4B5563] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-[#374151]"
           />
         </div>
         <button
           onClick={handleAddProduct}
           disabled={loading}
-          className="w-full bg-[#044766] hover:bg-[#044766]/80 disabled:bg-neutral-800 disabled:text-neutral-500 text-[#FFF5D9] font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors"
+          className="w-full bg-[#22C55E] hover:bg-[#15803D] disabled:bg-gray-200 disabled:text-gray-500 text-white font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors"
         >
           {loading ? "Uploading..." : "+ Add Product"}
         </button>
@@ -624,17 +620,17 @@ function ProductsTab({ vendor }: { vendor: any }) {
       {/* Existing products */}
       {products.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-xs font-bold text-neutral-400 uppercase tracking-wider">
+          <h3 className="text-xs font-bold text-[#4B5563] uppercase tracking-wider">
             Live Products ({products.length})
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {products.map((product, idx) => (
               <div
                 key={product.id || idx}
-                className="bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden flex gap-3 p-3"
+                className="bg-white border border-gray-200 rounded-2xl overflow-hidden flex gap-3 p-3"
               >
                 {product.image_url && (
-                  <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-neutral-800">
+                  <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-gray-100">
                     <Image
                       src={product.image_url}
                       alt={product.name}
@@ -645,16 +641,16 @@ function ProductsTab({ vendor }: { vendor: any }) {
                   </div>
                 )}
                 <div className="flex-1 min-w-0 space-y-0.5">
-                  <p className="text-xs font-bold text-neutral-200 truncate">
+                  <p className="text-xs font-bold text-[#111827] truncate">
                     {product.name}
                   </p>
                   {product.price > 0 && (
-                    <p className="text-xs font-black text-[#FFF5D9]">
+                    <p className="text-xs font-black text-[#15803D]">
                       ₦{Number(product.price).toLocaleString()}
                     </p>
                   )}
                   {product.description && (
-                    <p className="text-[10px] text-neutral-500 line-clamp-1">
+                    <p className="text-[10px] text-[#6B7280] line-clamp-1">
                       {product.description}
                     </p>
                   )}
@@ -674,8 +670,8 @@ function ProductsTab({ vendor }: { vendor: any }) {
       )}
 
       {products.length === 0 && (
-        <div className="border border-dashed border-neutral-800 rounded-2xl p-8 text-center">
-          <p className="text-xs text-neutral-500">
+        <div className="border border-dashed border-gray-200 rounded-2xl p-8 text-center">
+          <p className="text-xs text-[#6B7280]">
             No products yet. Add one above.
           </p>
         </div>
@@ -762,10 +758,8 @@ function SocialTab({ vendor }: { vendor: any }) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-base font-bold text-neutral-200">
-          Social & Contact
-        </h2>
-        <p className="text-xs text-neutral-500 mt-0.5">
+        <h2 className="text-base font-bold text-[#111827]">Social & Contact</h2>
+        <p className="text-xs text-[#6B7280] mt-0.5">
           All links appear as buttons on your public storefront.
         </p>
       </div>
@@ -773,8 +767,8 @@ function SocialTab({ vendor }: { vendor: any }) {
       <Toast msg={msg} />
 
       {/* Core platforms */}
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 space-y-4">
-        <h3 className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4">
+        <h3 className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
           Core Platforms
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -821,27 +815,27 @@ function SocialTab({ vendor }: { vendor: any }) {
       </div>
 
       {/* Extra / custom links */}
-      <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 space-y-4">
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+            <h3 className="text-[11px] font-bold text-[#6B7280] uppercase tracking-wider">
               Additional Links
             </h3>
-            <p className="text-[10px] text-neutral-600 mt-0.5">
+            <p className="text-[10px] text-[#9CA3AF] mt-0.5">
               YouTube, LinkedIn, Telegram, custom URLs — unlimited.
             </p>
           </div>
           <button
             onClick={addExtraLink}
-            className="text-xs text-[#FFF5D9] border border-[#044766]/50 px-3 py-1.5 rounded-lg hover:bg-[#044766]/30 transition-colors"
+            className="text-xs text-[#15803D] border border-[#22C55E]/50 px-3 py-1.5 rounded-lg hover:bg-[#22C55E]/30 transition-colors"
           >
             + Add Link
           </button>
         </div>
 
         {extraLinks.length === 0 && (
-          <div className="border border-dashed border-neutral-800 rounded-xl p-4 text-center">
-            <p className="text-[11px] text-neutral-600">
+          <div className="border border-dashed border-gray-200 rounded-xl p-4 text-center">
+            <p className="text-[11px] text-[#9CA3AF]">
               No extra links yet. Click "+ Add Link" to add YouTube, LinkedIn,
               Telegram, etc.
             </p>
@@ -856,7 +850,7 @@ function SocialTab({ vendor }: { vendor: any }) {
             >
               {/* Platform label — datalist gives suggestions but allows freeform */}
               <div className="space-y-1">
-                <label className="text-[11px] text-neutral-500 font-medium uppercase">
+                <label className="text-[11px] text-[#6B7280] font-medium uppercase">
                   Platform
                 </label>
                 <input
@@ -867,7 +861,7 @@ function SocialTab({ vendor }: { vendor: any }) {
                     handleExtraChange(idx, "platform", e.target.value)
                   }
                   placeholder="YouTube"
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
+                  className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-xs text-[#111827] focus:outline-none focus:border-[#22C55E]"
                 />
                 <datalist id="platform-suggestions">
                   {PLATFORM_SUGGESTIONS.map((s) => (
@@ -878,7 +872,7 @@ function SocialTab({ vendor }: { vendor: any }) {
 
               {/* URL */}
               <div className="space-y-1">
-                <label className="text-[11px] text-neutral-500 font-medium uppercase">
+                <label className="text-[11px] text-[#6B7280] font-medium uppercase">
                   URL
                 </label>
                 <input
@@ -888,7 +882,7 @@ function SocialTab({ vendor }: { vendor: any }) {
                     handleExtraChange(idx, "url", e.target.value)
                   }
                   placeholder="https://youtube.com/@ada_hub"
-                  className="w-full bg-neutral-950 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-[#044766]"
+                  className="w-full bg-white border border-gray-200 rounded-xl p-2.5 text-xs text-[#111827] focus:outline-none focus:border-[#22C55E]"
                 />
               </div>
 
@@ -907,7 +901,7 @@ function SocialTab({ vendor }: { vendor: any }) {
       <button
         onClick={handleSave}
         disabled={loading}
-        className="w-full bg-[#044766] hover:bg-[#044766]/80 disabled:bg-neutral-800 disabled:text-neutral-500 text-[#FFF5D9] font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
+        className="w-full bg-[#22C55E] hover:bg-[#15803D] disabled:bg-gray-200 disabled:text-gray-500 text-white font-semibold py-3 rounded-xl text-xs uppercase tracking-wider transition-colors"
       >
         {loading ? "Saving..." : "Save Social Links"}
       </button>
@@ -1014,7 +1008,7 @@ function OverviewTab({
         });
 
         return (
-          <div className="bg-neutral-900/60 backdrop-blur-md border border-neutral-800/80 rounded-2xl p-6 shadow-xl space-y-4">
+          <div className="bg-white backdrop-blur-md border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
             {/* In-app notification toast */}
             {notification && (
               <div className="bg-[#22C55E]/10 border border-[#22C55E]/20 text-[#22C55E] text-xs font-medium px-4 py-2.5 rounded-xl flex items-center gap-2">
@@ -1024,17 +1018,17 @@ function OverviewTab({
             )}
 
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-neutral-800/60 pb-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-gray-200 pb-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-bold uppercase tracking-wider text-neutral-200">
+                  <h3 className="text-base font-bold uppercase tracking-wider text-[#111827]">
                     Receipt Verification
                   </h3>
-                  <span className="text-[10px] bg-[#044766]/20 text-[#FFF5D9] font-bold px-2 py-0.5 rounded border border-[#044766]/30 uppercase">
+                  <span className="text-[10px] bg-[#22C55E]/20 text-[#15803D] font-bold px-2 py-0.5 rounded border border-[#22C55E]/30 uppercase">
                     Core Ops
                   </span>
                 </div>
-                <p className="text-xs text-neutral-500 mt-0.5">
+                <p className="text-xs text-[#6B7280] mt-0.5">
                   Audit incoming customer transfers to authorise orders.
                 </p>
               </div>
@@ -1069,15 +1063,13 @@ function OverviewTab({
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold border transition-all ${
                     receiptFilter === tab.key
                       ? tab.color
-                      : "text-neutral-500 border-neutral-800 hover:border-neutral-700"
+                      : "text-[#6B7280] border-gray-200 hover:border-gray-300"
                   }`}
                 >
                   {tab.label}
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded font-mono ${
-                      receiptFilter === tab.key
-                        ? "bg-white/10"
-                        : "bg-neutral-800"
+                      receiptFilter === tab.key ? "bg-white/10" : "bg-gray-100"
                     }`}
                   >
                     {tab.count}
@@ -1091,17 +1083,17 @@ function OverviewTab({
               {filtered.map((receipt) => (
                 <div
                   key={receipt.id}
-                  className={`bg-neutral-950 border p-4 rounded-xl flex flex-col gap-4 transition-all ${
+                  className={`bg-white border p-4 rounded-xl flex flex-col gap-4 transition-all ${
                     receipt.status === "pending"
                       ? "border-amber-500/20"
                       : receipt.status === "declined"
                         ? "border-red-500/20"
-                        : "border-neutral-800/70"
+                        : "border-gray-200"
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex items-center gap-4 min-w-0">
-                      <div className="relative w-14 h-14 rounded-lg bg-neutral-900 border border-neutral-800 overflow-hidden shrink-0">
+                      <div className="relative w-14 h-14 rounded-lg bg-white border border-gray-200 overflow-hidden shrink-0">
                         <Image
                           src={receipt.receipt_image_url}
                           alt="Receipt"
@@ -1112,14 +1104,14 @@ function OverviewTab({
                       </div>
                       <div className="min-w-0 space-y-0.5">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-bold text-neutral-200 truncate">
+                          <p className="text-sm font-bold text-[#111827] truncate">
                             {receipt.customer_name || "Unknown"}
                           </p>
-                          <span className="text-[10px] font-mono px-1.5 py-0.5 bg-neutral-900 border border-neutral-800 rounded text-neutral-400">
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 bg-white border border-gray-200 rounded text-[#4B5563]">
                             #{receipt.order_reference || "NO-REF"}
                           </span>
                         </div>
-                        <p className="text-xs text-neutral-500 truncate font-mono">
+                        <p className="text-xs text-[#6B7280] truncate font-mono">
                           {receipt.customer_email}
                         </p>
                       </div>
@@ -1129,7 +1121,7 @@ function OverviewTab({
                         ₦{Number(receipt.amount_paid).toLocaleString()}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[9px] font-mono text-neutral-500">
+                        <span className="text-[9px] font-mono text-[#6B7280]">
                           {new Date(receipt.created_at).toLocaleDateString(
                             "en-NG",
                             {
@@ -1149,7 +1141,7 @@ function OverviewTab({
                                 ? "bg-red-500/10 text-red-400 border border-red-500/20"
                                 : receipt.payment_status === "partially_paid"
                                   ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                  : "bg-neutral-500/10 text-neutral-400 border border-neutral-800"
+                                  : "bg-neutral-500/10 text-[#4B5563] border border-gray-200"
                           }`}
                         >
                           {receipt.status === "declined"
@@ -1167,7 +1159,7 @@ function OverviewTab({
                   {receipt.payment_status !== "fully_paid" &&
                     receipt.status !== "approved" &&
                     receipt.status !== "declined" && (
-                      <div className="border-t border-neutral-800/60 pt-3 text-neutral-900">
+                      <div className="border-t border-gray-200 pt-3 text-neutral-900">
                         <TransactionApprovalCard
                           transaction={{
                             id: receipt.id,
@@ -1191,7 +1183,7 @@ function OverviewTab({
               ))}
 
               {filtered.length === 0 && (
-                <div className="text-center py-16 border border-dashed border-neutral-800 rounded-xl">
+                <div className="text-center py-16 border border-dashed border-gray-200 rounded-xl">
                   <span className="text-2xl block mb-2">
                     {receiptFilter === "pending"
                       ? "🧾"
@@ -1199,7 +1191,7 @@ function OverviewTab({
                         ? "✅"
                         : "🚩"}
                   </span>
-                  <p className="text-xs text-neutral-500">
+                  <p className="text-xs text-[#6B7280]">
                     No {receiptFilter} receipts.
                   </p>
                 </div>
@@ -1240,21 +1232,21 @@ export default function DashboardShell({
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-neutral-100 flex antialiased">
+    <div className="min-h-screen bg-white text-[#111827] flex antialiased">
       {/* ── Sidebar ── */}
       <aside
         className={`
-        fixed inset-y-0 left-0 z-50 w-56 bg-neutral-900 border-r border-neutral-800 flex flex-col
+        fixed inset-y-0 left-0 z-50 w-56 bg-white border-r border-gray-200 flex flex-col
         transform transition-transform duration-200
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
         lg:relative lg:translate-x-0 lg:flex
       `}
       >
         {/* Logo / store identity */}
-        <div className="p-5 border-b border-neutral-800 space-y-1">
+        <div className="p-5 border-b border-gray-200 space-y-1">
           <div className="flex items-center gap-2">
             {vendor.avatar_image && (
-              <div className="relative w-8 h-8 rounded-full overflow-hidden border border-neutral-700 shrink-0">
+              <div className="relative w-8 h-8 rounded-full overflow-hidden border border-gray-300 shrink-0">
                 <Image
                   src={vendor.avatar_image}
                   alt="avatar"
@@ -1265,7 +1257,7 @@ export default function DashboardShell({
               </div>
             )}
             <div className="min-w-0">
-              <p className="text-xs font-bold text-neutral-200 truncate">
+              <p className="text-xs font-bold text-[#111827] truncate">
                 {merchantName}
               </p>
               <p className="text-[10px] text-[#22C55E] font-mono truncate">
@@ -1287,7 +1279,7 @@ export default function DashboardShell({
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
                 activeTab === item.id
                   ? "bg-[#22C55E]/15 text-[#22C55E] border border-[#22C55E]/20"
-                  : "text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800"
+                  : "text-[#4B5563] hover:text-[#111827] hover:bg-gray-100"
               }`}
             >
               <span>{item.icon}</span>
@@ -1297,11 +1289,11 @@ export default function DashboardShell({
         </nav>
 
         {/* Bottom actions */}
-        <div className="p-3 border-t border-neutral-800 space-y-2">
+        <div className="p-3 border-t border-gray-200 space-y-2">
           <a
             href={`/${vendor.username}`}
             target="_blank"
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800 transition-all"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-[#4B5563] hover:text-[#111827] hover:bg-gray-100 transition-all"
           >
             <span>↗</span>
             <span>View Storefront</span>
@@ -1319,7 +1311,7 @@ export default function DashboardShell({
       {/* Sidebar backdrop (mobile) */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+          className="fixed inset-0 z-40 bg-black/30 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -1327,14 +1319,14 @@ export default function DashboardShell({
       {/* ── Main content ── */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Mobile top bar */}
-        <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-neutral-800 bg-neutral-900">
+        <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="text-neutral-400 hover:text-neutral-200"
+            className="text-[#4B5563] hover:text-[#111827]"
           >
             ☰
           </button>
-          <span className="text-xs font-bold text-neutral-300">
+          <span className="text-xs font-bold text-[#374151]">
             {NAV.find((n) => n.id === activeTab)?.label}
           </span>
           <span className="text-[10px] text-[#22C55E] font-mono">

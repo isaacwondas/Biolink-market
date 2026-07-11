@@ -202,82 +202,140 @@ export default async function Storefront({ params }: PageProps) {
           )}
 
           {/* Extra custom social links */}
+          {/* EXTRA CUSTOM LINKS */}
           {vendor.social_links && vendor.social_links.length > 0 && (
-            <div className="w-full flex flex-col gap-2 mt-2">
+            <div className="w-full mt-4 space-y-2">
               {vendor.social_links
-                .filter((l: any) => l.url?.trim())
+                .filter((link: any) => link.url?.trim())
                 .map((link: any, idx: number) => (
                   <a
                     key={idx}
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full bg-[#E5E7EB] hover:bg-[#E5E7EB] text-[#111827] font-semibold py-2.5 px-4 rounded-xl text-center text-xs transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-white border border-[#E5E7EB] hover:border-[#22C55E] hover:bg-green-50 text-[#111827] font-semibold px-3 py-2 rounded-xl transition-all flex items-center justify-between gap-2 active:scale-[0.99]"
                   >
-                    <span>🔗</span>
-                    <span>{link.platform || link.url}</span>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-7 h-7 shrink-0 rounded-lg bg-[#22C55E]/10 flex items-center justify-center text-xs">
+                        🔗
+                      </div>
+
+                      <span className="text-xs md:text-sm truncate">
+                        {link.platform || "Business Link"}
+                      </span>
+                    </div>
+
+                    <span className="text-[#15803D] text-lg shrink-0">→</span>
                   </a>
                 ))}
             </div>
           )}
 
-          {/* Website link */}
+          {/* WEBSITE LINK */}
           {vendor.website && (
             <a
               href={vendor.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full mt-2 bg-[#E5E7EB] hover:bg-[#E5E7EB] text-[#111827] font-semibold py-2.5 px-4 rounded-xl text-center text-xs transition-all flex items-center justify-center gap-2"
+              className="w-full min-h-[50px] mt-3 bg-[#111827] hover:bg-black text-white font-bold px-4 py-3 rounded-xl transition-all flex items-center justify-between gap-3 active:scale-[0.99]"
             >
-              <span>🌐</span>
-              <span>Visit Website</span>
+              <div className="flex items-center gap-3">
+                <span className="text-xl">🌐</span>
+
+                <span className="text-sm">Visit Official Website</span>
+              </div>
+
+              <span className="text-lg">→</span>
             </a>
           )}
+
+          {/* Close Profile Details Matrix */}
         </div>
 
-        <hr className="border-[#E5E7EB] my-2.5 mx-4" />
+        <hr className="border-[#E5E7EB] my-4 mx-4" />
 
-        {/* Bank Matrix Rows */}
-        <div className="px-4 space-y-1">
-          <h3 className="text-sm font-bold text-[#15803D] tracking-tight">
-            Bank Details
-          </h3>
+        {/* BANK DETAILS */}
+        <div className="px-4 mt-3 space-y-3">
+          {/* Section Header */}
+          <div>
+            <h3 className="text-base font-bold text-[#111827]">
+              🏦 Bank Details
+            </h3>
+
+            <p className="text-xs text-[#6B7280] mt-1">
+              Use any of the accounts below to make a bank transfer.
+            </p>
+          </div>
+
           {banksWithQrs.length > 0 ? (
-            <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none snap-x snap-mandatory">
+            <div className="space-y-3">
               {banksWithQrs.map((bank: any, idx: number) => (
                 <div
                   key={bank.id || idx}
-                  className="min-w-[135px] flex-1 bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl p-2 flex flex-col items-center justify-center text-center shadow-xs snap-start"
+                  className="bg-white border border-[#E5E7EB] rounded-2xl p-4 shadow-sm"
                 >
-                  <span className="text-[11px] font-bold text-[#111827] truncate w-full">
-                    {bank.bank_name}
-                  </span>
+                  <div className="flex items-center gap-4">
+                    {/* Bank Information */}
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <div>
+                        <p className="text-xs text-[#6B7280]">Bank</p>
 
-                  <span className="text-[10px] font-medium text-[#374151] uppercase tracking-tight line-clamp-1 w-full mt-0.5">
-                    {bank.account_name}
-                  </span>
+                        <p className="text-sm font-bold text-[#111827]">
+                          {bank.bank_name}
+                        </p>
+                      </div>
 
-                  {bank.qrCodeUrl && (
-                    <div className="p-0.5 bg-[#FFFFFF] rounded border border-[#E5E7EB] my-1">
-                      {/* eslint-disable-next-img-element */}
-                      <img
-                        src={bank.qrCodeUrl}
-                        alt="Bank QR Code"
-                        className="w-11 h-11"
-                      />
+                      <div>
+                        <p className="text-xs text-[#6B7280]">Account Name</p>
+
+                        <p className="text-sm font-semibold text-[#374151] break-words">
+                          {bank.account_name}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-[#6B7280]">Account Number</p>
+
+                        <p className="text-xl font-black font-mono tracking-wider text-[#15803D] select-all">
+                          {bank.account_number}
+                        </p>
+                      </div>
                     </div>
-                  )}
 
-                  <span className="text-[10px] font-mono font-bold text-[#15803D] bg-[#FFFFFF] px-1 py-0.5 rounded border border-[#E5E7EB] select-all tracking-tighter w-full block truncate">
-                    {bank.account_number}
-                  </span>
+                    {/* QR Code */}
+                    {bank.qrCodeUrl && (
+                      <div className="shrink-0 flex flex-col items-center gap-1">
+                        <div className="bg-white border border-[#E5E7EB] rounded-xl p-2">
+                          {/* eslint-disable-next-img-element */}
+                          <img
+                            src={bank.qrCodeUrl}
+                            alt={`${bank.bank_name} payment QR code`}
+                            className="w-20 h-20 sm:w-24 sm:h-24"
+                          />
+                        </div>
+
+                        <span className="text-[10px] text-[#6B7280]">
+                          Scan details
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Copy Account Number */}
+                  <div className="mt-4 bg-green-50 border border-green-100 rounded-xl px-3 py-2.5 text-center">
+                    <p className="text-xs font-medium text-[#15803D]">
+                      Tap and hold the account number above to copy
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="bg-[#FFFFFF] border border-dashed border-[#E5E7EB] rounded-xl p-3 text-center">
-              <p className="text-[11px] text-[#374151] font-medium">
-                Direct Bank Transfers available upon request.
+            <div className="bg-white border-2 border-dashed border-[#E5E7EB] rounded-2xl p-5 text-center">
+              <div className="text-2xl mb-2">🏦</div>
+
+              <p className="text-sm text-[#374151] font-medium">
+                Direct bank transfer details are available upon request.
               </p>
             </div>
           )}
