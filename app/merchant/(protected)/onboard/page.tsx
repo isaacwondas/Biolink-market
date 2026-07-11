@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { useRouter } from "next/navigation";
+import { Store, Image, Package } from "lucide-react";
 
 interface BankAccount {
   bank_name: string;
@@ -40,6 +41,53 @@ export default function OnboardingForm() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
+
+  // =============================================
+  // LOCAL IMAGE PREVIEWS
+  // =============================================
+
+  const imagePreviewUrl = useMemo(() => {
+    if (!imageFile) return null;
+
+    return URL.createObjectURL(imageFile);
+  }, [imageFile]);
+
+  const avatarPreviewUrl = useMemo(() => {
+    if (!avatarFile) return null;
+
+    return URL.createObjectURL(avatarFile);
+  }, [avatarFile]);
+
+  const bannerPreviewUrl = useMemo(() => {
+    if (!bannerFile) return null;
+
+    return URL.createObjectURL(bannerFile);
+  }, [bannerFile]);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreviewUrl) {
+        URL.revokeObjectURL(imagePreviewUrl);
+      }
+    };
+  }, [imagePreviewUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (avatarPreviewUrl) {
+        URL.revokeObjectURL(avatarPreviewUrl);
+      }
+    };
+  }, [avatarPreviewUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (bannerPreviewUrl) {
+        URL.revokeObjectURL(bannerPreviewUrl);
+      }
+    };
+  }, [bannerPreviewUrl]);
+
   const [uploading, setUploading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{
@@ -227,75 +275,129 @@ export default function OnboardingForm() {
     setLoading(true);
     setMessage(null);
 
-    // Guard: email must exist before we can update the vendor row
+    // =============================================
+    // HELPER FUNCTIONS
+    // =============================================
+
+    const cleanSocialHandle = (value: string) => {
+      if (!value) return "";
+
+      return value
+        .trim()
+        .replace(/^@/, "")
+        .replace(/^https?:\/\/(www\.)?/i, "")
+        .replace(/^(instagram\.com|tiktok\.com|facebook\.com|fb\.com)\//i, "")
+        .replace(/^@/, "")
+        .split(/[/?#]/)[0]
+        .trim();
+    };
+
+    const normalizeWebsite = (value: string) => {
+      const website = value.trim();
+
+      if (!website) return "";
+
+      if (/^https?:\/\//i.test(website)) {
+        return website;
+      }
+
+      return `https://${website}`;
+    };
+
+    const normalizeWhatsapp = (value: string) => {
+      let phone = value.replace(/\D/g, "");
+
+      // Nigerian local number: 08012345678
+      if (phone.startsWith("0") && phone.length === 11) {
+        phone = `234${phone.slice(1)}`;
+      }
+
+      return phone;
+    };
+
+    // =============================================
+    // SESSION CHECK
+    // =============================================
+
     if (!userEmail) {
       setMessage({
         type: "error",
         text: "Session expired. Please log out and log back in.",
       });
+
       setLoading(false);
       return;
     }
 
+    // =============================================
+    // REQUIRED FIELD VALIDATION
+    // =============================================
+
     if (
-      !formData.username ||
-      !formData.business_name ||
-      !formData.product_name
+      !formData.username.trim() ||
+      !formData.business_name.trim() ||
+      !formData.product_name.trim() ||
+      !formData.whatsapp.trim()
     ) {
       setMessage({
         type: "error",
         text: "Please fill out all required fields.",
       });
+
       setLoading(false);
       return;
     }
 
     // =============================================
-    // VALIDATE WHATSAPP NUMBER
+    // NORMALIZE WHATSAPP
     // =============================================
 
-    const normalizedWhatsapp = formData.whatsapp.replace(/\s+/g, "");
+    const normalizedWhatsapp = normalizeWhatsapp(formData.whatsapp);
 
-    const whatsappRegex = /^\+?\d{10,15}$/;
+    const whatsappRegex = /^\d{10,15}$/;
 
     if (!whatsappRegex.test(normalizedWhatsapp)) {
       setMessage({
         type: "error",
-        text: "Please enter a valid WhatsApp number (10–15 digits). Example: 2348012345678",
+        text: "Please enter a valid WhatsApp number. Example: 08030000000",
       });
 
       setLoading(false);
       return;
     }
 
+    // =============================================
+    // NORMALIZE SOCIAL DETAILS
+    // =============================================
+
+    const instagramHandle = cleanSocialHandle(formData.instagram_handle);
+
+    const tiktokHandle = cleanSocialHandle(formData.tiktok_handle);
+
+    const facebookHandle = cleanSocialHandle(formData.facebook_handle);
+
+    const websiteUrl = normalizeWebsite(formData.website);
+
     try {
       setUploading(true);
-      const usernameSlug = formData.username.trim().toLowerCase();
-
-      let finalImageUrl = "";
-      if (imageFile instanceof File)
-        finalImageUrl = await uploadImage(imageFile, "products", usernameSlug);
-
-      let avatarUrl = "";
-      if (avatarFile instanceof File)
-        avatarUrl = await uploadImage(avatarFile, "avatars", usernameSlug);
-
-      let bannerUrl = "";
-      if (bannerFile instanceof File)
-        bannerUrl = await uploadImage(bannerFile, "banners", usernameSlug);
-
-      setUploading(false);
 
       // =============================================
-      // FORMAT PRICE
+      // FORMAT STORE HANDLE
       // =============================================
 
-      const formattedPrice = formData.product_price.trim()
-        ? formData.product_price.replace(/[^0-9]/g, "")
-        : null;
+      const usernameSlug = formData.username
+        .trim()
+        .toLowerCase()
+        .replace(/^@/, "")
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9_-]/g, "");
+
+      if (!usernameSlug) {
+        throw new Error("Please enter a valid store handle.");
+      }
 
       // =============================================
-      // CHECK IF USERNAME IS ALREADY TAKEN
+      // CHECK USERNAME AVAILABILITY
       // =============================================
 
       const { data: existingUsername, error: usernameError } = await supabase
@@ -304,7 +406,9 @@ export default function OnboardingForm() {
         .eq("username", usernameSlug)
         .maybeSingle();
 
-      if (usernameError) throw usernameError;
+      if (usernameError) {
+        throw usernameError;
+      }
 
       if (
         existingUsername &&
@@ -320,87 +424,164 @@ export default function OnboardingForm() {
         return;
       }
 
-      // ── Step 1: Update vendor row ──────────────────────────────────────────
+      // =============================================
+      // UPLOAD IMAGES
+      // =============================================
+
+      let finalImageUrl = "";
+
+      if (imageFile instanceof File) {
+        finalImageUrl = await uploadImage(imageFile, "products", usernameSlug);
+      }
+
+      let avatarUrl = "";
+
+      if (avatarFile instanceof File) {
+        avatarUrl = await uploadImage(avatarFile, "avatars", usernameSlug);
+      }
+
+      let bannerUrl = "";
+
+      if (bannerFile instanceof File) {
+        bannerUrl = await uploadImage(bannerFile, "banners", usernameSlug);
+      }
+
+      setUploading(false);
+
+      // =============================================
+      // FORMAT PRODUCT PRICE
+      // =============================================
+
+      const formattedPrice = formData.product_price.trim()
+        ? formData.product_price.replace(/[^0-9]/g, "")
+        : null;
+
+      // =============================================
+      // CLEAN ADDITIONAL LINKS
+      // =============================================
+
+      const cleanedExtraLinks = extraLinks
+        .filter((link) => link.platform.trim() !== "" && link.url.trim() !== "")
+        .map((link) => ({
+          platform: link.platform.trim(),
+          url: normalizeWebsite(link.url),
+        }));
+
+      // =============================================
+      // UPDATE VENDOR
+      // =============================================
+
       const { data: updatedVendor, error: vendorError } = await supabase
         .from("vendors")
         .update({
           username: usernameSlug,
-          business_name: formData.business_name,
-          bio_tagline: formData.bio_tagline,
-          location: formData.location,
-          whatsapp: normalizedWhatsapp.replace("+", ""),
-          instagram_handle: formData.instagram_handle,
-          tiktok_handle: formData.tiktok_handle,
-          facebook_handle: formData.facebook_handle,
-          website: formData.website,
-          social_links: extraLinks.filter((l) => l.url.trim() !== ""),
-          product_name: formData.product_name,
+          business_name: formData.business_name.trim(),
+          bio_tagline: formData.bio_tagline.trim(),
+          location: formData.location.trim(),
+
+          whatsapp: normalizedWhatsapp,
+
+          instagram_handle: instagramHandle,
+          tiktok_handle: tiktokHandle,
+          facebook_handle: facebookHandle,
+
+          website: websiteUrl,
+
+          social_links: cleanedExtraLinks,
+
+          product_name: formData.product_name.trim(),
           product_price: formattedPrice,
           product_image: finalImageUrl || null,
-          description: formData.description,
+
+          description: formData.description.trim(),
+
           avatar_image: avatarUrl || null,
           banner_image: bannerUrl || null,
+
           is_onboarded: true,
         })
         .eq("email", userEmail.toLowerCase())
         .select();
 
-      console.log("Updated Vendor:", updatedVendor);
-      console.log("Vendor Error:", vendorError);
-
-      if (vendorError) throw vendorError;
+      if (vendorError) {
+        throw vendorError;
+      }
 
       if (!updatedVendor || updatedVendor.length === 0) {
         throw new Error(`No vendor record was updated for email: ${userEmail}`);
       }
 
-      // Fetch vendor id
+      // =============================================
+      // FETCH VENDOR ID
+      // =============================================
+
       const { data: vendorRow, error: vendorFetchError } = await supabase
         .from("vendors")
         .select("id")
         .eq("email", userEmail.toLowerCase())
         .single();
 
-      if (vendorFetchError) throw vendorFetchError;
+      if (vendorFetchError) {
+        throw vendorFetchError;
+      }
 
-      // ── Step 2: Create vendor row if missing (Google OAuth users) ───────────────
+      // =============================================
+      // SAVE BANK ACCOUNTS
+      // =============================================
 
-      // ── Step 3: Insert banks ───────────────────────────────────────────────────
-      if (banks.length > 0) {
-        await supabase
+      const validBanks = banks.filter(
+        (bank) => bank.account_number.trim() !== "",
+      );
+
+      if (validBanks.length > 0) {
+        const { error: deleteBankError } = await supabase
           .from("vendor_banks")
           .delete()
           .eq("vendor_id", vendorRow.id);
 
-        const bankRows = banks
-          .filter((b) => b.account_number.trim() !== "")
-          .map((b) => ({
-            vendor_id: vendorRow.id, // ← use vendorRow.id instead of vendorData.id
-            bank_name: b.bank_name,
-            account_number: b.account_number,
-            account_name: b.account_name,
-          }));
+        if (deleteBankError) {
+          throw deleteBankError;
+        }
 
-        if (bankRows.length > 0) {
-          const { error: bankError } = await supabase
-            .from("vendor_banks")
-            .insert(bankRows);
-          if (bankError) throw bankError;
+        const bankRows = validBanks.map((bank) => ({
+          vendor_id: vendorRow.id,
+          bank_name: bank.bank_name.trim(),
+          account_number: bank.account_number.replace(/\D/g, ""),
+          account_name: bank.account_name.trim(),
+        }));
+
+        const { error: bankError } = await supabase
+          .from("vendor_banks")
+          .insert(bankRows);
+
+        if (bankError) {
+          throw bankError;
         }
       }
+
+      // =============================================
+      // SUCCESS
+      // =============================================
 
       setMessage({
         type: "success",
         text: "🎉 Setup Complete! Your storefront is now live. Redirecting to your dashboard...",
       });
 
-      setTimeout(() => router.push("/merchant/share"), 2000);
-
       setImageFile(null);
       setAvatarFile(null);
       setBannerFile(null);
+
+      setTimeout(() => {
+        router.push("/merchant/share");
+      }, 2000);
     } catch (err: any) {
-      setMessage({ type: "error", text: err.message || "An error occurred." });
+      setMessage({
+        type: "error",
+        text:
+          err?.message ||
+          "Something went wrong while setting up your storefront.",
+      });
     } finally {
       setLoading(false);
       setUploading(false);
@@ -449,11 +630,9 @@ export default function OnboardingForm() {
             <div className="bg-white rounded-3xl border border-[#E5E7EB] shadow-sm p-5 sm:p-6 md:p-8 space-y-8">
               {/* Section Header */}
               <div className="space-y-2">
-                <div className="flex items-center gap-2 text-[#22C55E]">
-                  <h2 className="text-xl md:text-2xl font-bold text-[#111827]">
-                    Brand Identity
-                  </h2>
-                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-[#111827]">
+                  Brand Identity
+                </h2>
 
                 <p className="text-sm text-[#6B7280] leading-relaxed">
                   Tell customers who you are and how they'll recognize your
@@ -461,7 +640,7 @@ export default function OnboardingForm() {
                 </p>
               </div>
 
-              {/* Store Information */}
+              {/* STORE INFORMATION */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 {/* Store Handle */}
                 <div className="space-y-2">
@@ -469,12 +648,12 @@ export default function OnboardingForm() {
                     Store Handle <span className="text-red-500">*</span>
                   </label>
 
-                  <div className="flex min-h-[50px] rounded-xl bg-white border border-[#D1D5DB] focus-within:border-[#22C55E] focus-within:ring-2 focus-within:ring-[#22C55E]/20 transition-all overflow-hidden">
-                    <span className="hidden sm:flex items-center bg-[#F9FAFB] border-r border-[#E5E7EB] px-3 text-sm text-[#6B7280] select-none">
+                  <div className="flex min-h-[50px] rounded-xl bg-white border border-[#D1D5DB] focus-within:border-[#22C55E] focus-within:ring-2 focus-within:ring-[#22C55E]/20 overflow-hidden">
+                    <span className="hidden sm:flex items-center bg-[#F9FAFB] border-r border-[#E5E7EB] px-3 text-sm text-[#6B7280]">
                       biolinkmarket.com/
                     </span>
 
-                    <span className="sm:hidden flex items-center bg-[#F9FAFB] border-r border-[#E5E7EB] px-3 text-sm text-[#6B7280] select-none">
+                    <span className="sm:hidden flex items-center bg-[#F9FAFB] border-r border-[#E5E7EB] px-3 text-sm text-[#6B7280]">
                       /
                     </span>
 
@@ -488,7 +667,7 @@ export default function OnboardingForm() {
                       placeholder="ada_hub"
                       autoCapitalize="none"
                       autoCorrect="off"
-                      className="flex-1 min-w-0 bg-transparent text-sm md:text-base px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed"
+                      className="flex-1 min-w-0 bg-transparent text-sm md:text-base px-4 py-3 text-[#111827] focus:outline-none"
                     />
                   </div>
 
@@ -511,7 +690,7 @@ export default function OnboardingForm() {
                     onChange={handleChange}
                     disabled={loading || uploading}
                     placeholder="Ada Fashion Hub"
-                    className="w-full min-h-[50px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full min-h-[50px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20"
                   />
                 </div>
 
@@ -528,7 +707,7 @@ export default function OnboardingForm() {
                     onChange={handleChange}
                     disabled={loading || uploading}
                     placeholder="Tell customers briefly what your business offers..."
-                    className="w-full min-h-[120px] resize-none bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full min-h-[120px] resize-none bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20"
                   />
 
                   <p className="text-xs text-[#6B7280]">
@@ -549,7 +728,7 @@ export default function OnboardingForm() {
                     onChange={handleChange}
                     disabled={loading || uploading}
                     placeholder="Lagos, Nigeria"
-                    className="w-full min-h-[50px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                    className="w-full min-h-[50px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20"
                   />
 
                   <p className="text-xs text-[#6B7280]">
@@ -558,7 +737,7 @@ export default function OnboardingForm() {
                 </div>
               </div>
 
-              {/* BRANDING */}
+              {/* STORE BRANDING */}
               <div className="border-t border-[#E5E7EB] pt-7 space-y-5">
                 <div className="space-y-1">
                   <h3 className="text-base md:text-lg font-bold text-[#111827]">
@@ -566,84 +745,119 @@ export default function OnboardingForm() {
                   </h3>
 
                   <p className="text-sm text-[#6B7280]">
-                    Upload a logo and banner to make your storefront easy to
-                    recognize.
+                    Preview your logo and banner before launching your
+                    storefront.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                  {/* Avatar Upload */}
-                  <label className="group flex flex-col items-center justify-center min-h-[220px] border-2 border-dashed border-[#D1D5DB] rounded-2xl bg-[#F9FAFB] hover:bg-green-50/50 hover:border-[#22C55E] transition-all cursor-pointer px-5 py-7 text-center">
+                  {/* AVATAR */}
+                  <div className="border-2 border-dashed border-[#D1D5DB] rounded-2xl bg-[#F9FAFB] p-5 sm:p-6 text-center">
                     <p className="text-sm md:text-base font-bold text-[#111827]">
-                      Upload Store Logo
+                      Store Logo
                     </p>
 
-                    <p className="text-xs md:text-sm text-[#6B7280] mt-1">
-                      JPG, PNG or WEBP • Maximum 5MB
+                    <p className="text-xs text-[#6B7280] mt-1">
+                      Square image recommended • Maximum 5MB
                     </p>
 
-                    <p className="text-xs text-[#9CA3AF] mt-1">
-                      A square image works best.
-                    </p>
+                    <div className="flex justify-center my-5">
+                      {avatarFile && avatarPreviewUrl ? (
+                        <img
+                          src={avatarPreviewUrl || ""}
+                          alt="Store logo preview"
+                          className="w-28 h-28 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-md"
+                        />
+                      ) : (
+                        <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-white border border-[#E5E7EB] flex items-center justify-center shadow-sm">
+                          <Store
+                            className="w-12 h-12 sm:w-14 sm:h-14 text-gray-700"
+                            strokeWidth={1.5}
+                          />
+                        </div>
+                      )}
+                    </div>
 
                     {avatarFile && (
-                      <div className="mt-4 max-w-full px-4 py-2 bg-green-100 text-[#15803D] rounded-xl text-xs md:text-sm font-medium break-all">
+                      <p className="text-xs text-[#15803D] font-medium mb-3 truncate">
                         ✓ {avatarFile.name}
-                      </div>
+                      </p>
                     )}
 
-                    <div className="mt-5 bg-white border border-[#D1D5DB] group-hover:border-[#22C55E] rounded-xl px-5 py-3 text-sm font-semibold text-[#374151] group-hover:text-[#15803D] transition-all">
-                      Select Logo
-                    </div>
+                    <label className="inline-flex min-h-[46px] items-center justify-center bg-white border border-[#D1D5DB] hover:border-[#22C55E] hover:text-[#15803D] rounded-xl px-5 py-3 text-sm font-semibold text-[#374151] cursor-pointer transition-all">
+                      {avatarFile ? "Change Logo" : "Select Logo"}
 
-                    <input
-                      type="file"
-                      accept=".jpg,.jpeg,.png,.webp"
-                      disabled={loading || uploading}
-                      onChange={(e) =>
-                        e.target.files && setAvatarFile(e.target.files[0])
-                      }
-                      className="hidden"
-                    />
-                  </label>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        disabled={loading || uploading}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
 
-                  {/* Banner Upload */}
-                  <label className="group flex flex-col items-center justify-center min-h-[220px] border-2 border-dashed border-[#D1D5DB] rounded-2xl bg-[#F9FAFB] hover:bg-green-50/50 hover:border-[#22C55E] transition-all cursor-pointer px-5 py-7 text-center">
+                          if (file) {
+                            setAvatarFile(file);
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {/* BANNER */}
+                  <div className="border-2 border-dashed border-[#D1D5DB] rounded-2xl bg-[#F9FAFB] p-5 sm:p-6 text-center">
                     <p className="text-sm md:text-base font-bold text-[#111827]">
-                      Upload Store Banner
+                      Store Banner
                     </p>
 
-                    <p className="text-xs md:text-sm text-[#6B7280] mt-1">
-                      JPG, PNG or WEBP • Maximum 5MB
+                    <p className="text-xs text-[#6B7280] mt-1">
+                      Wide landscape image recommended • Maximum 5MB
                     </p>
 
-                    <p className="text-xs text-[#9CA3AF] mt-1">
-                      A wide landscape image works best.
-                    </p>
+                    <div className="my-5">
+                      {bannerFile && bannerPreviewUrl ? (
+                        <img
+                          src={bannerPreviewUrl || ""}
+                          alt="Store banner preview"
+                          className="w-full h-32 sm:h-36 rounded-2xl object-cover border border-[#E5E7EB] shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-full h-32 sm:h-36 rounded-2xl bg-white border border-[#E5E7EB] flex items-center justify-center shadow-sm">
+                          <Image
+                            className="w-12 h-12 sm:w-14 sm:h-14 text-gray-400"
+                            strokeWidth={1.5}
+                          />
+                        </div>
+                      )}
+                    </div>
 
                     {bannerFile && (
-                      <div className="mt-4 max-w-full px-4 py-2 bg-green-100 text-[#15803D] rounded-xl text-xs md:text-sm font-medium break-all">
+                      <p className="text-xs text-[#15803D] font-medium mb-3 truncate">
                         ✓ {bannerFile.name}
-                      </div>
+                      </p>
                     )}
 
-                    <div className="mt-5 bg-white border border-[#D1D5DB] group-hover:border-[#22C55E] rounded-xl px-5 py-3 text-sm font-semibold text-[#374151] group-hover:text-[#15803D] transition-all">
-                      Select Banner
-                    </div>
+                    <label className="inline-flex min-h-[46px] items-center justify-center bg-white border border-[#D1D5DB] hover:border-[#22C55E] hover:text-[#15803D] rounded-xl px-5 py-3 text-sm font-semibold text-[#374151] cursor-pointer transition-all">
+                      {bannerFile ? "Change Banner" : "Select Banner"}
 
-                    <input
-                      type="file"
-                      accept=".jpg,.jpeg,.png,.webp"
-                      disabled={loading || uploading}
-                      onChange={(e) =>
-                        e.target.files && setBannerFile(e.target.files[0])
-                      }
-                      className="hidden"
-                    />
-                  </label>
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        disabled={loading || uploading}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+
+                          if (file) {
+                            setBannerFile(file);
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
+
             {/* SECTION 2: BANK DETAILS */}
             <div className="bg-white border border-[#E5E7EB] rounded-3xl p-5 sm:p-6 md:p-8 space-y-6 shadow-sm">
               {/* Section Header */}
@@ -791,19 +1005,17 @@ export default function OnboardingForm() {
             </div>
 
             {/* SECTION 3: Social & Contact */}
-            {/* SECTION 3: SOCIAL & CONTACT */}
+
+            {/* SOCIAL & CONTACT */}
             <div className="bg-white border border-[#E5E7EB] rounded-3xl p-5 sm:p-6 md:p-8 space-y-7 shadow-sm">
               {/* Section Header */}
               <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-xl md:text-2xl font-bold text-[#111827]">
-                    Social & Contact
-                  </h2>
-                </div>
+                <h2 className="text-xl md:text-2xl font-bold text-[#111827]">
+                  🌍 Social & Contact
+                </h2>
 
                 <p className="text-sm text-[#6B7280] leading-relaxed">
-                  Help customers contact you and connect with your business
-                  online.
+                  Help customers contact you and find your business online.
                 </p>
               </div>
 
@@ -823,81 +1035,134 @@ export default function OnboardingForm() {
                     value={formData.whatsapp}
                     onChange={handleChange}
                     disabled={loading || uploading}
-                    placeholder="2348030000000"
+                    placeholder="08030000000"
                     className="w-full min-h-[48px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
 
                   <p className="text-xs text-[#6B7280]">
-                    Include your country code. Example: 2348030000000
+                    Enter your normal WhatsApp number. We'll format it for you.
                   </p>
                 </div>
 
                 {/* Website */}
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-[#374151]">
-                    Website URL
+                    Website
+                    <span className="ml-1 text-xs font-normal text-gray-400">
+                      Optional
+                    </span>
                   </label>
 
                   <input
-                    type="url"
+                    type="text"
+                    inputMode="url"
                     name="website"
                     value={formData.website}
                     onChange={handleChange}
                     disabled={loading || uploading}
-                    placeholder="https://mystore.com"
+                    placeholder="mystore.com"
                     className="w-full min-h-[48px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                   />
+
+                  <p className="text-xs text-[#6B7280]">
+                    No need to type https://
+                  </p>
                 </div>
 
                 {/* Instagram */}
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-[#374151]">
-                    Instagram URL
+                    Instagram Username
+                    <span className="ml-1 text-xs font-normal text-gray-400">
+                      Optional
+                    </span>
                   </label>
 
-                  <input
-                    type="url"
-                    name="instagram_handle"
-                    value={formData.instagram_handle}
-                    onChange={handleChange}
-                    disabled={loading || uploading}
-                    placeholder="https://instagram.com/ada_hub"
-                    className="w-full min-h-[48px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  />
+                  <div className="flex min-h-[48px] bg-white border border-[#D1D5DB] rounded-xl overflow-hidden focus-within:border-[#22C55E] focus-within:ring-2 focus-within:ring-[#22C55E]/20 transition-all">
+                    <span className="flex items-center justify-center px-4 bg-[#F9FAFB] border-r border-[#E5E7EB] text-[#6B7280] font-bold">
+                      @
+                    </span>
+
+                    <input
+                      type="text"
+                      name="instagram_handle"
+                      value={formData.instagram_handle}
+                      onChange={handleChange}
+                      disabled={loading || uploading}
+                      placeholder="ada_hub"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      className="w-full px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none disabled:bg-gray-100"
+                    />
+                  </div>
+
+                  <p className="text-xs text-[#6B7280]">
+                    Enter your Instagram username only.
+                  </p>
                 </div>
 
                 {/* TikTok */}
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-[#374151]">
-                    TikTok URL
+                    TikTok Username
+                    <span className="ml-1 text-xs font-normal text-gray-400">
+                      Optional
+                    </span>
                   </label>
 
-                  <input
-                    type="url"
-                    name="tiktok_handle"
-                    value={formData.tiktok_handle}
-                    onChange={handleChange}
-                    disabled={loading || uploading}
-                    placeholder="https://tiktok.com/@ada_hub"
-                    className="w-full min-h-[48px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  />
+                  <div className="flex min-h-[48px] bg-white border border-[#D1D5DB] rounded-xl overflow-hidden focus-within:border-[#22C55E] focus-within:ring-2 focus-within:ring-[#22C55E]/20 transition-all">
+                    <span className="flex items-center justify-center px-4 bg-[#F9FAFB] border-r border-[#E5E7EB] text-[#6B7280] font-bold">
+                      @
+                    </span>
+
+                    <input
+                      type="text"
+                      name="tiktok_handle"
+                      value={formData.tiktok_handle}
+                      onChange={handleChange}
+                      disabled={loading || uploading}
+                      placeholder="ada_hub"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      className="w-full px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none disabled:bg-gray-100"
+                    />
+                  </div>
+
+                  <p className="text-xs text-[#6B7280]">
+                    Enter your TikTok username only.
+                  </p>
                 </div>
 
                 {/* Facebook */}
                 <div className="space-y-2 md:col-span-2">
                   <label className="block text-sm font-semibold text-[#374151]">
-                    Facebook URL
+                    Facebook Username
+                    <span className="ml-1 text-xs font-normal text-gray-400">
+                      Optional
+                    </span>
                   </label>
 
-                  <input
-                    type="url"
-                    name="facebook_handle"
-                    value={formData.facebook_handle}
-                    onChange={handleChange}
-                    disabled={loading || uploading}
-                    placeholder="https://facebook.com/adahub"
-                    className="w-full min-h-[48px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
-                  />
+                  <div className="flex min-h-[48px] bg-white border border-[#D1D5DB] rounded-xl overflow-hidden focus-within:border-[#22C55E] focus-within:ring-2 focus-within:ring-[#22C55E]/20 transition-all">
+                    <span className="flex items-center justify-center px-4 bg-[#F9FAFB] border-r border-[#E5E7EB] text-[#6B7280] font-bold">
+                      @
+                    </span>
+
+                    <input
+                      type="text"
+                      name="facebook_handle"
+                      value={formData.facebook_handle}
+                      onChange={handleChange}
+                      disabled={loading || uploading}
+                      placeholder="adahub"
+                      autoCapitalize="none"
+                      autoCorrect="off"
+                      className="w-full px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none disabled:bg-gray-100"
+                    />
+                  </div>
+
+                  <p className="text-xs text-[#6B7280]">
+                    Enter your Facebook username or page handle only.
+                  </p>
                 </div>
               </div>
 
@@ -909,25 +1174,23 @@ export default function OnboardingForm() {
                   </h3>
 
                   <p className="text-sm text-[#6B7280]">
-                    Add YouTube, LinkedIn, Telegram, Snapchat, Threads or any
-                    other link.
+                    Add YouTube, LinkedIn, Telegram, Snapchat, Threads or
+                    another link.
                   </p>
                 </div>
 
-                {/* Empty State */}
                 {extraLinks.length === 0 && (
-                  <div className="border-2 border-dashed border-[#D1D5DB] bg-[#F9FAFB] rounded-2xl px-5 py-8 text-center">
+                  <div className="border-2 border-dashed border-[#D1D5DB] bg-[#F9FAFB] rounded-2xl px-5 py-6 text-center">
                     <p className="text-sm font-semibold text-[#374151]">
-                      No additional links yet
+                      Have another social page?
                     </p>
 
                     <p className="text-xs text-[#6B7280] mt-1">
-                      Add another social platform or custom business link.
+                      You can add it here. This is optional.
                     </p>
                   </div>
                 )}
 
-                {/* Custom Links */}
                 <div className="space-y-4">
                   {extraLinks.map((link, idx) => (
                     <div
@@ -936,21 +1199,20 @@ export default function OnboardingForm() {
                     >
                       <div className="flex items-center justify-between gap-3">
                         <p className="text-sm font-bold text-[#111827]">
-                          Additional Link {idx + 1}
+                          Link {idx + 1}
                         </p>
 
                         <button
                           type="button"
                           onClick={() => removeExtraLink(idx)}
                           disabled={loading || uploading}
-                          className="min-h-[44px] px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-sm font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="min-h-[40px] px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl text-xs sm:text-sm font-semibold transition-all disabled:opacity-50"
                         >
-                          🗑 Remove
+                          Remove
                         </button>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                        {/* Platform */}
                         <div className="space-y-2">
                           <label className="block text-sm font-semibold text-[#374151]">
                             Platform
@@ -969,7 +1231,7 @@ export default function OnboardingForm() {
                               )
                             }
                             placeholder="YouTube"
-                            className="w-full min-h-[48px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            className="w-full min-h-[48px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20"
                           />
 
                           <datalist id="platform-suggestions">
@@ -988,21 +1250,21 @@ export default function OnboardingForm() {
                           </datalist>
                         </div>
 
-                        {/* URL */}
                         <div className="space-y-2 md:col-span-2">
                           <label className="block text-sm font-semibold text-[#374151]">
-                            Link URL
+                            Link
                           </label>
 
                           <input
                             type="url"
+                            inputMode="url"
                             value={link.url}
                             disabled={loading || uploading}
                             onChange={(e) =>
                               handleExtraLinkChange(idx, "url", e.target.value)
                             }
                             placeholder="https://youtube.com/@ada_hub"
-                            className="w-full min-h-[48px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] placeholder:text-gray-400 focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20 transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            className="w-full min-h-[48px] bg-white border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm md:text-base text-[#111827] focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20"
                           />
                         </div>
                       </div>
@@ -1010,24 +1272,23 @@ export default function OnboardingForm() {
                   ))}
                 </div>
 
-                {/* ADD LINK BUTTON */}
                 <button
                   type="button"
                   onClick={addExtraLink}
                   disabled={loading || uploading}
-                  className="w-full min-h-[54px] flex items-center justify-center gap-2 border-2 border-[#22C55E] bg-green-50 hover:bg-[#22C55E] text-[#15803D] hover:text-white rounded-2xl px-5 py-4 text-sm md:text-base font-bold transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full min-h-[48px] flex items-center justify-center gap-2 border-2 border-[#22C55E] bg-green-50 hover:bg-[#22C55E] text-[#15803D] hover:text-white rounded-xl px-4 py-3 text-sm md:text-base font-bold transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span className="text-xl">＋</span>
-                  Add Another Social or Custom Link
+                  <span className="text-lg">＋</span>
+                  Add Another Link
                 </button>
               </div>
             </div>
-
             {/* SECTION 4: FEATURED PRODUCT */}
+            {/* SECTION: FEATURED PRODUCT */}
             <div className="bg-white border border-[#E5E7EB] rounded-3xl p-5 sm:p-6 md:p-8 space-y-6 shadow-sm">
               {/* Section Header */}
               <div className="space-y-1">
-                <h2 className="text-xl md:text-2xl font-bold text-[#111827] flex items-center gap-2">
+                <h2 className="text-xl md:text-2xl font-bold text-[#111827]">
                   Featured Product
                 </h2>
 
@@ -1036,7 +1297,7 @@ export default function OnboardingForm() {
                 </p>
               </div>
 
-              {/* Product Name and Price */}
+              {/* Product Information */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6">
                 <div className="md:col-span-2 space-y-2">
                   <label className="block text-sm font-semibold text-[#374151]">
@@ -1073,37 +1334,110 @@ export default function OnboardingForm() {
                 </div>
               </div>
 
-              {/* Product Image Upload */}
-              <div className="space-y-2">
-                <label className="block text-sm font-semibold text-[#374151]">
-                  Product Image
-                </label>
+              {/* PRODUCT IMAGE PREVIEW */}
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-sm font-semibold text-[#374151]">
+                    Product Image
+                  </label>
 
-                <label className="group flex flex-col items-center justify-center w-full min-h-[180px] sm:min-h-[210px] border-2 border-dashed border-[#D1D5DB] rounded-2xl bg-gray-50 hover:bg-green-50/50 hover:border-[#22C55E] transition-all cursor-pointer px-5 py-8 text-center">
-                  <p className="text-sm md:text-base font-semibold text-[#111827]">
-                    Upload Product Image
+                  <p className="text-xs text-[#6B7280] mt-1">
+                    Use a clear square or portrait product photo • Maximum 5MB
                   </p>
+                </div>
 
-                  <p className="text-xs md:text-sm text-[#6B7280] mt-1">
-                    JPG, PNG or WEBP • Maximum 5MB
-                  </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 items-stretch">
+                  {/* Image Preview */}
+                  <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[#6B7280] mb-3">
+                      Product Preview
+                    </p>
 
-                  {imageFile && (
-                    <div className="mt-4 px-4 py-2 bg-green-100 text-[#15803D] rounded-lg text-xs md:text-sm font-medium break-all max-w-full">
-                      ✓ {imageFile.name}
+                    {imageFile && imagePreviewUrl ? (
+                      <div className="space-y-3">
+                        <div className="relative w-full aspect-square rounded-2xl overflow-hidden bg-white border border-[#E5E7EB]">
+                          <img
+                            src={imagePreviewUrl || ""}
+                            alt="Product preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-bold text-[#111827] truncate">
+                            {formData.product_name || "Your Product Name"}
+                          </p>
+
+                          <p className="text-base font-bold text-[#15803D] mt-1">
+                            {formData.product_price
+                              ? `₦${Number(
+                                  formData.product_price.replace(/[^0-9]/g, ""),
+                                ).toLocaleString()}`
+                              : "Price not added"}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="w-full aspect-square rounded-2xl bg-white border border-[#E5E7EB] flex flex-col items-center justify-center text-center px-5">
+                        <Package
+                          className="w-14 h-14 sm:w-16 sm:h-16 text-gray-400"
+                          strokeWidth={1.5}
+                        />
+
+                        <p className="text-sm font-semibold text-[#374151] mt-3">
+                          Your product preview will appear here
+                        </p>
+
+                        <p className="text-xs text-[#9CA3AF] mt-1">
+                          Select a product image to preview it.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Upload Area */}
+                  <label className="group flex flex-col items-center justify-center min-h-[260px] border-2 border-dashed border-[#D1D5DB] rounded-2xl bg-[#F9FAFB] hover:bg-green-50/50 hover:border-[#22C55E] transition-all cursor-pointer px-5 py-8 text-center">
+                    <p className="text-sm md:text-base font-bold text-[#111827]">
+                      {imageFile
+                        ? "Change Product Image"
+                        : "Upload Product Image"}
+                    </p>
+
+                    <p className="text-xs md:text-sm text-[#6B7280] mt-1">
+                      JPG, PNG or WEBP
+                    </p>
+
+                    <p className="text-xs text-[#9CA3AF] mt-1">
+                      Maximum file size: 5MB
+                    </p>
+
+                    {imageFile && (
+                      <div className="mt-5 max-w-full px-4 py-2 bg-green-100 text-[#15803D] rounded-xl text-xs md:text-sm font-medium">
+                        <p className="truncate">✓ {imageFile.name}</p>
+                      </div>
+                    )}
+
+                    <div className="mt-5 min-h-[46px] bg-white border border-[#D1D5DB] group-hover:border-[#22C55E] rounded-xl px-5 py-3 text-sm font-semibold text-[#374151] group-hover:text-[#15803D] transition-all">
+                      {imageFile
+                        ? "Choose Another Image"
+                        : "Select Product Image"}
                     </div>
-                  )}
 
-                  <input
-                    type="file"
-                    accept=".jpg,.jpeg,.png,.webp"
-                    disabled={loading || uploading}
-                    onChange={(e) =>
-                      e.target.files && setImageFile(e.target.files[0])
-                    }
-                    className="hidden"
-                  />
-                </label>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      disabled={loading || uploading}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+
+                        if (file) {
+                          setImageFile(file);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
               </div>
             </div>
 
