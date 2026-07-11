@@ -41,7 +41,11 @@ export default function OnboardingForm() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [usernameStatus, setUsernameStatus] = useState<
+    "idle" | "checking" | "available" | "taken" | "invalid"
+  >("idle");
 
+  const [usernameMessage, setUsernameMessage] = useState("");
   // =============================================
   // LOCAL IMAGE PREVIEWS
   // =============================================
@@ -269,6 +273,81 @@ export default function OnboardingForm() {
 
     return data.publicUrl;
   };
+
+  // =============================================
+  // LIVE STORE HANDLE AVAILABILITY CHECK
+  // =============================================
+
+  useEffect(() => {
+    const rawUsername = formData.username.trim().toLowerCase();
+
+    if (!rawUsername) {
+      setUsernameStatus("idle");
+      setUsernameMessage("");
+      return;
+    }
+
+    const usernameSlug = rawUsername
+      .replace(/^@/, "")
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9_-]/g, "");
+
+    if (usernameSlug.length < 3) {
+      setUsernameStatus("invalid");
+      setUsernameMessage("Store handle must be at least 3 characters.");
+      return;
+    }
+
+    if (usernameSlug.length > 30) {
+      setUsernameStatus("invalid");
+      setUsernameMessage("Store handle must not exceed 30 characters.");
+      return;
+    }
+
+    let cancelled = false;
+
+    setUsernameStatus("checking");
+    setUsernameMessage("Checking availability...");
+
+    const timer = setTimeout(async () => {
+      try {
+        const { data, error } = await supabase
+          .from("vendors")
+          .select("id, email")
+          .eq("username", usernameSlug)
+          .maybeSingle();
+
+        if (cancelled) return;
+
+        if (error) {
+          setUsernameStatus("idle");
+          setUsernameMessage("Unable to check handle right now.");
+          return;
+        }
+
+        const belongsToCurrentUser =
+          data?.email?.toLowerCase() === userEmail?.toLowerCase();
+
+        if (!data || belongsToCurrentUser) {
+          setUsernameStatus("available");
+          setUsernameMessage("Store handle is available.");
+        } else {
+          setUsernameStatus("taken");
+          setUsernameMessage("Store handle is already taken.");
+        }
+      } catch {
+        if (cancelled) return;
+
+        setUsernameStatus("idle");
+        setUsernameMessage("Unable to check handle right now.");
+      }
+    }, 500);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [formData.username, userEmail, supabase]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -643,17 +722,27 @@ export default function OnboardingForm() {
               {/* STORE INFORMATION */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 {/* Store Handle */}
+                {/* Store Handle */}
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-[#374151]">
                     Store Handle <span className="text-red-500">*</span>
                   </label>
 
-                  <div className="flex min-h-[50px] rounded-xl bg-white border border-[#D1D5DB] focus-within:border-[#22C55E] focus-within:ring-2 focus-within:ring-[#22C55E]/20 overflow-hidden">
-                    <span className="hidden sm:flex items-center bg-[#F9FAFB] border-r border-[#E5E7EB] px-3 text-sm text-[#6B7280]">
+                  <div
+                    className={`flex min-h-[50px] rounded-xl bg-white border transition-all overflow-hidden ${
+                      usernameStatus === "available"
+                        ? "border-[#22C55E] ring-2 ring-[#22C55E]/20"
+                        : usernameStatus === "taken" ||
+                            usernameStatus === "invalid"
+                          ? "border-red-400 ring-2 ring-red-100"
+                          : "border-[#D1D5DB] focus-within:border-[#22C55E] focus-within:ring-2 focus-within:ring-[#22C55E]/20"
+                    }`}
+                  >
+                    <span className="hidden sm:flex items-center bg-[#F9FAFB] border-r border-[#E5E7EB] px-3 text-sm text-[#6B7280] select-none">
                       biolinkmarket.com/
                     </span>
 
-                    <span className="sm:hidden flex items-center bg-[#F9FAFB] border-r border-[#E5E7EB] px-3 text-sm text-[#6B7280]">
+                    <span className="sm:hidden flex items-center bg-[#F9FAFB] border-r border-[#E5E7EB] px-3 text-sm text-[#6B7280] select-none">
                       /
                     </span>
 
@@ -667,15 +756,51 @@ export default function OnboardingForm() {
                       placeholder="ada_hub"
                       autoCapitalize="none"
                       autoCorrect="off"
-                      className="flex-1 min-w-0 bg-transparent text-sm md:text-base px-4 py-3 text-[#111827] focus:outline-none"
+                      maxLength={30}
+                      className="flex-1 min-w-0 bg-transparent text-sm md:text-base px-4 py-3 text-[#111827] placeholder:text-gray-400 focus:outline-none"
                     />
+
+                    <div className="flex items-center pr-4">
+                      {usernameStatus === "checking" && (
+                        <div className="w-5 h-5 border-2 border-gray-300 border-t-[#22C55E] rounded-full animate-spin" />
+                      )}
+
+                      {usernameStatus === "available" && (
+                        <span className="text-[#22C55E] text-xl font-bold">
+                          ✓
+                        </span>
+                      )}
+
+                      {(usernameStatus === "taken" ||
+                        usernameStatus === "invalid") && (
+                        <span className="text-red-500 text-xl font-bold">
+                          ✕
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  <p className="text-xs text-[#6B7280]">
-                    This becomes your unique storefront link.
-                  </p>
+                  {usernameMessage ? (
+                    <p
+                      className={`text-xs font-medium ${
+                        usernameStatus === "available"
+                          ? "text-[#15803D]"
+                          : usernameStatus === "taken" ||
+                              usernameStatus === "invalid"
+                            ? "text-red-600"
+                            : "text-[#6B7280]"
+                      }`}
+                    >
+                      {usernameStatus === "available" && "🟢 "}
+                      {usernameStatus === "taken" && "🔴 "}
+                      {usernameMessage}
+                    </p>
+                  ) : (
+                    <p className="text-xs text-[#6B7280]">
+                      This becomes your unique storefront link.
+                    </p>
+                  )}
                 </div>
-
                 {/* Business Name */}
                 <div className="space-y-2">
                   <label className="block text-sm font-semibold text-[#374151]">
@@ -1445,16 +1570,29 @@ export default function OnboardingForm() {
             <div className="sticky bottom-0 z-40 -mx-4 sm:mx-0 bg-white/95 backdrop-blur-md border-t border-gray-200 sm:border sm:rounded-2xl p-4 shadow-[0_-8px_30px_rgba(0,0,0,0.08)]">
               <button
                 type="submit"
-                disabled={loading || uploading || !userEmail}
+                disabled={
+                  loading ||
+                  uploading ||
+                  !userEmail ||
+                  usernameStatus === "checking" ||
+                  usernameStatus === "taken" ||
+                  usernameStatus === "invalid"
+                }
                 className="w-full min-h-[52px] bg-[#22C55E] hover:bg-[#15803D] active:scale-[0.99] text-white font-bold px-6 rounded-xl text-center transition-all shadow-lg text-sm md:text-base disabled:bg-gray-200 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none"
               >
                 {!userEmail
                   ? "Loading session..."
-                  : uploading
-                    ? "Uploading images..."
-                    : loading
-                      ? "Saving your storefront..."
-                      : "🚀 Save & Launch Storefront"}
+                  : usernameStatus === "checking"
+                    ? "Checking store handle..."
+                    : usernameStatus === "taken"
+                      ? "Choose another store handle"
+                      : usernameStatus === "invalid"
+                        ? "Enter a valid store handle"
+                        : uploading
+                          ? "Uploading images..."
+                          : loading
+                            ? "Saving your storefront..."
+                            : "🚀 Save & Launch Storefront"}
               </button>
 
               <p className="text-center text-[11px] md:text-xs text-gray-500 mt-2">
