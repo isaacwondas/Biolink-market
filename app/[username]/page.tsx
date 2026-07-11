@@ -401,6 +401,7 @@ export default async function Storefront({ params }: PageProps) {
                     fill
                     unoptimized
                     className="object-cover"
+                    priority
                   />
                 </div>
                 <div className="p-2 flex flex-col justify-between flex-grow gap-0.5">

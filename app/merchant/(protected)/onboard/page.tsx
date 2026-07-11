@@ -194,9 +194,28 @@ export default function OnboardingForm() {
     >,
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
 
+    // LIVE PRODUCT PRICE FORMATTING
+    if (name === "product_price") {
+      const numericValue = value.replace(/[^0-9]/g, "");
+
+      const formattedValue = numericValue
+        ? Number(numericValue).toLocaleString("en-NG")
+        : "";
+
+      setFormData((prev) => ({
+        ...prev,
+        product_price: formattedValue,
+      }));
+
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
   const handleBankChange = (
     index: number,
     field: keyof BankAccount,

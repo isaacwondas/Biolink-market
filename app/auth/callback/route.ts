@@ -6,7 +6,6 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
 
   const code = searchParams.get("code");
-  const next = searchParams.get("next") || "/merchant/onboard";
 
   console.log("===== AUTH CALLBACK START =====");
 
@@ -56,42 +55,54 @@ export async function GET(request: Request) {
   console.log("User Error:", userError);
   console.log("Authenticated User:", user);
 
+  let redirectPath = "/merchant/onboard";
+
   if (user?.email) {
-    console.log("Checking vendor...");
+    const normalizedEmail = user.email.toLowerCase();
 
     const { data: existingVendor, error: lookupError } = await supabase
       .from("vendors")
-      .select("id")
-      .eq("email", user.email.toLowerCase())
+      .select("id, is_onboarded")
+      .eq("email", normalizedEmail)
       .maybeSingle();
 
-    console.log("Lookup:", existingVendor, lookupError);
+    if (lookupError) {
+      console.error("Vendor lookup failed:", lookupError);
+
+      return NextResponse.redirect(
+        `${origin}/merchant/login?error=vendor-lookup-failed`,
+      );
+    }
 
     if (!existingVendor) {
-      console.log("Creating vendor...");
+      const { error: insertError } = await supabase.from("vendors").insert({
+        email: normalizedEmail,
+        name:
+          user.user_metadata?.full_name ||
+          user.user_metadata?.name ||
+          user.email.split("@")[0],
+        username: null,
+        views: 0,
+        is_onboarded: false,
+      });
 
-      const { data, error: insertError } = await supabase
-        .from("vendors")
-        .insert([
-          {
-            email: user.email.toLowerCase(),
-            name:
-              user.user_metadata?.full_name ||
-              user.user_metadata?.name ||
-              user.email.split("@")[0],
-            username: `vendor-${Math.floor(1000 + Math.random() * 9000)}`,
-            views: 0,
-            is_onboarded: false,
-          },
-        ])
-        .select();
+      if (insertError) {
+        console.error("Vendor creation failed:", insertError);
 
-      console.log("Insert Result:", data);
-      console.log("Insert Error:", insertError);
+        return NextResponse.redirect(
+          `${origin}/merchant/login?error=vendor-creation-failed`,
+        );
+      }
+
+      redirectPath = "/merchant/onboard";
+    } else {
+      redirectPath = existingVendor.is_onboarded
+        ? "/admin/dashboard"
+        : "/merchant/onboard";
     }
   }
 
   console.log("===== AUTH CALLBACK END =====");
 
-  return NextResponse.redirect(`${origin}${next}`);
+  return NextResponse.redirect(`${origin}${redirectPath}`);
 }
