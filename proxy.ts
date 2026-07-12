@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { NextRequest } from "next/server"; // Fixed import source
+import { NextRequest } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 export async function proxy(request: NextRequest) {
@@ -18,7 +18,6 @@ export async function proxy(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          // Set on response since request cookies are read-only at the edge
           response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options: CookieOptions) {
@@ -48,16 +47,74 @@ export async function proxy(request: NextRequest) {
 
   const url = request.nextUrl.clone();
 
-  // Guard 1: Kick out unauthenticated users trying to access onboarding
-  if (url.pathname.startsWith("/merchant/onboard") && !session) {
+  // =============================================
+  // GUARD 1: Unauthenticated users
+  // =============================================
+  if (!session) {
+    // Allow: login, signup, confirmed pages
+    if (
+      url.pathname.startsWith("/merchant/login") ||
+      url.pathname.startsWith("/merchant/signup") ||
+      url.pathname.startsWith("/merchant/confirmed")
+    ) {
+      return response;
+    }
+
+    // Block: redirect to login for protected routes
     url.pathname = "/merchant/login";
     return NextResponse.redirect(url);
   }
 
-  // Guard 2: Redirect logged-in users away from the login screen
-  if (url.pathname.startsWith("/merchant/login") && session) {
-    url.pathname = "/merchant/dashboard";
-    return NextResponse.redirect(url);
+  // =============================================
+  // GUARD 2: Authenticated users — check onboarding
+  // =============================================
+  if (session && session.user?.email) {
+    const { data: vendor } = await supabase
+      .from("vendors")
+      .select("is_onboarded")
+      .eq("email", session.user.email.toLowerCase())
+      .maybeSingle();
+
+    const isOnboarded = vendor?.is_onboarded ?? false;
+
+    // If trying to access login/signup while authenticated
+    if (
+      url.pathname.startsWith("/merchant/login") ||
+      url.pathname.startsWith("/merchant/signup")
+    ) {
+      if (isOnboarded) {
+        // Finished onboarding → go to dashboard
+        url.pathname = "/merchant/dashboard";
+      } else {
+        // NOT finished onboarding → go to onboard ⭐ THIS FIXES YOUR BUG
+        url.pathname = "/merchant/onboard";
+      }
+      return NextResponse.redirect(url);
+    }
+
+    // If trying to access dashboard without completing onboarding
+    if (url.pathname.startsWith("/merchant/dashboard")) {
+      if (!isOnboarded) {
+        url.pathname = "/merchant/onboard";
+        return NextResponse.redirect(url);
+      }
+    }
+
+    // If trying to access share page without completing onboarding
+    if (url.pathname.startsWith("/merchant/share")) {
+      if (!isOnboarded) {
+        url.pathname = "/merchant/onboard";
+        return NextResponse.redirect(url);
+      }
+    }
+
+    // If trying to access onboard but already completed
+    if (url.pathname.startsWith("/merchant/onboard")) {
+      if (isOnboarded) {
+        url.pathname = "/merchant/dashboard";
+        return NextResponse.redirect(url);
+      }
+    }
   }
 
   return response;
