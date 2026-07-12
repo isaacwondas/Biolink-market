@@ -11,7 +11,6 @@ export async function GET(request: Request) {
 
   if (!code) {
     console.log("No auth code");
-
     return NextResponse.redirect(
       `${origin}/merchant/login?error=missing-auth-code`,
     );
@@ -60,6 +59,7 @@ export async function GET(request: Request) {
   if (user?.email) {
     const normalizedEmail = user.email.toLowerCase();
 
+    // Check if vendor already exists (from Google OAuth or Email signup)
     const { data: existingVendor, error: lookupError } = await supabase
       .from("vendors")
       .select("id, is_onboarded")
@@ -68,27 +68,26 @@ export async function GET(request: Request) {
 
     if (lookupError) {
       console.error("Vendor lookup failed:", lookupError);
-
       return NextResponse.redirect(
         `${origin}/merchant/login?error=vendor-lookup-failed`,
       );
     }
 
     if (!existingVendor) {
+      // Brand new user → create vendor row
       const { error: insertError } = await supabase.from("vendors").insert({
         email: normalizedEmail,
         name:
           user.user_metadata?.full_name ||
           user.user_metadata?.name ||
           user.email.split("@")[0],
-        username: null,
+        username: null, // ← Leave null until onboarding
         views: 0,
         is_onboarded: false,
       });
 
       if (insertError) {
         console.error("Vendor creation failed:", insertError);
-
         return NextResponse.redirect(
           `${origin}/merchant/login?error=vendor-creation-failed`,
         );
@@ -96,8 +95,9 @@ export async function GET(request: Request) {
 
       redirectPath = "/merchant/onboard";
     } else {
+      // Existing user → check if they finished onboarding
       redirectPath = existingVendor.is_onboarded
-        ? "/admin/dashboard"
+        ? "/merchant/dashboard"
         : "/merchant/onboard";
     }
   }

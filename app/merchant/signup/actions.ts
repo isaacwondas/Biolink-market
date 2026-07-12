@@ -16,7 +16,6 @@ export async function signupAction(formData: FormData) {
       return { error: "Password must be at least 8 characters long." };
     }
 
-    // Safety verification check for environment variables
     if (
       !process.env.NEXT_PUBLIC_SUPABASE_URL ||
       !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -45,12 +44,11 @@ export async function signupAction(formData: FormData) {
       },
     );
 
-    // 1. Sign up the new user in Supabase Auth with an explicit callback path
+    // 1. Sign up the new user in Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: email.trim(),
+      email: email.trim().toLowerCase(),
       password: password,
       options: {
-        // Keeps user flow isolated from your root [username] catch-all segment
         emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/callback?next=/merchant/onboard`,
       },
     });
@@ -60,14 +58,14 @@ export async function signupAction(formData: FormData) {
     const user = authData.user;
 
     if (user && user.email) {
-      // 2. Pre-populate their database row with a temporary placeholder username
-      const generatedUsername = `vendor-${Math.floor(1000 + Math.random() * 9000)}`;
+      // 2. Create vendor row with username: null (set during onboarding)
       const { error: insertError } = await supabase.from("vendors").insert([
         {
           email: user.email.toLowerCase(),
           name: user.email.split("@")[0],
-          username: generatedUsername,
+          username: null, // ← Leave null until onboarding
           views: 0,
+          is_onboarded: false, // ← Explicitly set to false
         },
       ]);
 
@@ -78,7 +76,6 @@ export async function signupAction(formData: FormData) {
 
     return { success: true };
   } catch (err: any) {
-    // Intercepts structural application crashes and surfaces them transparently
     return {
       error: err?.message || "An unexpected system execution failure occurred.",
     };

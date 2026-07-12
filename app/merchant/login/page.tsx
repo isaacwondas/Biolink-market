@@ -51,7 +51,7 @@ export default function AdminLogin() {
       });
 
       setTimeout(() => {
-        window.location.href = result.redirectTo || "/admin/dashboard";
+        window.location.href = result.redirectTo || "/merchant/dashboard";
       }, 1000);
     } catch {
       setMessage({
@@ -74,7 +74,7 @@ export default function AdminLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/admin/dashboard`,
+        redirectTo: `${window.location.origin}/auth/callback?next=/merchant/dashboard`,
       },
     });
 

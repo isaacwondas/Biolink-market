@@ -12,7 +12,6 @@ export async function loginAction(formData: FormData) {
     return { error: "Email and password are required." };
   }
 
-  // Initialize Supabase SSR Client
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -34,7 +33,7 @@ export async function loginAction(formData: FormData) {
   // 1. Log in the user
   const { data: authData, error: authError } =
     await supabase.auth.signInWithPassword({
-      email: email.trim(),
+      email: email.trim().toLowerCase(),
       password: password,
     });
 
@@ -43,22 +42,29 @@ export async function loginAction(formData: FormData) {
   }
 
   const user = authData.user;
-  let redirectTo = "/admin/dashboard";
+  let redirectTo = "/merchant/dashboard";
 
   if (user && user.email) {
-    const { data: existingVendor } = await supabase
+    const normalizedEmail = user.email.toLowerCase();
+
+    // Check if vendor exists
+    const { data: existingVendor, error: lookupError } = await supabase
       .from("vendors")
-      .select("username, is_onboarded")
-      .eq("email", user.email.toLowerCase())
+      .select("id, is_onboarded")
+      .eq("email", normalizedEmail)
       .maybeSingle();
 
-    // Brand new user — create the row WITHOUT a username
+    if (lookupError) {
+      return { error: "Database lookup failed: " + lookupError.message };
+    }
+
+    // New user (no vendor row) → create one
     if (!existingVendor) {
       const { error: insertError } = await supabase.from("vendors").insert([
         {
-          email: user.email.toLowerCase(),
+          email: normalizedEmail,
           name: user.email.split("@")[0],
-          username: null, // ← leave null until onboard
+          username: null, // ← Leave null until onboarding
           views: 0,
           is_onboarded: false,
         },
@@ -68,16 +74,15 @@ export async function loginAction(formData: FormData) {
         return { error: "Database sync failed: " + insertError.message };
       }
 
-      redirectTo = "/admin/onboard";
+      redirectTo = "/merchant/onboard";
     } else if (!existingVendor.is_onboarded) {
       // Existing user but never finished onboarding
-      redirectTo = "/admin/onboard";
+      redirectTo = "/merchant/onboard";
     } else {
-      // Fully onboarded existing user
-      redirectTo = "/admin/dashboard";
+      // Fully onboarded existing user → go to dashboard
+      redirectTo = "/merchant/dashboard";
     }
-  } // <-- This closes the "if (user && user.email)" block correctly
+  }
 
-  // Now this return statement is safely inside the loginAction function!
   return { success: true, redirectTo };
 }
