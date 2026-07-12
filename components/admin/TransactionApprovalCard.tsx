@@ -8,9 +8,11 @@ interface Transaction {
   amount_paid: number;
   balance_due: number;
   payment_status: string;
-  customer_name?: string;
-  customer_phone?: string;
-  customer_email?: string;
+  buyer_name?: string;
+  buyer_phone?: string;
+  receipt_url?: string;
+  reference_code?: string;
+  status?: string;
 }
 
 export function TransactionApprovalCard({
@@ -62,14 +64,14 @@ export function TransactionApprovalCard({
   };
 
   const handleWhatsAppFollowUp = () => {
-    const phone = transaction.customer_phone?.replace(/\D/g, "");
+    const phone = transaction.buyer_phone?.replace(/\D/g, "");
 
     if (!phone) {
       alert("No phone number available for this customer.");
       return;
     }
 
-    const name = transaction.customer_name || "there";
+    const name = transaction.buyer_name || "there";
 
     const message = encodeURIComponent(
       `Hi ${name}, we noticed there's an issue with the receipt you uploaded on our store link. Could you please re-upload a clearer copy or confirm your payment details? Thank you! 🙏`,
