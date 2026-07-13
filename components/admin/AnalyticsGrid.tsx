@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Music2,
   Camera,
+  Icon,
 } from "lucide-react";
 
 interface AnalyticMetrics {
@@ -220,13 +221,17 @@ export default function AnalyticsGrid({
             {socialItems.map((item) => {
               const percentage =
                 totalClicks > 0 ? (item.count / totalClicks) * 100 : 0;
-
+              const Icon = item.icon;
               return (
                 <div key={item.label} className="space-y-2">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-xs md:text-sm font-semibold text-[#374151]">
-                      {item.icon} {item.label}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <Icon className="w-4 h-4 text-[#15803D]" />
+
+                      <span className="text-xs md:text-sm font-semibold text-[#374151]">
+                        {item.label}
+                      </span>
+                    </div>
 
                     <span className="text-[10px] md:text-xs font-mono text-[#6B7280]">
                       {item.count} clicks
@@ -263,7 +268,7 @@ export default function AnalyticsGrid({
                 totalDevices > 0
                   ? ((device.count / totalDevices) * 100).toFixed(0)
                   : "0";
-
+              const DeviceIcon = device.icon;
               return (
                 <div
                   key={device.type}
@@ -271,7 +276,7 @@ export default function AnalyticsGrid({
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-10 h-10 bg-white border border-gray-200 rounded-xl flex items-center justify-center shrink-0">
-                      <span className="text-lg">{device.icon}</span>
+                      <DeviceIcon className="w-5 h-5 text-[#15803D]" />
                     </div>
 
                     <div className="min-w-0">
