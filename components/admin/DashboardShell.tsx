@@ -932,8 +932,143 @@ function OverviewTab({
 
   const merchantDisplayName = vendor.business_name || vendor.name || "Merchant";
 
+  const setupTasks = [
+    {
+      label: "Store created",
+      completed: Boolean(vendor.username && vendor.business_name),
+      tab: "profile",
+    },
+    {
+      label: "WhatsApp connected",
+      completed: Boolean(vendor.whatsapp),
+      tab: "social",
+    },
+    {
+      label: "Payment account added",
+      completed: Boolean(vendor.vendor_banks?.length),
+      tab: "banks",
+    },
+    {
+      label: "Add your logo",
+      completed: Boolean(vendor.avatar_image),
+      tab: "profile",
+    },
+    {
+      label: "Add your first product",
+      completed: Boolean(vendor.vendor_products?.length || vendor.product_name),
+      tab: "products",
+    },
+    {
+      label: "Write a business bio",
+      completed: Boolean(vendor.bio_tagline?.trim()),
+      tab: "profile",
+    },
+    {
+      label: "Add Instagram or TikTok",
+      completed: Boolean(
+        vendor.instagram_handle?.trim() || vendor.tiktok_handle?.trim(),
+      ),
+      tab: "social",
+    },
+  ];
+
+  const completedTasks = setupTasks.filter((task) => task.completed).length;
+
+  const completionPercentage = Math.round(
+    (completedTasks / setupTasks.length) * 100,
+  );
+
   return (
     <div className="space-y-6">
+      {/* STORE SETUP PROGRESS */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-5 sm:p-6 shadow-sm space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+          <div>
+            <p className="text-xs text-[#6B7280]">
+              Welcome back, {merchantDisplayName} 👋
+            </p>
+
+            <h2 className="text-xl font-black text-[#111827] mt-1">
+              Your store is live
+            </h2>
+
+            <p className="text-sm text-[#6B7280] mt-1">
+              Complete your store to make it easier for customers to trust and
+              buy from you.
+            </p>
+          </div>
+
+          <div className="shrink-0">
+            <span className="inline-flex items-center px-3 py-1.5 rounded-full bg-green-50 border border-green-200 text-[#15803D] text-xs font-bold">
+              {completionPercentage}% complete
+            </span>
+          </div>
+        </div>
+
+        {/* PROGRESS BAR */}
+        <div className="space-y-2">
+          <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#22C55E] rounded-full transition-all duration-500"
+              style={{ width: `${completionPercentage}%` }}
+            />
+          </div>
+
+          <p className="text-[11px] text-[#6B7280]">
+            {completedTasks} of {setupTasks.length} setup tasks completed
+          </p>
+        </div>
+
+        {/* TASK CHECKLIST */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {setupTasks.map((task) => (
+            <div
+              key={task.label}
+              className="flex items-center gap-3 p-3 rounded-xl bg-[#F9FAFB] border border-gray-100"
+            >
+              <span
+                className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                  task.completed
+                    ? "bg-[#22C55E] text-white"
+                    : "bg-white border-2 border-gray-300 text-transparent"
+                }`}
+              >
+                ✓
+              </span>
+
+              <span
+                className={`text-xs ${
+                  task.completed
+                    ? "text-[#6B7280] line-through"
+                    : "text-[#111827] font-semibold"
+                }`}
+              >
+                {task.label}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {completionPercentage < 100 && (
+          <p className="text-xs text-[#6B7280]">
+            Use the Profile, Products and Social tabs to finish setting up your
+            storefront.
+          </p>
+        )}
+
+        {completionPercentage === 100 && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+            <p className="text-sm font-bold text-[#15803D]">
+              🎉 Your storefront setup is complete!
+            </p>
+
+            <p className="text-xs text-[#6B7280] mt-1">
+              Your store is ready to share with customers.
+            </p>
+          </div>
+        )}
+      </div>
+
       <AnalyticsGrid
         metrics={structuralMetrics}
         businessName={merchantDisplayName}
