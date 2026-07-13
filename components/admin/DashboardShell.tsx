@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import AnalyticsGrid from "@/components/admin/AnalyticsGrid";
 import { TransactionApprovalCard } from "@/components/admin/TransactionApprovalCard";
 import ReceiptLedger from "@/components/admin/ReceiptLedger";
-
+import { BarChart3, User, Building2, Package, Link2 } from "lucide-react";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type Tab = "overview" | "profile" | "banks" | "products" | "social";
@@ -30,11 +30,11 @@ interface Product {
 // ─── Sidebar Nav Items ────────────────────────────────────────────────────────
 
 const NAV = [
-  { id: "overview", label: "Overview", icon: "📊" },
-  { id: "profile", label: "Profile", icon: "👤" },
-  { id: "banks", label: "Banks", icon: "🏦" },
-  { id: "products", label: "Products", icon: "📦" },
-  { id: "social", label: "Social", icon: "🔗" },
+  { id: "overview", label: "Overview", icon: BarChart3 },
+  { id: "profile", label: "Profile", icon: User },
+  { id: "banks", label: "Banks", icon: Building2 },
+  { id: "products", label: "Products", icon: Package },
+  { id: "social", label: "Social", icon: Link2 },
 ] as const;
 
 const POPULAR_BANKS = [

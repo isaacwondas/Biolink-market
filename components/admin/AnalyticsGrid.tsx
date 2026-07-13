@@ -1,5 +1,18 @@
 import React from "react";
 
+import {
+  MousePointerClick,
+  Eye,
+  Percent,
+  Users,
+  Smartphone,
+  Monitor,
+  Tablet,
+  MessageSquare,
+  Music2,
+  Camera,
+} from "lucide-react";
+
 interface AnalyticMetrics {
   totalViews: number;
   uniqueVisitors: number;
@@ -44,25 +57,37 @@ export default function AnalyticsGrid({
   const socialItems = [
     {
       label: "WhatsApp Inquiries",
-      icon: "💬",
+      icon: MessageSquare,
       count: metrics.socialClicks.whatsapp,
       bar: "bg-[#22C55E]",
     },
     {
       label: "Instagram Handles",
-      icon: "📸",
+      icon: Camera,
       count: metrics.socialClicks.instagram,
       bar: "bg-pink-500",
     },
     {
       label: "Facebook Page",
-      icon: "📘",
+      icon: (props: any) => (
+        <svg
+          {...props}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+        </svg>
+      ),
       count: metrics.socialClicks.facebook,
       bar: "bg-blue-600",
     },
     {
       label: "TikTok Channels",
-      icon: "🎵",
+      icon: Music2,
       count: metrics.socialClicks.tiktok,
       bar: "bg-purple-500",
     },
@@ -72,17 +97,17 @@ export default function AnalyticsGrid({
     {
       type: "Mobile Devices",
       count: metrics.deviceBreakdown.mobile,
-      icon: "📱",
+      icon: Smartphone,
     },
     {
       type: "Desktop Devices",
       count: metrics.deviceBreakdown.desktop,
-      icon: "💻",
+      icon: Monitor,
     },
     {
       type: "Tablet Devices",
       count: metrics.deviceBreakdown.tablet,
-      icon: "📟",
+      icon: Tablet,
     },
   ];
 
@@ -113,7 +138,7 @@ export default function AnalyticsGrid({
             <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider">
               Total Views
             </span>
-            <span className="text-lg">👁️</span>
+            <Eye className="w-4 h-4 text-gray-400 stroke-[2.25]" />
           </div>
 
           <p className="text-2xl md:text-3xl font-black text-[#111827] mt-3">
@@ -130,7 +155,7 @@ export default function AnalyticsGrid({
             <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider">
               Unique Visitors
             </span>
-            <span className="text-lg">👤</span>
+            <Users className="w-4 h-4 text-gray-400 stroke-[2.25]" />
           </div>
 
           <p className="text-2xl md:text-3xl font-black text-[#111827] mt-3">
@@ -147,7 +172,7 @@ export default function AnalyticsGrid({
             <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider">
               Action Clicks
             </span>
-            <span className="text-lg">⚡</span>
+            <MousePointerClick className="w-4 h-4 text-gray-400 stroke-[2.25]" />
           </div>
 
           <p className="text-2xl md:text-3xl font-black text-[#111827] mt-3">
@@ -164,7 +189,7 @@ export default function AnalyticsGrid({
             <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider">
               Conversion CTR
             </span>
-            <span className="text-lg">📈</span>
+            <Percent className="w-4 h-4 text-gray-400 stroke-[2.25]" />
           </div>
 
           <p className="text-2xl md:text-3xl font-black text-[#22C55E] mt-3">

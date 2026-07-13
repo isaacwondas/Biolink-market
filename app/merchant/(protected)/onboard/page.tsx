@@ -4,6 +4,7 @@ import { useEffect, Fragment, useMemo, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { useRouter } from "next/navigation";
 import { Store, Image, Package } from "lucide-react";
+import { PartyPopper } from "lucide-react";
 
 interface BankAccount {
   bank_name: string;
@@ -828,8 +829,8 @@ export default function OnboardingForm() {
               {/* STORE LIVE SUCCESS */}
               {currentStep === 4 && (
                 <div className="text-center space-y-7">
-                  <div className="w-20 h-20 mx-auto rounded-full bg-green-50 border border-green-200 flex items-center justify-center text-4xl">
-                    🎉
+                  <div className="w-20 h-20 mx-auto rounded-full bg-green-50 border border-green-200 flex items-center justify-center">
+                    <PartyPopper className="w-10 h-10 text-[#22C55E] stroke-[1.75]" />
                   </div>
 
                   <div>
