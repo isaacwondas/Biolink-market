@@ -916,13 +916,13 @@ function OverviewTab({
   vendor,
   structuralMetrics,
   timelineData,
-  initialReceipts,
+  initialTransactions,
   onTransactionUpdate,
 }: {
   vendor: any;
   structuralMetrics: any;
   timelineData: any[];
-  initialReceipts: any[];
+  initialTransactions: any[];
   onTransactionUpdate: any;
 }) {
   const maxClickDayValue =
@@ -1080,7 +1080,7 @@ function OverviewTab({
         const [receiptFilter, setReceiptFilter] = useState<
           "pending" | "cleared" | "declined"
         >("pending");
-        const [localReceipts, setLocalReceipts] = useState(initialReceipts);
+        const [localReceipts, setLocalReceipts] = useState(initialTransactions);
         const [notification, setNotification] = useState<string | null>(null);
 
         const showNotification = (msg: string) => {
@@ -1342,13 +1342,13 @@ function OverviewTab({
 export default function DashboardShell({
   vendor,
   timelineData,
-  initialReceipts,
+  initialTransactions,
   structuralMetrics,
   onTransactionUpdate,
 }: {
   vendor: any;
   timelineData: any[];
-  initialReceipts: any[];
+  initialTransactions: any[];
   structuralMetrics: any;
   onTransactionUpdate: any;
 }) {
@@ -1474,8 +1474,8 @@ export default function DashboardShell({
                 vendor={vendor}
                 structuralMetrics={structuralMetrics}
                 timelineData={timelineData}
-                //receiptsQueue={receiptsQueue}
-                initialReceipts={initialReceipts ?? []}
+                //transactionsQueue={transactionsQueue}
+                initialTransactions={initialTransactions ?? []}
                 onTransactionUpdate={onTransactionUpdate}
               />
             )}

@@ -13,16 +13,20 @@ async function getDashboardTelemetry(supabaseClient: any, vendorId: number) {
   return data.reverse();
 }
 
-async function getVendorReceipts(supabaseClient: any, vendorEmail: string) {
+async function getVendorTransactions(supabaseClient: any, vendorEmail: string) {
   const { data, error } = await supabaseClient
-    .from("receipt_submissions")
+    .from("transactions")
     .select("*")
-    .eq("vendor_email", vendorEmail)
-    .order("status", { ascending: false })
+    .eq("vendor_email", vendorEmail.toLowerCase())
     .order("created_at", { ascending: false })
     .limit(20);
-  if (error) return [];
-  return data;
+
+  if (error) {
+    console.error("Transaction fetch error:", error);
+    return [];
+  }
+
+  return data || [];
 }
 
 export default async function AdminDashboardPage() {
@@ -55,9 +59,9 @@ export default async function AdminDashboardPage() {
 
   if (vendorError || !vendor) redirect("/admin/onboard");
 
-  const [timelineData, receiptsQueue] = await Promise.all([
+  const [timelineData, transactionsQueue] = await Promise.all([
     getDashboardTelemetry(supabase, vendor.id),
-    getVendorReceipts(supabase, vendor.email || ""),
+    getVendorTransactions(supabase, vendor.email || ""),
   ]);
 
   const totalClicks = timelineData.reduce(
@@ -127,7 +131,7 @@ export default async function AdminDashboardPage() {
     <DashboardShell
       vendor={vendor}
       timelineData={timelineData}
-      initialReceipts={receiptsQueue}
+      initialTransactions={transactionsQueue}
       structuralMetrics={structuralMetrics}
       onTransactionUpdate={handleTransactionUpdate}
     />

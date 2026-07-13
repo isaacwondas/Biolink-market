@@ -877,7 +877,7 @@ export default function OnboardingForm() {
 
                   <button
                     type="button"
-                    onClick={() => router.push("/admin/dashboard")}
+                    onClick={() => router.push("/merchant/dashboard")}
                     className="w-full min-h-[52px] bg-[#111827] hover:bg-black text-white font-bold rounded-xl transition-all"
                   >
                     Go to Dashboard →

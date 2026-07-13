@@ -22,10 +22,10 @@ interface Receipt {
 }
 
 export default function ReceiptLedger({
-  initialReceipts,
+  initialTransactions,
   onTransactionUpdate,
 }: {
-  initialReceipts: Receipt[];
+  initialTransactions: Receipt[];
   onTransactionUpdate: (
     id: string,
     updates: {
@@ -34,7 +34,7 @@ export default function ReceiptLedger({
     },
   ) => void;
 }) {
-  const [receipts, setReceipts] = useState<Receipt[]>(initialReceipts);
+  const [receipts, setReceipts] = useState<Receipt[]>(initialTransactions);
 
   const [activeTab, setActiveTab] = useState<FilterTab>("pending");
 
