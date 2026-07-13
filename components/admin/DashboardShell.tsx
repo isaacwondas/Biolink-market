@@ -1164,15 +1164,12 @@ function OverviewTab({
                           transaction={{
                             id: receipt.id,
                             total_order_amount:
-                              receipt.total_order_amount ||
-                              receipt.amount_paid ||
-                              0,
-                            amount_paid: receipt.amount_paid || 0,
-                            balance_due: receipt.balance_due || 0,
+                              Number(receipt.total_order_amount) || 0,
+                            amount_paid: Number(receipt.amount_paid) || 0,
+                            balance_due: Number(receipt.balance_due) || 0,
                             payment_status: receipt.payment_status || "unpaid",
-                            customer_name: receipt.customer_name,
-                            customer_phone: receipt.customer_phone,
-                            customer_email: receipt.customer_email,
+                            buyer_name: receipt.buyer_name,
+                            buyer_phone: receipt.buyer_phone,
                           }}
                           onConfirm={handleApprove}
                           onDecline={handleDecline}
