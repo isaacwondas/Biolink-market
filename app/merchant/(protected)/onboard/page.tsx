@@ -15,6 +15,7 @@ export default function OnboardingForm() {
   const router = useRouter();
 
   const [currentStep, setCurrentStep] = useState(1);
+  const [launchedUsername, setLaunchedUsername] = useState("");
 
   const [formData, setFormData] = useState({
     username: "",
@@ -730,18 +731,14 @@ export default function OnboardingForm() {
       // SUCCESS
       // =============================================
 
-      setMessage({
-        type: "success",
-        text: "🎉 Setup Complete! Your storefront is now live. Redirecting to your dashboard...",
-      });
+      setMessage(null);
 
       setImageFile(null);
       setAvatarFile(null);
       setBannerFile(null);
 
-      setTimeout(() => {
-        router.push("/merchant/share");
-      }, 2000);
+      setLaunchedUsername(usernameSlug);
+      setCurrentStep(4);
     } catch (err: any) {
       setMessage({
         type: "error",
@@ -770,41 +767,47 @@ export default function OnboardingForm() {
         </div>
 
         {/* PROGRESS */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between max-w-sm mx-auto">
-            {[1, 2, 3].map((step, index) => (
-              <Fragment key={step}>
-                <div className="flex flex-col items-center gap-2">
-                  <div
-                    className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                      currentStep >= step
-                        ? "bg-[#22C55E] text-white"
-                        : "bg-white border border-gray-300 text-gray-400"
-                    }`}
-                  >
-                    {currentStep > step ? "✓" : step}
+        {currentStep <= 3 && (
+          <div className="mb-8">
+            <div className="flex items-center justify-between max-w-sm mx-auto">
+              {[1, 2, 3].map((step, index) => (
+                <Fragment key={step}>
+                  <div className="flex flex-col items-center gap-2">
+                    <div
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
+                        currentStep >= step
+                          ? "bg-[#22C55E] text-white"
+                          : "bg-white border border-gray-300 text-gray-400"
+                      }`}
+                    >
+                      {currentStep > step ? "✓" : step}
+                    </div>
+
+                    <span
+                      className={`text-[11px] font-semibold ${
+                        currentStep >= step ? "text-[#15803D]" : "text-gray-400"
+                      }`}
+                    >
+                      {step === 1
+                        ? "Store"
+                        : step === 2
+                          ? "WhatsApp"
+                          : "Payment"}
+                    </span>
                   </div>
 
-                  <span
-                    className={`text-[11px] font-semibold ${
-                      currentStep >= step ? "text-[#15803D]" : "text-gray-400"
-                    }`}
-                  >
-                    {step === 1 ? "Store" : step === 2 ? "WhatsApp" : "Payment"}
-                  </span>
-                </div>
-
-                {index < 2 && (
-                  <div
-                    className={`h-1 flex-1 mx-3 rounded-full ${
-                      currentStep > step ? "bg-[#22C55E]" : "bg-gray-200"
-                    }`}
-                  />
-                )}
-              </Fragment>
-            ))}
+                  {index < 2 && (
+                    <div
+                      className={`h-1 flex-1 mx-3 rounded-full ${
+                        currentStep > step ? "bg-[#22C55E]" : "bg-gray-200"
+                      }`}
+                    />
+                  )}
+                </Fragment>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <fieldset disabled={loading || uploading}>
@@ -822,6 +825,93 @@ export default function OnboardingForm() {
             )}
 
             <div className="bg-white border border-[#E5E7EB] rounded-3xl p-5 sm:p-7 shadow-sm">
+              {/* STORE LIVE SUCCESS */}
+              {currentStep === 4 && (
+                <div className="text-center space-y-7">
+                  <div className="w-20 h-20 mx-auto rounded-full bg-green-50 border border-green-200 flex items-center justify-center text-4xl">
+                    🎉
+                  </div>
+
+                  <div>
+                    <h2 className="text-2xl sm:text-3xl font-black text-[#111827]">
+                      Your store is live!
+                    </h2>
+
+                    <p className="text-sm text-[#6B7280] mt-2">
+                      Your BioLink Market storefront is ready to share with
+                      customers.
+                    </p>
+                  </div>
+
+                  <div className="bg-[#F9FAFB] border border-[#E5E7EB] rounded-2xl p-4">
+                    <p className="text-xs text-[#6B7280] mb-1">
+                      Your storefront link
+                    </p>
+
+                    <p className="text-sm font-bold text-[#15803D] break-all">
+                      {`${window.location.origin}/${launchedUsername}`}
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <a
+                      href={`/${launchedUsername}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="min-h-[52px] flex items-center justify-center border border-green-200 bg-green-50 text-[#15803D] font-bold rounded-xl hover:bg-green-100 transition-all"
+                    >
+                      View My Store
+                    </a>
+
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(
+                        `Check out my store on BioLink Market 🎉\n\n${window.location.origin}/${launchedUsername}`,
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="min-h-[52px] flex items-center justify-center bg-[#22C55E] text-white font-bold rounded-xl hover:bg-[#15803D] transition-all"
+                    >
+                      Share on WhatsApp
+                    </a>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => router.push("/admin/dashboard")}
+                    className="w-full min-h-[52px] bg-[#111827] hover:bg-black text-white font-bold rounded-xl transition-all"
+                  >
+                    Go to Dashboard →
+                  </button>
+
+                  <div className="border-t border-[#E5E7EB] pt-6 text-left">
+                    <h3 className="text-base font-bold text-[#111827]">
+                      Make your store stand out
+                    </h3>
+
+                    <p className="text-xs text-[#6B7280] mt-1 mb-4">
+                      You can complete these anytime from your dashboard.
+                    </p>
+
+                    <div className="space-y-3">
+                      {[
+                        "Add your logo",
+                        "Add your first product",
+                        "Write your business bio",
+                        "Add Instagram or TikTok",
+                      ].map((task) => (
+                        <div
+                          key={task}
+                          className="flex items-center gap-3 text-sm text-[#374151]"
+                        >
+                          <span className="w-5 h-5 rounded-full border-2 border-gray-300 shrink-0" />
+                          <span>{task}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* STEP 1 */}
               {currentStep === 1 && (
                 <div className="space-y-6">
