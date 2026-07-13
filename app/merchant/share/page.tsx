@@ -6,9 +6,8 @@ import { QRCodeSVG } from "qrcode.react";
 //import QRCode from "qrcode.react";
 //import { useRef } from "react"; // Add this
 import { supabase } from "@/app/lib/supabase";
-import { MessageCircle, Music2 } from "lucide-react",
+import { MessageCircle, Music2, Mail } from "lucide-react";
 import { FaWhatsapp, FaInstagram, FaTiktok } from "react-icons/fa";
-import { Mail } from "lucide-react";
 
 export default function ShareStorePage() {
   const router = useRouter();
@@ -216,7 +215,7 @@ export default function ShareStorePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 {
-                  icon: MessageCircle,
+                  icon: FaWhatsapp,
                   label: "WhatsApp",
 
                   action: () => {
@@ -227,14 +226,14 @@ export default function ShareStorePage() {
                   },
                 },
                 {
-                  icon: Instagram,
+                  icon: FaInstagram,
                   label: "Instagram",
                   action: () => {
                     window.open(`https://instagram.com`, "_blank");
                   },
                 },
                 {
-                  icon: Music2,
+                  icon: FaTiktok,
                   label: "TikTok",
                   action: () => {
                     window.open(`https://tiktok.com`, "_blank");
