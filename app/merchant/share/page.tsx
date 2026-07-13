@@ -6,6 +6,9 @@ import { QRCodeSVG } from "qrcode.react";
 //import QRCode from "qrcode.react";
 //import { useRef } from "react"; // Add this
 import { supabase } from "@/app/lib/supabase";
+import { MessageCircle, Music2 } from "lucide-react",
+import { FaWhatsapp, FaInstagram, FaTiktok } from "react-icons/fa";
+import { Mail } from "lucide-react";
 
 export default function ShareStorePage() {
   const router = useRouter();
@@ -213,8 +216,9 @@ export default function ShareStorePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 {
-                  icon: "📱",
+                  icon: MessageCircle,
                   label: "WhatsApp",
+
                   action: () => {
                     window.open(
                       `https://wa.me/?text=Check out my store: ${storeUrl}`,
@@ -223,36 +227,41 @@ export default function ShareStorePage() {
                   },
                 },
                 {
-                  icon: "📷",
+                  icon: Instagram,
                   label: "Instagram",
                   action: () => {
                     window.open(`https://instagram.com`, "_blank");
                   },
                 },
                 {
-                  icon: "🎵",
+                  icon: Music2,
                   label: "TikTok",
                   action: () => {
                     window.open(`https://tiktok.com`, "_blank");
                   },
                 },
                 {
-                  icon: "📧",
+                  icon: Mail,
                   label: "Email",
                   action: () => {
                     window.location.href = `mailto:?subject=Check out my store&body=${storeUrl}`;
                   },
                 },
-              ].map((item, idx) => (
-                <button
-                  key={idx}
-                  onClick={item.action}
-                  className="py-3 px-4 bg-gray-50 hover:bg-[#22C55E]/10 border border-[#E5E7EB] rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2"
-                >
-                  <span>{item.icon}</span>
-                  {item.label}
-                </button>
-              ))}
+              ].map((item, idx) => {
+                const Icon = item.icon;
+
+                return (
+                  <button
+                    key={idx}
+                    onClick={item.action}
+                    className="py-3 px-4 bg-gray-50 hover:bg-[#22C55E]/10 border border-[#E5E7EB] rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2"
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+
+                    <span>{item.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

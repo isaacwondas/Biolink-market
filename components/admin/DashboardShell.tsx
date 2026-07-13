@@ -1401,23 +1401,28 @@ export default function DashboardShell({
 
         {/* Nav */}
         <nav className="flex-1 p-3 space-y-1">
-          {NAV.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => {
-                setActiveTab(item.id as Tab);
-                setSidebarOpen(false);
-              }}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                activeTab === item.id
-                  ? "bg-[#22C55E]/15 text-[#22C55E] border border-[#22C55E]/20"
-                  : "text-[#4B5563] hover:text-[#111827] hover:bg-gray-100"
-              }`}
-            >
-              <span>{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
+          {NAV.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveTab(item.id as Tab);
+                  setSidebarOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                  activeTab === item.id
+                    ? "bg-[#22C55E]/15 text-[#22C55E] border border-[#22C55E]/20"
+                    : "text-[#4B5563] hover:text-[#111827] hover:bg-gray-100"
+                }`}
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
         </nav>
 
         {/* Bottom actions */}
