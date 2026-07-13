@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, Fragment, useMemo, useState } from "react";
 import { supabase } from "../../../lib/supabase";
 import { useRouter } from "next/navigation";
 import { Store, Image, Package } from "lucide-react";
@@ -101,7 +101,7 @@ export default function OnboardingForm() {
     text: string;
   } | null>(null);
 
-  const popularBanks = [
+  const NIGERIAN_BANKS = [
     "OPay",
     "PalmPay",
     "Moniepoint",
@@ -758,7 +758,7 @@ export default function OnboardingForm() {
         <div className="mb-8">
           <div className="flex items-center justify-between max-w-sm mx-auto">
             {[1, 2, 3].map((step, index) => (
-              <React.Fragment key={step}>
+              <Fragment key={step}>
                 <div className="flex flex-col items-center gap-2">
                   <div
                     className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
@@ -786,7 +786,7 @@ export default function OnboardingForm() {
                     }`}
                   />
                 )}
-              </React.Fragment>
+              </Fragment>
             ))}
           </div>
         </div>
