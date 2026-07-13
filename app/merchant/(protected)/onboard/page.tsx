@@ -102,35 +102,35 @@ export default function OnboardingForm() {
   } | null>(null);
 
   const NIGERIAN_BANKS = [
-   "Access Bank",
-  "Citibank Nigeria",
-  "Ecobank Nigeria",
-  "Fidelity Bank",
-  "First Bank of Nigeria",
-  "First City Monument Bank (FCMB)",
-  "Globus Bank",
-  "Guaranty Trust Bank (GTBank)",
-  "Jaiz Bank",
-  "Keystone Bank",
-  "Kuda Bank",
-  "Lotus Bank",
-  "Moniepoint MFB",
-  "OPay",
-  "PalmPay",
-  "Polaris Bank",
-  "PremiumTrust Bank",
-  "Providus Bank",
-  "Stanbic IBTC Bank",
-  "Standard Chartered Bank",
-  "Sterling Bank",
-  "SunTrust Bank",
-  "TAJBank",
-  "Titan Trust Bank",
-  "Union Bank of Nigeria",
-  "United Bank for Africa (UBA)",
-  "Unity Bank",
-  "Wema Bank",
-  "Zenith Bank",
+    "Access Bank",
+    "Citibank Nigeria",
+    "Ecobank Nigeria",
+    "Fidelity Bank",
+    "First Bank of Nigeria",
+    "First City Monument Bank (FCMB)",
+    "Globus Bank",
+    "Guaranty Trust Bank (GTBank)",
+    "Jaiz Bank",
+    "Keystone Bank",
+    "Kuda Bank",
+    "Lotus Bank",
+    "Moniepoint MFB",
+    "OPay",
+    "PalmPay",
+    "Polaris Bank",
+    "PremiumTrust Bank",
+    "Providus Bank",
+    "Stanbic IBTC Bank",
+    "Standard Chartered Bank",
+    "Sterling Bank",
+    "SunTrust Bank",
+    "TAJBank",
+    "Titan Trust Bank",
+    "Union Bank of Nigeria",
+    "United Bank for Africa (UBA)",
+    "Unity Bank",
+    "Wema Bank",
+    "Zenith Bank",
   ];
 
   useEffect(() => {
@@ -499,12 +499,38 @@ export default function OnboardingForm() {
     if (
       !formData.username.trim() ||
       !formData.business_name.trim() ||
-      !formData.product_name.trim() ||
       !formData.whatsapp.trim()
     ) {
       setMessage({
         type: "error",
-        text: "Please fill out all required fields.",
+        text: "Please complete your store details and WhatsApp number.",
+      });
+
+      setLoading(false);
+      return;
+    }
+
+    const primaryBank = banks[0];
+
+    if (
+      !primaryBank ||
+      !primaryBank.bank_name.trim() ||
+      !primaryBank.account_number.trim() ||
+      !primaryBank.account_name.trim()
+    ) {
+      setMessage({
+        type: "error",
+        text: "Please complete your bank account details.",
+      });
+
+      setLoading(false);
+      return;
+    }
+
+    if (!/^\d{10}$/.test(primaryBank.account_number.trim())) {
+      setMessage({
+        type: "error",
+        text: "Please enter a valid 10-digit account number.",
       });
 
       setLoading(false);
@@ -639,33 +665,11 @@ export default function OnboardingForm() {
         .update({
           username: usernameSlug,
           business_name: formData.business_name.trim(),
-          bio_tagline: formData.bio_tagline.trim(),
-          location: formData.location.trim(),
-
           whatsapp: normalizedWhatsapp,
-
-          instagram_handle: instagramHandle,
-          tiktok_handle: tiktokHandle,
-          facebook_handle: facebookHandle,
-
-          website: websiteUrl,
-
-          social_links: cleanedExtraLinks,
-
-          product_name: formData.product_name.trim(),
-          product_price: formattedPrice,
-          product_image: finalImageUrl || null,
-
-          description: formData.description.trim(),
-
-          avatar_image: avatarUrl || null,
-          banner_image: bannerUrl || null,
-
           is_onboarded: true,
         })
         .eq("email", userEmail.toLowerCase())
         .select();
-
       if (vendorError) {
         throw vendorError;
       }
