@@ -5,7 +5,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import StoreTrackerTrigger from "../../components/StoreTrackerTrigger";
 import SocialButton from "../../components/SocialButton";
-import ReceiptUploadForm from "../../components/ReceiptUploadForm";
+import { Plus, Globe, Landmark, ExternalLink } from "lucide-react";
 
 interface PageProps {
   params: Promise<{ username: string }>;
@@ -155,7 +155,7 @@ export default async function Storefront({ params }: PageProps) {
             href={`https://wa.me/${vendor.whatsapp || vendor.phone}?text=Hello%20${encodeURIComponent(vendor.name)},%20I%20am%20viewing%20your%20storefront%20and%20would%20like%20to%20make%20an%20enquiry.`}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full mt-2.5 bg-[#22C55E] hover:bg-[#15803D] text-white font-bold py-2.5 px-4 rounded-xl text-center shadow-sm transition-all flex items-center justify-center gap-2.5 tracking-wide text-sm active:scale-[0.99]"
+            className="w-full mt-2.5 bg-[#22C55E] hover:bg-[#15803D] text-white font-bold py-2.5 px-4 rounded-2xl text-center shadow-sm transition-all flex items-center justify-center gap-2.5 tracking-wide text-sm active:scale-[0.99]"
           >
             {/* Official WhatsApp Icon */}
             <svg
@@ -213,11 +213,11 @@ export default async function Storefront({ params }: PageProps) {
                     href={link.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full bg-white border border-[#E5E7EB] hover:border-[#22C55E] hover:bg-green-50 text-[#111827] font-semibold px-3 py-2 rounded-xl transition-all flex items-center justify-between gap-2 active:scale-[0.99]"
+                    className="w-full bg-white border border-[#E5E7EB] hover:border-[#22C55E] hover:bg-green-50 text-[#111827] font-semibold px-3 py-2 rounded-2xl transition-all flex items-center justify-between gap-2 active:scale-[0.99]"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-7 h-7 shrink-0 rounded-lg bg-[#22C55E]/10 flex items-center justify-center text-xs">
-                        🔗
+                        <ExternalLink className="w-4 h-4" />
                       </div>
 
                       <span className="text-xs md:text-sm truncate">
@@ -237,10 +237,10 @@ export default async function Storefront({ params }: PageProps) {
               href={vendor.website}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full min-h-[50px] mt-3 bg-[#111827] hover:bg-black text-white font-bold px-4 py-3 rounded-xl transition-all flex items-center justify-between gap-3 active:scale-[0.99]"
+              className="w-full min-h-[50px] mt-3 bg-[#111827] hover:bg-black text-white font-bold px-4 py-3 rounded-2xl transition-all flex items-center justify-between gap-3 active:scale-[0.99]"
             >
               <div className="flex items-center gap-3">
-                <span className="text-xl">🌐</span>
+                <Globe className="w-4 h-4" />
 
                 <span className="text-sm">Visit Official Website</span>
               </div>
@@ -259,7 +259,7 @@ export default async function Storefront({ params }: PageProps) {
           {/* Section Header */}
           <div>
             <h3 className="text-base font-bold text-[#111827]">
-              🏦 Bank Details
+              <Landmark className="w-5 h-5" /> Bank Details
             </h3>
 
             <p className="text-xs text-[#6B7280] mt-1">
@@ -305,7 +305,7 @@ export default async function Storefront({ params }: PageProps) {
                     {/* QR Code */}
                     {bank.qrCodeUrl && (
                       <div className="shrink-0 flex flex-col items-center gap-1">
-                        <div className="bg-white border border-[#E5E7EB] rounded-xl p-2">
+                        <div className="bg-white border border-[#E5E7EB] rounded-2xl p-2">
                           {/* eslint-disable-next-img-element */}
                           <img
                             src={bank.qrCodeUrl}
@@ -322,7 +322,7 @@ export default async function Storefront({ params }: PageProps) {
                   </div>
 
                   {/* Copy Account Number */}
-                  <div className="mt-4 bg-green-50 border border-green-100 rounded-xl px-3 py-2.5 text-center">
+                  <div className="mt-4 bg-green-50 border border-green-100 rounded-2xl px-3 py-2.5 text-center">
                     <p className="text-xs font-medium text-[#15803D]">
                       Tap and hold the account number above to copy
                     </p>
@@ -341,15 +341,6 @@ export default async function Storefront({ params }: PageProps) {
           )}
         </div>
 
-        {/* Receipts Container Wrapper */}
-        <div className="px-4 mt-1 text-[#111827]">
-          <ReceiptUploadForm
-            vendorEmail={vendor.email}
-            vendorPhone={vendor.whatsapp || vendor.phone || "08000000000"}
-            vendorBusinessName={merchantDisplayName}
-          />
-        </div>
-
         {/* Items Grid Layout Showcase */}
         <div className="px-4 mt-3 space-y-2">
           <h3 className="text-sm font-bold text-[#15803D] tracking-tight">
@@ -361,7 +352,7 @@ export default async function Storefront({ params }: PageProps) {
               {vendor.vendor_products.map((product: any, idx: number) => (
                 <div
                   key={product.id || idx}
-                  className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl overflow-hidden shadow-xs flex flex-col group"
+                  className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-sm flex flex-col group"
                 >
                   <div className="relative aspect-[4/3] w-full bg-[#FFFFFF] overflow-hidden">
                     <Image
@@ -375,22 +366,32 @@ export default async function Storefront({ params }: PageProps) {
                       className="object-cover group-hover:scale-105 transition-transform duration-200"
                     />
                   </div>
-                  <div className="p-2 flex flex-col justify-between flex-grow gap-0.5">
-                    <h4 className="text-[11px] font-bold text-[#111827] line-clamp-1 leading-tight">
+                  <div className="p-3 flex flex-col flex-grow">
+                    <h4 className="text-sm font-semibold text-[#111827] line-clamp-2">
                       {product.name}
                     </h4>
+
                     {product.price && Number(product.price) > 0 && (
-                      <span className="text-xs font-black text-[#22C55E] tracking-tight">
+                      <p className="mt-2 text-lg font-bold text-[#111827]">
                         ₦{Number(product.price).toLocaleString()}
-                      </span>
+                      </p>
                     )}
+
+                    <button
+                      type="button"
+                      className="mt-4 w-full h-10 border border-[#22C55E] rounded-2xl text-[#15803D] font-medium text-sm hover:bg-[#22C55E] hover:text-white transition-colors flex items-center justify-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+
+                      <span>Add to Order</span>
+                    </button>
                   </div>
                 </div>
               ))}
             </div>
           ) : vendor.product_name ? (
-            <div className="grid grid-cols-2 gap-2">
-              <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-xl overflow-hidden shadow-xs flex flex-col">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-sm flex flex-col">
                 <div className="relative aspect-[4/3] w-full bg-[#FFFFFF] overflow-hidden">
                   <Image
                     src={
@@ -417,7 +418,7 @@ export default async function Storefront({ params }: PageProps) {
               </div>
             </div>
           ) : (
-            <div className="bg-[#FFFFFF] border border-dashed border-[#E5E7EB] rounded-xl p-4 text-center">
+            <div className="bg-[#FFFFFF] border border-dashed border-[#E5E7EB] rounded-2xl p-4 text-center">
               <p className="text-xs text-[#374151] font-medium">
                 No items uploaded yet.
               </p>
