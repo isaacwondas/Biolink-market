@@ -132,8 +132,9 @@ export default function OrderProducts({ products }: { products: Product[] }) {
           </div>
           {showOrderReview && (
             <div className="fixed inset-0 z-[60] bg-black/40 flex items-end sm:items-center justify-center">
-              <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 max-h-[85vh] overflow-y-auto">
-                <div className="flex items-center justify-between mb-5">
+              <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] flex flex-col overflow-hidden">
+                {/* Header */}
+                <div className="p-5 border-b border-[#E5E7EB] flex items-start justify-between gap-4 shrink-0">
                   <div>
                     <h2 className="text-lg font-bold text-[#111827]">
                       Review Order
@@ -154,7 +155,8 @@ export default function OrderProducts({ products }: { products: Product[] }) {
                   </button>
                 </div>
 
-                <div className="space-y-3">
+                {/* Scrollable Items */}
+                <div className="flex-1 overflow-y-auto p-5 space-y-3">
                   {orderItems.map((item) => (
                     <div
                       key={item.id}
@@ -170,7 +172,7 @@ export default function OrderProducts({ products }: { products: Product[] }) {
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 shrink-0">
                         <button
                           type="button"
                           onClick={() =>
@@ -219,7 +221,8 @@ export default function OrderProducts({ products }: { products: Product[] }) {
                   ))}
                 </div>
 
-                <div className="border-t border-[#E5E7EB] mt-5 pt-5">
+                {/* Fixed Footer */}
+                <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-[#6B7280]">Order Total</span>
 
@@ -234,7 +237,7 @@ export default function OrderProducts({ products }: { products: Product[] }) {
                       setShowOrderReview(false);
                       setShowCustomerDetails(true);
                     }}
-                    className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl font-semibold"
+                    className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl font-semibold transition-colors"
                   >
                     Continue
                   </button>
