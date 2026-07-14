@@ -200,8 +200,7 @@ export default function OrderProducts({
             reference_code: referenceCode,
             status: "pending",
             total_order_amount: orderTotal,
-            amount_paid: orderTotal,
-            balance_due: 0,
+            amount_paid: 0,
             payment_status: "unpaid",
           },
         ]);
