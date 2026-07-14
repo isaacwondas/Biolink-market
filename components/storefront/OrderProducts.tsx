@@ -49,6 +49,10 @@ export default function OrderProducts({
   const [orderError, setOrderError] = useState("");
   const [showPayment, setShowPayment] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
+  const [showReceiptUpload, setShowReceiptUpload] = useState(false);
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
+  const [receiptError, setReceiptError] = useState("");
 
   const totalItems = orderItems.reduce(
     (total, item) => total + item.quantity,
@@ -103,6 +107,7 @@ export default function OrderProducts({
         .from("orders")
         .insert([
           {
+            order_id: createdOrderId,
             vendor_id: vendorId,
             vendor_email: vendorEmail,
             buyer_name: customerName.trim(),
@@ -153,6 +158,69 @@ export default function OrderProducts({
       );
     } finally {
       setSavingOrder(false);
+    }
+  };
+
+  const uploadOrderReceipt = async () => {
+    if (!receiptFile || !createdOrderId) {
+      setReceiptError("Please select your payment receipt.");
+      return;
+    }
+
+    setUploadingReceipt(true);
+    setReceiptError("");
+
+    try {
+      const fileExt = receiptFile.name.split(".").pop();
+      const filePath = `${vendorEmail}/${createdOrderId}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("receipts")
+        .upload(filePath, receiptFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (uploadError) throw uploadError;
+
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("receipts").getPublicUrl(filePath);
+
+      const referenceCode = `HQ-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      const { error: transactionError } = await supabase
+        .from("transactions")
+        .insert([
+          {
+            vendor_email: vendorEmail,
+            buyer_name: customerName.trim(),
+            buyer_phone: customerPhone.trim(),
+            receipt_url: publicUrl,
+            reference_code: referenceCode,
+            status: "pending",
+            total_order_amount: orderTotal,
+            amount_paid: orderTotal,
+            balance_due: 0,
+            payment_status: "unpaid",
+          },
+        ]);
+
+      if (transactionError) throw transactionError;
+
+      setShowReceiptUpload(false);
+      setOrderItems([]);
+      setReceiptFile(null);
+
+      alert(
+        `Receipt submitted successfully. Your reference is ${referenceCode}`,
+      );
+    } catch (error: any) {
+      console.error("RECEIPT UPLOAD ERROR:", error);
+
+      setReceiptError(error?.message || "We could not upload your receipt.");
+    } finally {
+      setUploadingReceipt(false);
     }
   };
 
@@ -488,6 +556,10 @@ export default function OrderProducts({
                     <button
                       type="button"
                       disabled={banks.length === 0}
+                      onClick={() => {
+                        setShowPayment(false);
+                        setShowReceiptUpload(true);
+                      }}
                       className="w-full h-12 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] text-white rounded-xl font-semibold"
                     >
                       I Have Paid
@@ -497,6 +569,72 @@ export default function OrderProducts({
                       Order #{createdOrderId}
                     </p>
                   </div>
+                </div>
+              </div>,
+              document.body,
+            )}
+          {showReceiptUpload &&
+            createPortal(
+              <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
+                <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <h2 className="text-lg font-bold text-[#111827]">
+                        Upload Payment Receipt
+                      </h2>
+
+                      <p className="text-xs text-[#6B7280] mt-1">
+                        Upload the receipt for your ₦
+                        {orderTotal.toLocaleString()} payment.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowReceiptUpload(false)}
+                      className="text-sm text-[#6B7280]"
+                    >
+                      Close
+                    </button>
+                  </div>
+
+                  <div className="mt-6">
+                    <label className="block border border-dashed border-[#22C55E] rounded-2xl p-6 text-center cursor-pointer">
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        className="hidden"
+                        onChange={(e) =>
+                          setReceiptFile(e.target.files?.[0] || null)
+                        }
+                      />
+
+                      <span className="text-sm font-medium text-[#374151]">
+                        {receiptFile
+                          ? receiptFile.name
+                          : "Choose payment receipt"}
+                      </span>
+
+                      <span className="block text-xs text-[#6B7280] mt-1">
+                        PNG, JPG or WEBP
+                      </span>
+                    </label>
+                  </div>
+
+                  {receiptError && (
+                    <p className="mt-3 text-xs text-red-600">{receiptError}</p>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={!receiptFile || uploadingReceipt}
+                    onClick={uploadOrderReceipt}
+                    className="w-full h-12 mt-6 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] disabled:cursor-not-allowed text-white rounded-xl font-semibold"
+                  >
+                    {uploadingReceipt
+                      ? "Uploading Receipt..."
+                      : "Submit Receipt"}
+                  </button>
                 </div>
               </div>,
               document.body,
