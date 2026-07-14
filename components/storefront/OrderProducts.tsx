@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { ArrowRight, Plus } from "lucide-react";
+import { createPortal } from "react-dom";
 
 type Product = {
   id: number;
@@ -130,121 +131,125 @@ export default function OrderProducts({ products }: { products: Product[] }) {
               </button>
             </div>
           </div>
-          {showOrderReview && (
-            <div className="fixed inset-0 z-[60] bg-black/40 flex items-end sm:items-center justify-center">
-              <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90vh] flex flex-col overflow-hidden">
-                {/* Header */}
-                <div className="p-5 border-b border-[#E5E7EB] flex items-start justify-between gap-4 shrink-0">
-                  <div>
-                    <h2 className="text-lg font-bold text-[#111827]">
-                      Review Order
-                    </h2>
+          {showOrderReview &&
+            createPortal(
+              <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
+                <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col overflow-hidden">
+                  {/* Header */}
+                  <div className="p-5 border-b border-[#E5E7EB] flex items-start justify-between gap-4 shrink-0">
+                    <div>
+                      <h2 className="text-lg font-bold text-[#111827]">
+                        Review Order
+                      </h2>
 
-                    <p className="text-xs text-[#6B7280] mt-1">
-                      {totalItems} {totalItems === 1 ? "item" : "items"}{" "}
-                      selected
-                    </p>
+                      <p className="text-xs text-[#6B7280] mt-1">
+                        {totalItems} {totalItems === 1 ? "item" : "items"}{" "}
+                        selected
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowOrderReview(false)}
+                      className="text-sm text-[#6B7280] hover:text-[#111827]"
+                    >
+                      Close
+                    </button>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowOrderReview(false)}
-                    className="text-sm text-[#6B7280] hover:text-[#111827]"
-                  >
-                    Close
-                  </button>
-                </div>
+                  {/* Scrollable Items */}
+                  <div className="flex-1 overflow-y-auto p-5 space-y-3">
+                    {orderItems.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between gap-4 border border-[#E5E7EB] rounded-2xl p-3"
+                      >
+                        <div className="min-w-0">
+                          <p className="font-semibold text-sm text-[#111827] truncate">
+                            {item.name}
+                          </p>
 
-                {/* Scrollable Items */}
-                <div className="flex-1 overflow-y-auto p-5 space-y-3">
-                  {orderItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="flex items-center justify-between gap-4 border border-[#E5E7EB] rounded-2xl p-3"
-                    >
-                      <div className="min-w-0">
-                        <p className="font-semibold text-sm text-[#111827] truncate">
-                          {item.name}
-                        </p>
+                          <p className="text-sm text-[#15803D] font-bold mt-1">
+                            ₦{(item.price * item.quantity).toLocaleString()}
+                          </p>
+                        </div>
 
-                        <p className="text-sm text-[#15803D] font-bold mt-1">
-                          ₦{(item.price * item.quantity).toLocaleString()}
-                        </p>
-                      </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setOrderItems((current) =>
+                                current
+                                  .map((product) =>
+                                    product.id === item.id
+                                      ? {
+                                          ...product,
+                                          quantity: product.quantity - 1,
+                                        }
+                                      : product,
+                                  )
+                                  .filter((product) => product.quantity > 0),
+                              )
+                            }
+                            className="w-9 h-9 border border-[#E5E7EB] rounded-xl"
+                          >
+                            −
+                          </button>
 
-                      <div className="flex items-center gap-3 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setOrderItems((current) =>
-                              current
-                                .map((product) =>
+                          <span className="text-sm font-bold min-w-4 text-center">
+                            {item.quantity}
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setOrderItems((current) =>
+                                current.map((product) =>
                                   product.id === item.id
                                     ? {
                                         ...product,
-                                        quantity: product.quantity - 1,
+                                        quantity: product.quantity + 1,
                                       }
                                     : product,
-                                )
-                                .filter((product) => product.quantity > 0),
-                            )
-                          }
-                          className="w-9 h-9 border border-[#E5E7EB] rounded-xl"
-                        >
-                          −
-                        </button>
-
-                        <span className="text-sm font-bold min-w-4 text-center">
-                          {item.quantity}
-                        </span>
-
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setOrderItems((current) =>
-                              current.map((product) =>
-                                product.id === item.id
-                                  ? {
-                                      ...product,
-                                      quantity: product.quantity + 1,
-                                    }
-                                  : product,
-                              ),
-                            )
-                          }
-                          className="w-9 h-9 border border-[#E5E7EB] rounded-xl"
-                        >
-                          +
-                        </button>
+                                ),
+                              )
+                            }
+                            className="w-9 h-9 border border-[#E5E7EB] rounded-xl"
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Fixed Footer */}
-                <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[#6B7280]">Order Total</span>
-
-                    <span className="text-xl font-bold text-[#111827]">
-                      ₦{orderTotal.toLocaleString()}
-                    </span>
+                    ))}
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowOrderReview(false);
-                      setShowCustomerDetails(true);
-                    }}
-                    className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl font-semibold transition-colors"
-                  >
-                    Continue
-                  </button>
+                  {/* Fixed Footer */}
+                  <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-[#6B7280]">
+                        Order Total
+                      </span>
+
+                      <span className="text-xl font-bold text-[#111827]">
+                        ₦{orderTotal.toLocaleString()}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowOrderReview(false);
+                        setShowCustomerDetails(true);
+                      }}
+                      className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl font-semibold transition-colors"
+                    >
+                      Continue
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </div>,
+              document.body,
+            )}
           {showCustomerDetails && (
             <div className="fixed inset-0 z-[60] bg-black/40 flex items-end sm:items-center justify-center">
               <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5">
