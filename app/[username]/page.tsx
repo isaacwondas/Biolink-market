@@ -203,7 +203,7 @@ export default async function Storefront({ params }: PageProps) {
           )}
 
           {/* Extra custom social links */}
-          {/* EXTRA CUSTOM LINKS */}
+
           {vendor.social_links && vendor.social_links.length > 0 && (
             <div className="w-full mt-4 space-y-2">
               {vendor.social_links
@@ -354,6 +354,7 @@ export default async function Storefront({ params }: PageProps) {
               products={vendor.vendor_products}
               vendorId={vendor.id}
               vendorEmail={vendor.email || ""}
+              banks={vendor.vendor_banks || []}
             />
           ) : (
             <div className="bg-white border border-dashed border-[#E5E7EB] rounded-2xl p-4 text-center">

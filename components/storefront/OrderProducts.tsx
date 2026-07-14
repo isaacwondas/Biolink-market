@@ -21,15 +21,23 @@ type OrderItem = {
   image?: string | null;
   quantity: number;
 };
+type VendorBank = {
+  id: number;
+  bank_name: string;
+  account_number: string;
+  account_name?: string | null;
+};
 
 export default function OrderProducts({
   products,
   vendorId,
   vendorEmail,
+  banks,
 }: {
   products: Product[];
   vendorId: number;
   vendorEmail: string;
+  banks: VendorBank[];
 }) {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [showOrderReview, setShowOrderReview] = useState(false);
@@ -39,6 +47,8 @@ export default function OrderProducts({
 
   const [savingOrder, setSavingOrder] = useState(false);
   const [orderError, setOrderError] = useState("");
+  const [showPayment, setShowPayment] = useState(false);
+  const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
 
   const totalItems = orderItems.reduce(
     (total, item) => total + item.quantity,
@@ -130,7 +140,9 @@ export default function OrderProducts({
 
       console.log("ORDER CREATED:", order.id);
 
+      setCreatedOrderId(order.id);
       setShowCustomerDetails(false);
+      setShowPayment(true);
 
       // Payment screen comes next
     } catch (error: any) {
@@ -415,6 +427,75 @@ export default function OrderProducts({
                         ? "Creating Order..."
                         : "Continue to Payment"}
                     </button>
+                  </div>
+                </div>
+              </div>,
+              document.body,
+            )}
+
+          {showPayment &&
+            createPortal(
+              <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
+                <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col overflow-hidden">
+                  <div className="p-5 border-b border-[#E5E7EB]">
+                    <h2 className="text-lg font-bold text-[#111827]">
+                      Complete Payment
+                    </h2>
+
+                    <p className="text-xs text-[#6B7280] mt-1">
+                      Transfer the exact order amount to the account below.
+                    </p>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto p-5 space-y-5">
+                    <div className="bg-green-50 border border-green-200 rounded-2xl p-4 text-center">
+                      <p className="text-xs text-[#6B7280]">Amount to Pay</p>
+
+                      <p className="text-3xl font-bold text-[#111827] mt-1">
+                        ₦{orderTotal.toLocaleString()}
+                      </p>
+                    </div>
+
+                    {banks.length > 0 ? (
+                      banks.map((bank) => (
+                        <div
+                          key={bank.id}
+                          className="border border-[#E5E7EB] rounded-2xl p-4"
+                        >
+                          <p className="text-xs text-[#6B7280]">
+                            {bank.bank_name}
+                          </p>
+
+                          <p className="text-xl font-bold text-[#111827] mt-2">
+                            {bank.account_number}
+                          </p>
+
+                          {bank.account_name && (
+                            <p className="text-sm text-[#374151] mt-1">
+                              {bank.account_name}
+                            </p>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-red-600">
+                        This merchant has not added a payment account.
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
+                    <button
+                      type="button"
+                      disabled={banks.length === 0}
+                      className="w-full h-12 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] text-white rounded-xl font-semibold"
+                    >
+                      I Have Paid
+                    </button>
+
+                    <p className="text-[11px] text-center text-[#6B7280] mt-3">
+                      Order #{createdOrderId}
+                    </p>
                   </div>
                 </div>
               </div>,
