@@ -23,6 +23,7 @@ type OrderItem = {
   image?: string | null;
   quantity: number;
 };
+
 type VendorBank = {
   id: number;
   bank_name: string;
@@ -59,8 +60,11 @@ export default function OrderProducts({
   const [showOrderSuccess, setShowOrderSuccess] = useState(false);
   const [submittedReference, setSubmittedReference] = useState("");
 
-  const [submittedAmount, setSubmittedAmount] = useState(0);
+  // ARCHITECTURE FIX: Stable state to freeze checkout total when order is created
+  const [createdOrderTotal, setCreatedOrderTotal] = useState<number>(0);
+
   const router = useRouter();
+
   const totalItems = orderItems.reduce(
     (total, item) => total + item.quantity,
     0,
@@ -95,6 +99,7 @@ export default function OrderProducts({
       ];
     });
   };
+
   const createOrder = async () => {
     if (!customerName.trim() || !customerPhone.trim()) {
       setOrderError("Please enter your name and WhatsApp number.");
@@ -151,14 +156,14 @@ export default function OrderProducts({
 
       console.log("ORDER CREATED:", order.id);
 
+      // ARCHITECTURE FIX: Freeze current order total in state right after DB creation
       setCreatedOrderId(order.id);
+      setCreatedOrderTotal(orderTotal);
+
       setShowCustomerDetails(false);
       setShowPayment(true);
-
-      // Payment screen comes next
     } catch (error: any) {
       console.error("CREATE ORDER ERROR:", error);
-
       setOrderError(
         error?.message || "We could not create your order. Please try again.",
       );
@@ -195,6 +200,7 @@ export default function OrderProducts({
 
       const referenceCode = `HQ-${Math.floor(1000 + Math.random() * 9000)}`;
 
+      // ARCHITECTURE FIX: Use frozen createdOrderTotal for transaction creation
       const { error: transactionError } = await supabase
         .from("transactions")
         .insert([
@@ -206,7 +212,7 @@ export default function OrderProducts({
             receipt_url: publicUrl,
             reference_code: referenceCode,
             status: "pending",
-            total_order_amount: orderTotal,
+            total_order_amount: createdOrderTotal,
             amount_paid: 0,
             payment_status: "unpaid",
           },
@@ -216,13 +222,16 @@ export default function OrderProducts({
 
       setSubmittedReference(referenceCode);
       setShowReceiptUpload(false);
-      setSubmittedAmount(orderTotal);
-      setOrderItems([]);
       setReceiptFile(null);
+
+      // CLEAR CART: State update safely unmounts cart modal elements
+      setOrderItems([]);
+
+      // DEBUG: Verify state route transitions smoothly
+      console.log("SUCCESS MODAL SHOULD OPEN");
       setShowOrderSuccess(true);
     } catch (error: any) {
       console.error("RECEIPT UPLOAD ERROR:", error);
-
       setReceiptError(error?.message || "We could not upload your receipt.");
     } finally {
       setUploadingReceipt(false);
@@ -231,6 +240,7 @@ export default function OrderProducts({
 
   return (
     <>
+      {/* Products Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-32">
         {products.map((product) => {
           const productImage = product.image_url || product.image;
@@ -273,6 +283,7 @@ export default function OrderProducts({
         })}
       </div>
 
+      {/* Cart Container (Only mounts when there are products in the cart) */}
       {orderItems.length > 0 && (
         <div className="fixed bottom-4 left-4 right-4 z-50 md:left-1/2 md:right-auto md:w-full md:max-w-md md:-translate-x-1/2">
           <div className="bg-[#111827] text-white rounded-2xl p-3 shadow-xl">
@@ -297,11 +308,12 @@ export default function OrderProducts({
               </button>
             </div>
           </div>
+
+          {/* Modal 1: Review Items */}
           {showOrderReview &&
             createPortal(
               <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
                 <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col overflow-hidden">
-                  {/* Header */}
                   <div className="p-5 border-b border-[#E5E7EB] flex items-start justify-between gap-4 shrink-0">
                     <div>
                       <h2 className="text-lg font-bold text-[#111827]">
@@ -323,7 +335,6 @@ export default function OrderProducts({
                     </button>
                   </div>
 
-                  {/* Scrollable Items */}
                   <div className="flex-1 overflow-y-auto p-5 space-y-3">
                     {orderItems.map((item) => (
                       <div
@@ -389,7 +400,6 @@ export default function OrderProducts({
                     ))}
                   </div>
 
-                  {/* Fixed Footer */}
                   <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-[#6B7280]">
@@ -416,11 +426,12 @@ export default function OrderProducts({
               </div>,
               document.body,
             )}
+
+          {/* Modal 2: Customer Details */}
           {showCustomerDetails &&
             createPortal(
               <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
                 <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col overflow-hidden">
-                  {/* Header */}
                   <div className="p-5 border-b border-[#E5E7EB] flex items-start justify-between gap-4 shrink-0">
                     <div>
                       <h2 className="text-lg font-bold text-[#111827]">
@@ -441,7 +452,6 @@ export default function OrderProducts({
                     </button>
                   </div>
 
-                  {/* Scrollable Form */}
                   <div className="flex-1 overflow-y-auto p-5 space-y-4">
                     <div>
                       <label className="block text-xs font-semibold text-[#374151] mb-2">
@@ -463,7 +473,7 @@ export default function OrderProducts({
                       </label>
 
                       <input
-                        type="tel"
+                        type="text"
                         value={customerPhone}
                         onChange={(e) => setCustomerPhone(e.target.value)}
                         placeholder="08012345678"
@@ -472,7 +482,6 @@ export default function OrderProducts({
                     </div>
                   </div>
 
-                  {/* Fixed Footer */}
                   <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
                     <div className="flex items-center justify-between">
                       <span className="text-sm text-[#6B7280]">
@@ -483,9 +492,11 @@ export default function OrderProducts({
                         ₦{orderTotal.toLocaleString()}
                       </span>
                     </div>
+
                     {orderError && (
                       <p className="mt-3 text-xs text-red-600">{orderError}</p>
                     )}
+
                     <button
                       type="button"
                       disabled={
@@ -506,6 +517,7 @@ export default function OrderProducts({
               document.body,
             )}
 
+          {/* Modal 3: Payment Details */}
           {showPayment &&
             createPortal(
               <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
@@ -524,8 +536,9 @@ export default function OrderProducts({
                     <div className="bg-green-50 border border-green-200 rounded-2xl p-4 text-center">
                       <p className="text-xs text-[#6B7280]">Amount to Pay</p>
 
+                      {/* ARCHITECTURE FIX: Use frozen createdOrderTotal state */}
                       <p className="text-3xl font-bold text-[#111827] mt-1">
-                        ₦{orderTotal.toLocaleString()}
+                        ₦{createdOrderTotal.toLocaleString()}
                       </p>
                     </div>
 
@@ -578,6 +591,8 @@ export default function OrderProducts({
               </div>,
               document.body,
             )}
+
+          {/* Modal 4: Receipt Upload */}
           {showReceiptUpload &&
             createPortal(
               <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
@@ -588,9 +603,10 @@ export default function OrderProducts({
                         Upload Payment Receipt
                       </h2>
 
+                      {/* ARCHITECTURE FIX: Use frozen createdOrderTotal state */}
                       <p className="text-xs text-[#6B7280] mt-1">
                         Upload the receipt for your ₦
-                        {orderTotal.toLocaleString()} payment.
+                        {createdOrderTotal.toLocaleString()} payment.
                       </p>
                     </div>
 
@@ -644,78 +660,81 @@ export default function OrderProducts({
               </div>,
               document.body,
             )}
-          {showOrderSuccess &&
-            createPortal(
-              <div className="fixed inset-0 z-[9999] bg-white flex items-center justify-center">
-                <div className="w-full max-w-md px-6 py-10 text-center">
-                  <div className="w-16 h-16 mx-auto rounded-full bg-green-50 border border-green-200 flex items-center justify-center">
-                    <Check className="w-7 h-7 text-[#15803D]" />
-                  </div>
-
-                  <h2 className="text-2xl font-bold text-[#111827] mt-6">
-                    Payment submitted
-                  </h2>
-
-                  <p className="text-sm text-[#6B7280] mt-2 leading-relaxed">
-                    Your receipt has been sent to the merchant for review.
-                  </p>
-
-                  <div className="mt-8 border border-[#E5E7EB] rounded-2xl p-5 text-left">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-sm text-[#6B7280]">
-                        Order reference
-                      </span>
-
-                      <span className="text-sm font-bold text-[#111827]">
-                        {submittedReference}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-4 mt-4 pt-4 border-t border-[#E5E7EB]">
-                      <span className="text-sm text-[#6B7280]">
-                        Amount submitted
-                      </span>
-
-                      <span className="text-lg font-bold text-[#111827]">
-                        ₦{submittedAmount.toLocaleString()}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-4 mt-4 pt-4 border-t border-[#E5E7EB]">
-                      <span className="text-sm text-[#6B7280]">Status</span>
-
-                      <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">
-                        Awaiting review
-                      </span>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => router.push(`/order/${submittedReference}`)}
-                    className="w-full h-12 mt-6 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl font-semibold transition-colors"
-                  >
-                    View Order Status
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setShowOrderSuccess(false)}
-                    className="w-full h-12 mt-3 border border-[#D1D5DB] text-[#374151] rounded-xl font-semibold hover:bg-gray-50 transition-colors"
-                  >
-                    Back to Store
-                  </button>
-
-                  <p className="text-xs text-[#6B7280] mt-6 leading-relaxed">
-                    Keep your order reference. You may need it when contacting
-                    the merchant.
-                  </p>
-                </div>
-              </div>,
-              document.body,
-            )}
         </div>
       )}
+
+      {/* PORTAL POSITION FIX: Success Modal sits outside of the orderItems check */}
+      {showOrderSuccess &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] bg-white flex items-center justify-center">
+            <div className="w-full max-w-md px-6 py-10 text-center">
+              <div className="w-16 h-16 mx-auto rounded-full bg-green-50 border border-green-200 flex items-center justify-center">
+                <Check className="w-7 h-7 text-[#15803D]" />
+              </div>
+
+              <h2 className="text-2xl font-bold text-[#111827] mt-6">
+                Payment submitted
+              </h2>
+
+              <p className="text-sm text-[#6B7280] mt-2 leading-relaxed">
+                Your receipt has been sent to the merchant for review.
+              </p>
+
+              <div className="mt-8 border border-[#E5E7EB] rounded-2xl p-5 text-left">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-sm text-[#6B7280]">
+                    Order reference
+                  </span>
+
+                  <span className="text-sm font-bold text-[#111827]">
+                    {submittedReference}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 mt-4 pt-4 border-t border-[#E5E7EB]">
+                  <span className="text-sm text-[#6B7280]">
+                    Amount submitted
+                  </span>
+
+                  {/* ARCHITECTURE FIX: Safely reads the frozen createdOrderTotal */}
+                  <span className="text-lg font-bold text-[#111827]">
+                    ₦{createdOrderTotal.toLocaleString()}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 mt-4 pt-4 border-t border-[#E5E7EB]">
+                  <span className="text-sm text-[#6B7280]">Status</span>
+
+                  <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">
+                    Awaiting review
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => router.push(`/order/${submittedReference}`)}
+                className="w-full h-12 mt-6 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl font-semibold transition-colors"
+              >
+                View Order Status
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowOrderSuccess(false)}
+                className="w-full h-12 mt-3 border border-[#D1D5DB] text-[#374151] rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+              >
+                Back to Store
+              </button>
+
+              <p className="text-xs text-[#6B7280] mt-6 leading-relaxed">
+                Keep your order reference. You may need it when contacting the
+                merchant.
+              </p>
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }
