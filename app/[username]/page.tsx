@@ -1,69 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import QRCode from "qrcode";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import StoreTrackerTrigger from "../../components/StoreTrackerTrigger";
 import SocialButton from "../../components/SocialButton";
-import { Plus, Globe, ArrowRight, Landmark, ExternalLink } from "lucide-react";
-import { useOrder } from "@/app/context/OrderContext";
+import { Globe, Landmark, ExternalLink } from "lucide-react";
+import OrderProducts from "@/components/storefront/OrderProducts";
 
 interface PageProps {
   params: Promise<{ username: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
-
-type OrderItem = {
-  id: number;
-  name: string;
-  price: number;
-  image?: string | null;
-  quantity: number;
-};
-
-const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
-
-const totalItems = orderItems.reduce(
-  (total: number, item: OrderItem) => total + item.quantity,
-  0,
-);
-
-const orderTotal = orderItems.reduce(
-  (total: number, item: OrderItem) => total + item.price * item.quantity,
-  0,
-);
-
-const addToOrder = (product: any) => {
-  console.log("ADD TO ORDER CLICKED:", product);
-
-  setOrderItems((current: OrderItem[]) => {
-    console.log("CURRENT ORDER:", current);
-
-    const existing = current.find((item: OrderItem) => item.id === product.id);
-
-    if (existing) {
-      return current.map((item: OrderItem) =>
-        item.id === product.id
-          ? {
-              ...item,
-              quantity: item.quantity + 1,
-            }
-          : item,
-      );
-    }
-
-    return [
-      ...current,
-      {
-        id: product.id,
-        name: product.name,
-        price: Number(product.price),
-        image: product.image,
-        quantity: 1,
-      },
-    ];
-  });
-};
 
 export default async function Storefront({ params }: PageProps) {
   const resolvedParams = await params;
@@ -395,84 +343,16 @@ export default async function Storefront({ params }: PageProps) {
           )}
         </div>
 
-        {/* Items Grid Layout Showcase */}
+        {/* Products and Order Flow */}
         <div className="px-4 mt-3 space-y-2">
           <h3 className="text-sm font-bold text-[#15803D] tracking-tight">
             My Items
           </h3>
 
           {vendor.vendor_products && vendor.vendor_products.length > 0 ? (
-            <div className="grid grid-cols-2 gap-2">
-              {vendor.vendor_products.map((product: any, idx: number) => (
-                <div
-                  key={product.id || idx}
-                  className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-sm flex flex-col group"
-                >
-                  <div className="relative aspect-[4/3] w-full bg-[#FFFFFF] overflow-hidden">
-                    <Image
-                      src={
-                        product.image_url ||
-                        "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=60"
-                      }
-                      alt={product.name}
-                      fill
-                      unoptimized
-                      className="object-cover group-hover:scale-105 transition-transform duration-200"
-                    />
-                  </div>
-                  <div className="p-3 flex flex-col flex-grow">
-                    <h4 className="text-sm font-semibold text-[#111827] line-clamp-2">
-                      {product.name}
-                    </h4>
-
-                    {product.price && Number(product.price) > 0 && (
-                      <p className="mt-2 text-lg font-bold text-[#111827]">
-                        ₦{Number(product.price).toLocaleString()}
-                      </p>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => addToOrder(product)}
-                      className="mt-4 w-full h-10 border border-[#22C55E] rounded-2xl text-[#15803D] font-medium text-sm hover:bg-[#22C55E] hover:text-white transition-colors flex items-center justify-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span>Add to Order</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : vendor.product_name ? (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-[#FFFFFF] border border-[#E5E7EB] rounded-2xl overflow-hidden shadow-sm flex flex-col">
-                <div className="relative aspect-[4/3] w-full bg-[#FFFFFF] overflow-hidden">
-                  <Image
-                    src={
-                      vendor.product_image ||
-                      "https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&q=60"
-                    }
-                    alt={vendor.product_name}
-                    fill
-                    unoptimized
-                    className="object-cover"
-                    priority
-                  />
-                </div>
-                <div className="p-2 flex flex-col justify-between flex-grow gap-0.5">
-                  <h4 className="text-[11px] font-bold text-[#111827] line-clamp-1 leading-tight">
-                    {vendor.product_name}
-                  </h4>
-                  {vendor.product_price && Number(vendor.product_price) > 0 && (
-                    <span className="text-xs font-black text-[#22C55E] tracking-tight">
-                      ₦{Number(vendor.product_price).toLocaleString()}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
+            <OrderProducts products={vendor.vendor_products} />
           ) : (
-            <div className="bg-[#FFFFFF] border border-dashed border-[#E5E7EB] rounded-2xl p-4 text-center">
+            <div className="bg-white border border-dashed border-[#E5E7EB] rounded-2xl p-4 text-center">
               <p className="text-xs text-[#374151] font-medium">
                 No items uploaded yet.
               </p>
@@ -480,55 +360,6 @@ export default async function Storefront({ params }: PageProps) {
           )}
         </div>
       </div>
-      {orderItems.length > 0 && (
-        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-white border border-gray-200 shadow-lg rounded-2xl px-5 py-4 flex items-center justify-between z-50">
-          <div>
-            <p className="text-xs text-gray-500">
-              {orderItems.reduce((a, b) => a + b.quantity, 0)} items
-            </p>
-
-            <p className="font-bold text-[#111827]">
-              ₦
-              {orderItems
-                .reduce((sum, item) => sum + item.price * item.quantity, 0)
-                .toLocaleString()}
-            </p>
-          </div>
-
-          {orderItems.length > 0 && (
-            <div className="fixed bottom-4 left-4 right-4 z-50 md:left-1/2 md:right-auto md:w-full md:max-w-md md:-translate-x-1/2">
-              <div className="bg-[#111827] text-white rounded-2xl p-3 shadow-xl border border-white/10">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-xs text-gray-400">
-                      {totalItems} {totalItems === 1 ? "item" : "items"}
-                    </p>
-
-                    <p className="text-base font-bold mt-0.5">
-                      ₦{orderTotal.toLocaleString()}
-                      console.log("ORDER ITEMS STATE:", orderItems);
-                      console.log("TOTAL ITEMS:", totalItems);
-                      console.log("ORDER TOTAL:", orderTotal);
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    className="h-11 px-5 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
-                  >
-                    Review Items
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <button className="bg-[#22C55E] text-white px-5 py-2 rounded-xl font-medium">
-            Review Items
-          </button>
-        </div>
-      )}
     </div>
   );
 }
