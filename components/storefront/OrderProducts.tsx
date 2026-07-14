@@ -250,87 +250,94 @@ export default function OrderProducts({ products }: { products: Product[] }) {
               </div>,
               document.body,
             )}
-          {showCustomerDetails && (
-            <div className="fixed inset-0 z-[60] bg-black/40 flex items-end sm:items-center justify-center">
-              <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h2 className="text-lg font-bold text-[#111827]">
-                      Your Details
-                    </h2>
+          {showCustomerDetails &&
+            createPortal(
+              <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
+                <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col overflow-hidden">
+                  {/* Header */}
+                  <div className="p-5 border-b border-[#E5E7EB] flex items-start justify-between gap-4 shrink-0">
+                    <div>
+                      <h2 className="text-lg font-bold text-[#111827]">
+                        Your Details
+                      </h2>
 
-                    <p className="text-xs text-[#6B7280] mt-1">
-                      We'll use this to identify your order.
-                    </p>
+                      <p className="text-xs text-[#6B7280] mt-1">
+                        We'll use this to identify your order.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowCustomerDetails(false)}
+                      className="text-sm text-[#6B7280] hover:text-[#111827]"
+                    >
+                      Close
+                    </button>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => setShowCustomerDetails(false)}
-                    className="text-sm text-[#6B7280] hover:text-[#111827]"
-                  >
-                    Close
-                  </button>
+                  {/* Scrollable Form */}
+                  <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-[#374151] mb-2">
+                        Full Name
+                      </label>
+
+                      <input
+                        type="text"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        placeholder="Chidi Adebayo"
+                        className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#22C55E]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-[#374151] mb-2">
+                        WhatsApp Number
+                      </label>
+
+                      <input
+                        type="tel"
+                        value={customerPhone}
+                        onChange={(e) => setCustomerPhone(e.target.value)}
+                        placeholder="08012345678"
+                        className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#22C55E]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Fixed Footer */}
+                  <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-[#6B7280]">
+                        Order Total
+                      </span>
+
+                      <span className="text-xl font-bold text-[#111827]">
+                        ₦{orderTotal.toLocaleString()}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={!customerName.trim() || !customerPhone.trim()}
+                      onClick={() => {
+                        console.log({
+                          customerName,
+                          customerPhone,
+                          orderItems,
+                          orderTotal,
+                        });
+                      }}
+                      className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] disabled:cursor-not-allowed text-white rounded-xl font-semibold transition-colors"
+                    >
+                      Continue to Payment
+                    </button>
+                  </div>
                 </div>
-
-                <div className="space-y-4 mt-6">
-                  <div>
-                    <label className="block text-xs font-semibold text-[#374151] mb-2">
-                      Full Name
-                    </label>
-
-                    <input
-                      type="text"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      placeholder="Chidi Adebayo"
-                      className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#22C55E]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-[#374151] mb-2">
-                      WhatsApp Number
-                    </label>
-
-                    <input
-                      type="tel"
-                      value={customerPhone}
-                      onChange={(e) => setCustomerPhone(e.target.value)}
-                      placeholder="08012345678"
-                      className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#22C55E]"
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-6 border-t border-[#E5E7EB] pt-5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-[#6B7280]">Total</span>
-
-                    <span className="text-xl font-bold text-[#111827]">
-                      ₦{orderTotal.toLocaleString()}
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={!customerName.trim() || !customerPhone.trim()}
-                    onClick={() => {
-                      console.log({
-                        customerName,
-                        customerPhone,
-                        orderItems,
-                        orderTotal,
-                      });
-                    }}
-                    className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] disabled:cursor-not-allowed text-white rounded-xl font-semibold transition-colors"
-                  >
-                    Continue to Payment
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+              </div>,
+              document.body,
+            )}
         </div>
       )}
     </>
