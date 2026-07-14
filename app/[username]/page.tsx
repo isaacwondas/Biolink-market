@@ -34,7 +34,11 @@ const orderTotal = orderItems.reduce(
 );
 
 const addToOrder = (product: any) => {
+  console.log("ADD TO ORDER CLICKED:", product);
+
   setOrderItems((current: OrderItem[]) => {
+    console.log("CURRENT ORDER:", current);
+
     const existing = current.find((item: OrderItem) => item.id === product.id);
 
     if (existing) {
@@ -502,6 +506,9 @@ export default async function Storefront({ params }: PageProps) {
 
                     <p className="text-base font-bold mt-0.5">
                       ₦{orderTotal.toLocaleString()}
+                      console.log("ORDER ITEMS STATE:", orderItems);
+                      console.log("TOTAL ITEMS:", totalItems);
+                      console.log("ORDER TOTAL:", orderTotal);
                     </p>
                   </div>
 
