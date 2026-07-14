@@ -350,7 +350,11 @@ export default async function Storefront({ params }: PageProps) {
           </h3>
 
           {vendor.vendor_products && vendor.vendor_products.length > 0 ? (
-            <OrderProducts products={vendor.vendor_products} />
+            <OrderProducts
+              products={vendor.vendor_products}
+              vendorId={vendor.id}
+              vendorEmail={vendor.email || ""}
+            />
           ) : (
             <div className="bg-white border border-dashed border-[#E5E7EB] rounded-2xl p-4 text-center">
               <p className="text-xs text-[#374151] font-medium">

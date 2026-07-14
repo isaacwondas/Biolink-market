@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { ArrowRight, Plus } from "lucide-react";
 import { createPortal } from "react-dom";
+import { supabase } from "@/app/lib/supabase";
 
 type Product = {
   id: number;
@@ -21,12 +22,23 @@ type OrderItem = {
   quantity: number;
 };
 
-export default function OrderProducts({ products }: { products: Product[] }) {
+export default function OrderProducts({
+  products,
+  vendorId,
+  vendorEmail,
+}: {
+  products: Product[];
+  vendorId: number;
+  vendorEmail: string;
+}) {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [showOrderReview, setShowOrderReview] = useState(false);
   const [showCustomerDetails, setShowCustomerDetails] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
+
+  const [savingOrder, setSavingOrder] = useState(false);
+  const [orderError, setOrderError] = useState("");
 
   const totalItems = orderItems.reduce(
     (total, item) => total + item.quantity,
@@ -61,6 +73,75 @@ export default function OrderProducts({ products }: { products: Product[] }) {
         },
       ];
     });
+  };
+  const createOrder = async () => {
+    if (!customerName.trim() || !customerPhone.trim()) {
+      setOrderError("Please enter your name and WhatsApp number.");
+      return;
+    }
+
+    if (orderItems.length === 0) {
+      setOrderError("Your order is empty.");
+      return;
+    }
+
+    setSavingOrder(true);
+    setOrderError("");
+
+    try {
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert([
+          {
+            vendor_id: vendorId,
+            vendor_email: vendorEmail,
+            buyer_name: customerName.trim(),
+            buyer_phone: customerPhone.trim(),
+            buyer_note: null,
+            subtotal: orderTotal,
+            delivery_fee: 0,
+            total_amount: orderTotal,
+            status: "pending",
+          },
+        ])
+        .select("id")
+        .single();
+
+      if (orderError) {
+        throw orderError;
+      }
+
+      const orderItemsPayload = orderItems.map((item) => ({
+        order_id: order.id,
+        product_id: item.id,
+        product_name: item.name,
+        unit_price: item.price,
+        quantity: item.quantity,
+        total_price: item.price * item.quantity,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItemsPayload);
+
+      if (itemsError) {
+        throw itemsError;
+      }
+
+      console.log("ORDER CREATED:", order.id);
+
+      setShowCustomerDetails(false);
+
+      // Payment screen comes next
+    } catch (error: any) {
+      console.error("CREATE ORDER ERROR:", error);
+
+      setOrderError(
+        error?.message || "We could not create your order. Please try again.",
+      );
+    } finally {
+      setSavingOrder(false);
+    }
   };
 
   return (
@@ -317,21 +398,22 @@ export default function OrderProducts({ products }: { products: Product[] }) {
                         ₦{orderTotal.toLocaleString()}
                       </span>
                     </div>
-
+                    {orderError && (
+                      <p className="mt-3 text-xs text-red-600">{orderError}</p>
+                    )}
                     <button
                       type="button"
-                      disabled={!customerName.trim() || !customerPhone.trim()}
-                      onClick={() => {
-                        console.log({
-                          customerName,
-                          customerPhone,
-                          orderItems,
-                          orderTotal,
-                        });
-                      }}
+                      disabled={
+                        savingOrder ||
+                        !customerName.trim() ||
+                        !customerPhone.trim()
+                      }
+                      onClick={createOrder}
                       className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] disabled:cursor-not-allowed text-white rounded-xl font-semibold transition-colors"
                     >
-                      Continue to Payment
+                      {savingOrder
+                        ? "Creating Order..."
+                        : "Continue to Payment"}
                     </button>
                   </div>
                 </div>
