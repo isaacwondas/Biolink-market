@@ -1,16 +1,65 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import QRCode from "qrcode";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import StoreTrackerTrigger from "../../components/StoreTrackerTrigger";
 import SocialButton from "../../components/SocialButton";
-import { Plus, Globe, Landmark, ExternalLink } from "lucide-react";
+import { Plus, Globe, ArrowRight, Landmark, ExternalLink } from "lucide-react";
+import { useOrder } from "@/app/context/OrderContext";
 
 interface PageProps {
   params: Promise<{ username: string }>;
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
+
+type OrderItem = {
+  id: number;
+  name: string;
+  price: number;
+  image?: string | null;
+  quantity: number;
+};
+
+const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+
+const totalItems = orderItems.reduce(
+  (total: number, item: OrderItem) => total + item.quantity,
+  0,
+);
+
+const orderTotal = orderItems.reduce(
+  (total: number, item: OrderItem) => total + item.price * item.quantity,
+  0,
+);
+
+const addToOrder = (product: any) => {
+  setOrderItems((current: OrderItem[]) => {
+    const existing = current.find((item: OrderItem) => item.id === product.id);
+
+    if (existing) {
+      return current.map((item: OrderItem) =>
+        item.id === product.id
+          ? {
+              ...item,
+              quantity: item.quantity + 1,
+            }
+          : item,
+      );
+    }
+
+    return [
+      ...current,
+      {
+        id: product.id,
+        name: product.name,
+        price: Number(product.price),
+        image: product.image,
+        quantity: 1,
+      },
+    ];
+  });
+};
 
 export default async function Storefront({ params }: PageProps) {
   const resolvedParams = await params;
@@ -259,7 +308,8 @@ export default async function Storefront({ params }: PageProps) {
           {/* Section Header */}
           <div>
             <h3 className="text-base font-bold text-[#111827]">
-              <Landmark className="w-5 h-5" /> Bank Details
+              <Landmark className="w-5 h-5" />
+              <span>Bank Details</span>
             </h3>
 
             <p className="text-xs text-[#6B7280] mt-1">
@@ -379,10 +429,10 @@ export default async function Storefront({ params }: PageProps) {
 
                     <button
                       type="button"
+                      onClick={() => addToOrder(product)}
                       className="mt-4 w-full h-10 border border-[#22C55E] rounded-2xl text-[#15803D] font-medium text-sm hover:bg-[#22C55E] hover:text-white transition-colors flex items-center justify-center gap-2"
                     >
                       <Plus className="w-4 h-4" />
-
                       <span>Add to Order</span>
                     </button>
                   </div>
@@ -426,6 +476,52 @@ export default async function Storefront({ params }: PageProps) {
           )}
         </div>
       </div>
+      {orderItems.length > 0 && (
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-white border border-gray-200 shadow-lg rounded-2xl px-5 py-4 flex items-center justify-between z-50">
+          <div>
+            <p className="text-xs text-gray-500">
+              {orderItems.reduce((a, b) => a + b.quantity, 0)} items
+            </p>
+
+            <p className="font-bold text-[#111827]">
+              ₦
+              {orderItems
+                .reduce((sum, item) => sum + item.price * item.quantity, 0)
+                .toLocaleString()}
+            </p>
+          </div>
+
+          {orderItems.length > 0 && (
+            <div className="fixed bottom-4 left-4 right-4 z-50 md:left-1/2 md:right-auto md:w-full md:max-w-md md:-translate-x-1/2">
+              <div className="bg-[#111827] text-white rounded-2xl p-3 shadow-xl border border-white/10">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-xs text-gray-400">
+                      {totalItems} {totalItems === 1 ? "item" : "items"}
+                    </p>
+
+                    <p className="text-base font-bold mt-0.5">
+                      ₦{orderTotal.toLocaleString()}
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="h-11 px-5 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors"
+                  >
+                    Review Items
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <button className="bg-[#22C55E] text-white px-5 py-2 rounded-xl font-medium">
+            Review Items
+          </button>
+        </div>
+      )}
     </div>
   );
 }

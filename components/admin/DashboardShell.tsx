@@ -7,7 +7,15 @@ import { useRouter } from "next/navigation";
 import AnalyticsGrid from "@/components/admin/AnalyticsGrid";
 import { TransactionApprovalCard } from "@/components/admin/TransactionApprovalCard";
 import ReceiptLedger from "@/components/admin/ReceiptLedger";
-import { BarChart3, User, Building2, Package, Link2 } from "lucide-react";
+import {
+  BarChart3,
+  User,
+  Building2,
+  Package,
+  Link2,
+  LogOut,
+  ExternalLink,
+} from "lucide-react";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type Tab = "overview" | "profile" | "banks" | "products" | "social";
@@ -1432,14 +1440,14 @@ export default function DashboardShell({
             target="_blank"
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-[#4B5563] hover:text-[#111827] hover:bg-gray-100 transition-all"
           >
-            <span>↗</span>
+            <ExternalLink className="w-4 h-4 ml-2 stroke-[2.25]" />
             <span>View Storefront</span>
           </a>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
           >
-            <span>⎋</span>
+            <LogOut className="w-4 h-4 text-red-500/80 group-hover:text-red-600 transition-colors stroke-[2.25]" />
             <span>Logout</span>
           </button>
         </div>

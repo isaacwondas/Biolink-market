@@ -225,20 +225,7 @@ export default function ShareStorePage() {
                     );
                   },
                 },
-                {
-                  icon: FaInstagram,
-                  label: "Instagram",
-                  action: () => {
-                    window.open(`https://instagram.com`, "_blank");
-                  },
-                },
-                {
-                  icon: FaTiktok,
-                  label: "TikTok",
-                  action: () => {
-                    window.open(`https://tiktok.com`, "_blank");
-                  },
-                },
+
                 {
                   icon: Mail,
                   label: "Email",
