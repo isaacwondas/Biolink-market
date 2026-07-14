@@ -7,7 +7,14 @@ import { ArrowRight, Check, Plus } from "lucide-react";
 import { createPortal } from "react-dom";
 import { createOrder, uploadReceipt } from "./checkout/service";
 import { useRouter } from "next/navigation";
-import { StickyCart, ReviewOrderModal } from "@/components/storefront/checkout";
+import {
+  StickyCart,
+  ReviewOrderModal,
+  CustomerDetailsModal,
+  PaymentModal,
+  ReceiptUploadModal,
+  OrderSuccessModal,
+} from "@/components/storefront/checkout";
 import type { Product, OrderItem, VendorBank } from "./checkout/types";
 
 export default function OrderProducts({
@@ -232,299 +239,49 @@ export default function OrderProducts({
         }
       />
       {/* Modal 2: Customer Details */}
-      {showCustomerDetails &&
-        createPortal(
-          <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
-            <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col overflow-hidden">
-              <div className="p-5 border-b border-[#E5E7EB] flex items-start justify-between gap-4 shrink-0">
-                <div>
-                  <h2 className="text-lg font-bold text-[#111827]">
-                    Your Details
-                  </h2>
-
-                  <p className="text-xs text-[#6B7280] mt-1">
-                    We'll use this to identify your order.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setShowCustomerDetails(false)}
-                  className="text-sm text-[#6B7280] hover:text-[#111827]"
-                >
-                  Close
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-5 space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-[#374151] mb-2">
-                    Full Name
-                  </label>
-
-                  <input
-                    type="text"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    placeholder="Chidi Adebayo"
-                    className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#22C55E]"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-[#374151] mb-2">
-                    WhatsApp Number
-                  </label>
-
-                  <input
-                    type="text"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    placeholder="08012345678"
-                    className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#22C55E]"
-                  />
-                </div>
-              </div>
-
-              <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[#6B7280]">Order Total</span>
-
-                  <span className="text-xl font-bold text-[#111827]">
-                    ₦{orderTotal.toLocaleString()}
-                  </span>
-                </div>
-
-                {orderError && (
-                  <p className="mt-3 text-xs text-red-600">{orderError}</p>
-                )}
-
-                <button
-                  type="button"
-                  disabled={
-                    savingOrder || !customerName.trim() || !customerPhone.trim()
-                  }
-                  onClick={createOrderHandler}
-                  className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] disabled:cursor-not-allowed text-white rounded-xl font-semibold transition-colors"
-                >
-                  {savingOrder ? "Creating Order..." : "Continue to Payment"}
-                </button>
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
-
+      <CustomerDetailsModal
+        open={showCustomerDetails}
+        customerName={customerName}
+        customerPhone={customerPhone}
+        orderTotal={orderTotal}
+        loading={savingOrder}
+        error={orderError}
+        onClose={() => setShowCustomerDetails(false)}
+        onNameChange={setCustomerName}
+        onPhoneChange={setCustomerPhone}
+        onContinue={createOrderHandler}
+      />
       {/* Modal 3: Payment Details */}
-      {showPayment &&
-        createPortal(
-          <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
-            <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col overflow-hidden">
-              <div className="p-5 border-b border-[#E5E7EB]">
-                <h2 className="text-lg font-bold text-[#111827]">
-                  Complete Payment
-                </h2>
-
-                <p className="text-xs text-[#6B7280] mt-1">
-                  Transfer the exact order amount to the account below.
-                </p>
-              </div>
-
-              <div className="flex-1 overflow-y-auto p-5 space-y-5">
-                <div className="bg-green-50 border border-green-200 rounded-2xl p-4 text-center">
-                  <p className="text-xs text-[#6B7280]">Amount to Pay</p>
-
-                  {/* ARCHITECTURE FIX: Use frozen createdOrderTotal state */}
-                  <p className="text-3xl font-bold text-[#111827] mt-1">
-                    ₦{createdOrderTotal.toLocaleString()}
-                  </p>
-                </div>
-
-                {banks.length > 0 ? (
-                  banks.map((bank) => (
-                    <div
-                      key={bank.id}
-                      className="border border-[#E5E7EB] rounded-2xl p-4"
-                    >
-                      <p className="text-xs text-[#6B7280]">{bank.bank_name}</p>
-
-                      <p className="text-xl font-bold text-[#111827] mt-2">
-                        {bank.account_number}
-                      </p>
-
-                      {bank.account_name && (
-                        <p className="text-sm text-[#374151] mt-1">
-                          {bank.account_name}
-                        </p>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-red-600">
-                    This merchant has not added a payment account.
-                  </p>
-                )}
-              </div>
-
-              <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
-                <button
-                  type="button"
-                  disabled={banks.length === 0}
-                  onClick={() => {
-                    setShowPayment(false);
-                    setShowReceiptUpload(true);
-                  }}
-                  className="w-full h-12 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] text-white rounded-xl font-semibold"
-                >
-                  I Have Paid
-                </button>
-
-                <p className="text-[11px] text-center text-[#6B7280] mt-3">
-                  Order #{createdOrderId}
-                </p>
-              </div>
-            </div>
-          </div>,
-          document.body,
-        )}
-
+      <PaymentModal
+        open={showPayment}
+        orderId={createdOrderId}
+        orderTotal={createdOrderTotal}
+        banks={banks}
+        onClose={() => setShowPayment(false)}
+        onPaid={() => {
+          setShowPayment(false);
+          setShowReceiptUpload(true);
+        }}
+      />
       {/* Modal 4: Receipt Upload */}
-      {showReceiptUpload &&
-        createPortal(
-          <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
-            <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-lg font-bold text-[#111827]">
-                    Upload Payment Receipt
-                  </h2>
-
-                  {/* ARCHITECTURE FIX: Use frozen createdOrderTotal state */}
-                  <p className="text-xs text-[#6B7280] mt-1">
-                    Upload the receipt for your ₦
-                    {createdOrderTotal.toLocaleString()} payment.
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setShowReceiptUpload(false)}
-                  className="text-sm text-[#6B7280]"
-                >
-                  Close
-                </button>
-              </div>
-
-              <div className="mt-6">
-                <label className="block border border-dashed border-[#22C55E] rounded-2xl p-6 text-center cursor-pointer">
-                  <input
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp"
-                    className="hidden"
-                    onChange={(e) =>
-                      setReceiptFile(e.target.files?.[0] || null)
-                    }
-                  />
-
-                  <span className="text-sm font-medium text-[#374151]">
-                    {receiptFile ? receiptFile.name : "Choose payment receipt"}
-                  </span>
-
-                  <span className="block text-xs text-[#6B7280] mt-1">
-                    PNG, JPG or WEBP
-                  </span>
-                </label>
-              </div>
-
-              {receiptError && (
-                <p className="mt-3 text-xs text-red-600">{receiptError}</p>
-              )}
-
-              <button
-                type="button"
-                disabled={!receiptFile || uploadingReceipt}
-                onClick={uploadReceiptHandler}
-                className="w-full h-12 mt-6 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] disabled:cursor-not-allowed text-white rounded-xl font-semibold"
-              >
-                {uploadingReceipt ? "Uploading Receipt..." : "Submit Receipt"}
-              </button>
-            </div>
-          </div>,
-          document.body,
-        )}
-
+      <ReceiptUploadModal
+        open={showReceiptUpload}
+        orderTotal={createdOrderTotal}
+        receiptFile={receiptFile}
+        uploading={uploadingReceipt}
+        error={receiptError}
+        onClose={() => setShowReceiptUpload(false)}
+        onFileChange={setReceiptFile}
+        onSubmit={uploadReceiptHandler}
+      />
       {/* PORTAL POSITION FIX: Success Modal sits outside of the orderItems check */}
-      {showOrderSuccess &&
-        createPortal(
-          <div className="fixed inset-0 z-[9999] bg-white flex items-center justify-center">
-            <div className="w-full max-w-md px-6 py-10 text-center">
-              <div className="w-16 h-16 mx-auto rounded-full bg-green-50 border border-green-200 flex items-center justify-center">
-                <Check className="w-7 h-7 text-[#15803D]" />
-              </div>
-
-              <h2 className="text-2xl font-bold text-[#111827] mt-6">
-                Payment submitted
-              </h2>
-
-              <p className="text-sm text-[#6B7280] mt-2 leading-relaxed">
-                Your receipt has been sent to the merchant for review.
-              </p>
-
-              <div className="mt-8 border border-[#E5E7EB] rounded-2xl p-5 text-left">
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-sm text-[#6B7280]">
-                    Order reference
-                  </span>
-
-                  <span className="text-sm font-bold text-[#111827]">
-                    {submittedReference}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between gap-4 mt-4 pt-4 border-t border-[#E5E7EB]">
-                  <span className="text-sm text-[#6B7280]">
-                    Amount submitted
-                  </span>
-
-                  {/* ARCHITECTURE FIX: Safely reads the frozen createdOrderTotal */}
-                  <span className="text-lg font-bold text-[#111827]">
-                    ₦{createdOrderTotal.toLocaleString()}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between gap-4 mt-4 pt-4 border-t border-[#E5E7EB]">
-                  <span className="text-sm text-[#6B7280]">Status</span>
-
-                  <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">
-                    Awaiting review
-                  </span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => router.push(`/order/${submittedReference}`)}
-                className="w-full h-12 mt-6 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl font-semibold transition-colors"
-              >
-                View Order Status
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowOrderSuccess(false)}
-                className="w-full h-12 mt-3 border border-[#D1D5DB] text-[#374151] rounded-xl font-semibold hover:bg-gray-50 transition-colors"
-              >
-                Back to Store
-              </button>
-
-              <p className="text-xs text-[#6B7280] mt-6 leading-relaxed">
-                Keep your order reference. You may need it when contacting the
-                merchant.
-              </p>
-            </div>
-          </div>,
-          document.body,
-        )}
+      <OrderSuccessModal
+        open={showOrderSuccess}
+        reference={submittedReference}
+        amount={createdOrderTotal}
+        onViewStatus={() => router.push(`/order/${submittedReference}`)}
+        onBack={() => setShowOrderSuccess(false)}
+      />
     </>
   );
 }

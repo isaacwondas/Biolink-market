@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import AnalyticsGrid from "@/components/admin/AnalyticsGrid";
 import { TransactionApprovalCard } from "@/components/admin/TransactionApprovalCard";
 import ReceiptLedger from "@/components/admin/ReceiptLedger";
+import type { Product } from "@/components/admin/products/types";
 import {
   BarChart3,
   User,
@@ -16,6 +17,11 @@ import {
   LogOut,
   ExternalLink,
 } from "lucide-react";
+
+import EditProductModal from "@/components/admin/products/EditProductModal";
+
+import { updateProduct } from "@/components/admin/products/product.service";
+import ProductGrid from "@/components/admin/products/ProductGrid";
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 type Tab = "overview" | "profile" | "banks" | "products" | "social";
@@ -25,14 +31,6 @@ interface Bank {
   bank_name: string;
   account_number: string;
   account_name: string;
-}
-
-interface Product {
-  id?: string;
-  name: string;
-  price: number;
-  image_url?: string;
-  description?: string;
 }
 
 // ─── Sidebar Nav Items ────────────────────────────────────────────────────────
@@ -469,8 +467,16 @@ function BanksTab({ vendor }: { vendor: any }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // TAB: PRODUCTS
 // ═══════════════════════════════════════════════════════════════════════════════
+const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+
+const [savingProduct, setSavingProduct] = useState(false);
+
+const [deleting, setDeleting] = useState(false);
 
 function ProductsTab({ vendor }: { vendor: any }) {
+  const [editingProduct, setEditingProduct] = useState<any>(null);
   const [products, setProducts] = useState<Product[]>(
     vendor.vendor_products?.length > 0
       ? vendor.vendor_products
@@ -537,12 +543,54 @@ function ProductsTab({ vendor }: { vendor: any }) {
     }
   };
 
-  const handleDeleteProduct = async (id: string) => {
+  const handleDeleteProduct = async (id: number) => {
     const { error } = await supabase
       .from("vendor_products")
       .delete()
       .eq("id", id);
     if (!error) setProducts((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const handleUpdateProduct = async (
+    values: {
+      name: string;
+      price: number;
+      description: string;
+    },
+    image: File | null,
+  ) => {
+    if (!editingProduct?.id) return;
+
+    try {
+      setSavingProduct(true);
+
+      const updated = await updateProduct({
+        productId: editingProduct.id,
+        vendorUsername: vendor.username,
+        values,
+        image,
+      });
+
+      setProducts((current) =>
+        current.map((product) =>
+          product.id === updated.id ? updated : product,
+        ),
+      );
+
+      setEditingProduct(null);
+
+      setMsg({
+        type: "success",
+        text: "Product updated successfully.",
+      });
+    } catch (err: any) {
+      setMsg({
+        type: "error",
+        text: err.message,
+      });
+    } finally {
+      setSavingProduct(false);
+    }
   };
 
   return (
@@ -632,47 +680,13 @@ function ProductsTab({ vendor }: { vendor: any }) {
             Live Products ({products.length})
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {products.map((product, idx) => (
-              <div
-                key={product.id || idx}
-                className="bg-white border border-gray-200 rounded-2xl overflow-hidden flex gap-3 p-3"
-              >
-                {product.image_url && (
-                  <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-gray-100">
-                    <Image
-                      src={product.image_url}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                      unoptimized
-                    />
-                  </div>
-                )}
-                <div className="flex-1 min-w-0 space-y-0.5">
-                  <p className="text-xs font-bold text-[#111827] truncate">
-                    {product.name}
-                  </p>
-                  {product.price > 0 && (
-                    <p className="text-xs font-black text-[#15803D]">
-                      ₦{Number(product.price).toLocaleString()}
-                    </p>
-                  )}
-                  {product.description && (
-                    <p className="text-[10px] text-[#6B7280] line-clamp-1">
-                      {product.description}
-                    </p>
-                  )}
-                </div>
-                {product.id && (
-                  <button
-                    onClick={() => handleDeleteProduct(product.id!)}
-                    className="text-red-500 hover:text-red-400 text-xs shrink-0 self-start"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            ))}
+            <ProductGrid
+              products={products}
+              onEdit={(product: Product) => setEditingProduct(product)}
+              onDelete={(product: Product) => {
+                setDeletingProduct(product);
+              }}
+            />
           </div>
         </div>
       )}
@@ -684,6 +698,13 @@ function ProductsTab({ vendor }: { vendor: any }) {
           </p>
         </div>
       )}
+      <EditProductModal
+        open={!!editingProduct}
+        product={editingProduct}
+        loading={savingProduct}
+        onClose={() => setEditingProduct(null)}
+        onSave={handleUpdateProduct}
+      />
     </div>
   );
 }
