@@ -17,7 +17,7 @@ import {
   LogOut,
   ExternalLink,
 } from "lucide-react";
-
+import { uploadImage } from "@/app/lib/uploadImage";
 import EditProductModal from "@/components/admin/products/EditProductModal";
 
 import { updateProduct } from "@/components/admin/products/product.service";
@@ -55,17 +55,6 @@ const POPULAR_BANKS = [
 ];
 
 // ─── Upload helper ────────────────────────────────────────────────────────────
-
-async function uploadImage(file: File, folder: string, prefix: string) {
-  const ext = file.name.split(".").pop();
-  const path = `${folder}/${prefix}-${Date.now()}.${ext}`;
-  const { error } = await supabase.storage
-    .from("product-images")
-    .upload(path, file);
-  if (error) throw error;
-  return supabase.storage.from("product-images").getPublicUrl(path).data
-    .publicUrl;
-}
 
 // ─── Feedback pill ────────────────────────────────────────────────────────────
 
@@ -467,16 +456,16 @@ function BanksTab({ vendor }: { vendor: any }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // TAB: PRODUCTS
 // ═══════════════════════════════════════════════════════════════════════════════
-const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-
-const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
-
-const [savingProduct, setSavingProduct] = useState(false);
-
-const [deleting, setDeleting] = useState(false);
 
 function ProductsTab({ vendor }: { vendor: any }) {
-  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+
+  const [savingProduct, setSavingProduct] = useState(false);
+
+  const [deleting, setDeleting] = useState(false);
+
   const [products, setProducts] = useState<Product[]>(
     vendor.vendor_products?.length > 0
       ? vendor.vendor_products
