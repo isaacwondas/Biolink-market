@@ -22,6 +22,10 @@ type OrderItem = {
 
 export default function OrderProducts({ products }: { products: Product[] }) {
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
+  const [showOrderReview, setShowOrderReview] = useState(false);
+  const [showCustomerDetails, setShowCustomerDetails] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
 
   const totalItems = orderItems.reduce(
     (total, item) => total + item.quantity,
@@ -60,7 +64,7 @@ export default function OrderProducts({ products }: { products: Product[] }) {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-32">
         {products.map((product) => {
           const productImage = product.image_url || product.image;
 
@@ -118,6 +122,7 @@ export default function OrderProducts({ products }: { products: Product[] }) {
 
               <button
                 type="button"
+                onClick={() => setShowOrderReview(true)}
                 className="h-11 px-5 bg-[#22C55E] hover:bg-[#15803D] rounded-xl text-sm font-semibold flex items-center gap-2"
               >
                 Review Items
@@ -125,6 +130,199 @@ export default function OrderProducts({ products }: { products: Product[] }) {
               </button>
             </div>
           </div>
+          {showOrderReview && (
+            <div className="fixed inset-0 z-[60] bg-black/40 flex items-end sm:items-center justify-center">
+              <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 max-h-[85vh] overflow-y-auto">
+                <div className="flex items-center justify-between mb-5">
+                  <div>
+                    <h2 className="text-lg font-bold text-[#111827]">
+                      Review Order
+                    </h2>
+
+                    <p className="text-xs text-[#6B7280] mt-1">
+                      {totalItems} {totalItems === 1 ? "item" : "items"}{" "}
+                      selected
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowOrderReview(false)}
+                    className="text-sm text-[#6B7280] hover:text-[#111827]"
+                  >
+                    Close
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {orderItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between gap-4 border border-[#E5E7EB] rounded-2xl p-3"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-semibold text-sm text-[#111827] truncate">
+                          {item.name}
+                        </p>
+
+                        <p className="text-sm text-[#15803D] font-bold mt-1">
+                          ₦{(item.price * item.quantity).toLocaleString()}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOrderItems((current) =>
+                              current
+                                .map((product) =>
+                                  product.id === item.id
+                                    ? {
+                                        ...product,
+                                        quantity: product.quantity - 1,
+                                      }
+                                    : product,
+                                )
+                                .filter((product) => product.quantity > 0),
+                            )
+                          }
+                          className="w-9 h-9 border border-[#E5E7EB] rounded-xl"
+                        >
+                          −
+                        </button>
+
+                        <span className="text-sm font-bold min-w-4 text-center">
+                          {item.quantity}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setOrderItems((current) =>
+                              current.map((product) =>
+                                product.id === item.id
+                                  ? {
+                                      ...product,
+                                      quantity: product.quantity + 1,
+                                    }
+                                  : product,
+                              ),
+                            )
+                          }
+                          className="w-9 h-9 border border-[#E5E7EB] rounded-xl"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-t border-[#E5E7EB] mt-5 pt-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[#6B7280]">Order Total</span>
+
+                    <span className="text-xl font-bold text-[#111827]">
+                      ₦{orderTotal.toLocaleString()}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowOrderReview(false);
+                      setShowCustomerDetails(true);
+                    }}
+                    className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl font-semibold"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          {showCustomerDetails && (
+            <div className="fixed inset-0 z-[60] bg-black/40 flex items-end sm:items-center justify-center">
+              <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-[#111827]">
+                      Your Details
+                    </h2>
+
+                    <p className="text-xs text-[#6B7280] mt-1">
+                      We'll use this to identify your order.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowCustomerDetails(false)}
+                    className="text-sm text-[#6B7280] hover:text-[#111827]"
+                  >
+                    Close
+                  </button>
+                </div>
+
+                <div className="space-y-4 mt-6">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#374151] mb-2">
+                      Full Name
+                    </label>
+
+                    <input
+                      type="text"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="Chidi Adebayo"
+                      className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#22C55E]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-[#374151] mb-2">
+                      WhatsApp Number
+                    </label>
+
+                    <input
+                      type="tel"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      placeholder="08012345678"
+                      className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#22C55E]"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-6 border-t border-[#E5E7EB] pt-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[#6B7280]">Total</span>
+
+                    <span className="text-xl font-bold text-[#111827]">
+                      ₦{orderTotal.toLocaleString()}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={!customerName.trim() || !customerPhone.trim()}
+                    onClick={() => {
+                      console.log({
+                        customerName,
+                        customerPhone,
+                        orderItems,
+                        orderTotal,
+                      });
+                    }}
+                    className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] disabled:cursor-not-allowed text-white rounded-xl font-semibold transition-colors"
+                  >
+                    Continue to Payment
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </>
