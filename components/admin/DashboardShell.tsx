@@ -16,10 +16,11 @@ import {
   Link2,
   LogOut,
   ExternalLink,
+  Trash2,
 } from "lucide-react";
 import { uploadImage } from "@/app/lib/uploadImage";
 import EditProductModal from "@/components/admin/products/EditProductModal";
-
+import DeleteProductDialog from "@/components/admin/products/DeleteProductDialog";
 import { updateProduct } from "@/components/admin/products/product.service";
 import ProductGrid from "@/components/admin/products/ProductGrid";
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -466,6 +467,38 @@ function ProductsTab({ vendor }: { vendor: any }) {
 
   const [deleting, setDeleting] = useState(false);
 
+  const confirmDeleteProduct = async () => {
+    if (!deletingProduct?.id) return;
+
+    try {
+      setDeleting(true);
+
+      await handleDeleteProduct(deletingProduct.id);
+
+      setDeletingProduct(null);
+
+      setMsg({
+        type: "success",
+        text: `"${deletingProduct.name}" has been removed from your storefront.`,
+      });
+    } catch (err: any) {
+      setMsg({
+        type: "error",
+        text: err.message,
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  <DeleteProductDialog
+    open={!!deletingProduct}
+    product={deletingProduct}
+    loading={deleting}
+    onClose={() => setDeletingProduct(null)}
+    onDelete={confirmDeleteProduct}
+  />;
+
   const [products, setProducts] = useState<Product[]>(
     vendor.vendor_products?.length > 0
       ? vendor.vendor_products
@@ -658,7 +691,10 @@ function ProductsTab({ vendor }: { vendor: any }) {
           disabled={loading}
           className="w-full bg-[#22C55E] hover:bg-[#15803D] disabled:bg-gray-200 disabled:text-gray-500 text-white font-semibold py-2.5 rounded-xl text-xs uppercase tracking-wider transition-colors"
         >
-          {loading ? "Uploading..." : "+ Add Product"}
+          <>
+            <Trash2 className="w-4 h-4" />
+            {loading ? "Deleting Product..." : "Delete Product"}
+          </>
         </button>
       </div>
 
@@ -671,8 +707,10 @@ function ProductsTab({ vendor }: { vendor: any }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <ProductGrid
               products={products}
-              onEdit={(product: Product) => setEditingProduct(product)}
-              onDelete={(product: Product) => {
+              onEdit={(product) => {
+                setEditingProduct(product);
+              }}
+              onDelete={(product) => {
                 setDeletingProduct(product);
               }}
             />
