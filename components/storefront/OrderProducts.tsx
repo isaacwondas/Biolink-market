@@ -5,31 +5,10 @@ import Image from "next/image";
 
 import { ArrowRight, Check, Plus } from "lucide-react";
 import { createPortal } from "react-dom";
-import { supabase } from "@/app/lib/supabase";
+import { createOrder, uploadReceipt } from "./checkout/service";
 import { useRouter } from "next/navigation";
-
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  image?: string | null;
-  image_url?: string | null;
-};
-
-type OrderItem = {
-  id: number;
-  name: string;
-  price: number;
-  image?: string | null;
-  quantity: number;
-};
-
-type VendorBank = {
-  id: number;
-  bank_name: string;
-  account_number: string;
-  account_name?: string | null;
-};
+import { StickyCart, ReviewOrderModal } from "@/components/storefront/checkout";
+import type { Product, OrderItem, VendorBank } from "./checkout/types";
 
 export default function OrderProducts({
   products,
@@ -51,6 +30,7 @@ export default function OrderProducts({
   const [savingOrder, setSavingOrder] = useState(false);
   const [orderError, setOrderError] = useState("");
   const [showPayment, setShowPayment] = useState(false);
+  const [createdOrderTotal, setCreatedOrderTotal] = useState(0);
   const [createdOrderId, setCreatedOrderId] = useState<number | null>(null);
   const [showReceiptUpload, setShowReceiptUpload] = useState(false);
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
@@ -61,7 +41,6 @@ export default function OrderProducts({
   const [submittedReference, setSubmittedReference] = useState("");
 
   // ARCHITECTURE FIX: Stable state to freeze checkout total when order is created
-  const [createdOrderTotal, setCreatedOrderTotal] = useState<number>(0);
 
   const router = useRouter();
 
@@ -100,7 +79,7 @@ export default function OrderProducts({
     });
   };
 
-  const createOrder = async () => {
+  const createOrderHandler = async () => {
     if (!customerName.trim() || !customerPhone.trim()) {
       setOrderError("Please enter your name and WhatsApp number.");
       return;
@@ -115,124 +94,56 @@ export default function OrderProducts({
     setOrderError("");
 
     try {
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert([
-          {
-            vendor_id: vendorId,
-            vendor_email: vendorEmail,
-            buyer_name: customerName.trim(),
-            buyer_phone: customerPhone.trim(),
-            buyer_note: null,
-            subtotal: orderTotal,
-            delivery_fee: 0,
-            total_amount: orderTotal,
-            status: "pending",
-          },
-        ])
-        .select("id")
-        .single();
+      const order = await createOrder({
+        vendorId,
+        vendorEmail,
+        buyerName: customerName,
+        buyerPhone: customerPhone,
+        total: orderTotal,
+        items: orderItems,
+      });
 
-      if (orderError) {
-        throw orderError;
-      }
-
-      const orderItemsPayload = orderItems.map((item) => ({
-        order_id: order.id,
-        product_id: item.id,
-        product_name: item.name,
-        unit_price: item.price,
-        quantity: item.quantity,
-        total_price: item.price * item.quantity,
-      }));
-
-      const { error: itemsError } = await supabase
-        .from("order_items")
-        .insert(orderItemsPayload);
-
-      if (itemsError) {
-        throw itemsError;
-      }
-
-      console.log("ORDER CREATED:", order.id);
-
-      // ARCHITECTURE FIX: Freeze current order total in state right after DB creation
       setCreatedOrderId(order.id);
       setCreatedOrderTotal(orderTotal);
 
       setShowCustomerDetails(false);
       setShowPayment(true);
     } catch (error: any) {
-      console.error("CREATE ORDER ERROR:", error);
-      setOrderError(
-        error?.message || "We could not create your order. Please try again.",
-      );
+      setOrderError(error?.message || "Unable to create order.");
     } finally {
       setSavingOrder(false);
     }
   };
 
-  const uploadOrderReceipt = async () => {
+  const uploadReceiptHandler = async () => {
     if (!receiptFile || !createdOrderId) {
-      setReceiptError("Please select your payment receipt.");
+      setReceiptError("Please select a receipt.");
       return;
     }
 
     setUploadingReceipt(true);
-    setReceiptError("");
 
     try {
-      const fileExt = receiptFile.name.split(".").pop();
-      const filePath = `${vendorEmail}/${createdOrderId}-${Date.now()}.${fileExt}`;
+      const reference = await uploadReceipt({
+        createdOrderId,
+        vendorEmail,
+        customerName,
+        customerPhone,
+        receiptFile,
+        total: createdOrderTotal,
+      });
 
-      const { error: uploadError } = await supabase.storage
-        .from("receipts")
-        .upload(filePath, receiptFile, {
-          cacheControl: "3600",
-          upsert: false,
-        });
+      setSubmittedReference(reference);
 
-      if (uploadError) throw uploadError;
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("receipts").getPublicUrl(filePath);
-
-      const referenceCode = `HQ-${Math.floor(1000 + Math.random() * 9000)}`;
-
-      // ARCHITECTURE FIX: Use frozen createdOrderTotal for transaction creation
-      const { error: transactionError } = await supabase
-        .from("transactions")
-        .insert([
-          {
-            order_id: createdOrderId,
-            vendor_email: vendorEmail,
-            buyer_name: customerName.trim(),
-            buyer_phone: customerPhone.trim(),
-            receipt_url: publicUrl,
-            reference_code: referenceCode,
-            status: "pending",
-            total_order_amount: createdOrderTotal,
-            amount_paid: 0,
-            payment_status: "unpaid",
-          },
-        ]);
-
-      if (transactionError) throw transactionError;
-
-      setSubmittedReference(referenceCode);
       setShowReceiptUpload(false);
-      setReceiptFile(null);
 
-      // CLEAR CART: State update safely unmounts cart modal elements
       setOrderItems([]);
 
-      // DEBUG: Verify state route transitions smoothly
-      console.log("SUCCESS MODAL SHOULD OPEN");
+      setReceiptFile(null);
+
       setShowOrderSuccess(true);
     } catch (error: any) {
-      console.error("RECEIPT UPLOAD ERROR:", error);
-      setReceiptError(error?.message || "We could not upload your receipt.");
+      setReceiptError(error?.message || "Unable to upload receipt.");
     } finally {
       setUploadingReceipt(false);
     }
@@ -284,384 +195,263 @@ export default function OrderProducts({
       </div>
 
       {/* Cart Container (Only mounts when there are products in the cart) */}
-      {orderItems.length > 0 && (
-        <div className="fixed bottom-4 left-4 right-4 z-50 md:left-1/2 md:right-auto md:w-full md:max-w-md md:-translate-x-1/2">
-          <div className="bg-[#111827] text-white rounded-2xl p-3 shadow-xl">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-xs text-gray-400">
-                  {totalItems} {totalItems === 1 ? "item" : "items"}
-                </p>
+      <StickyCart
+        totalItems={totalItems}
+        orderTotal={orderTotal}
+        onReview={() => setShowOrderReview(true)}
+      />
 
-                <p className="text-base font-bold">
-                  ₦{orderTotal.toLocaleString()}
+      {/* Modal 1: Review Items */}
+      <ReviewOrderModal
+        open={showOrderReview}
+        items={orderItems}
+        totalItems={totalItems}
+        orderTotal={orderTotal}
+        onClose={() => setShowOrderReview(false)}
+        onContinue={() => {
+          setShowOrderReview(false);
+          setShowCustomerDetails(true);
+        }}
+        onIncrease={(id) =>
+          setOrderItems((current) =>
+            current.map((item) =>
+              item.id === id ? { ...item, quantity: item.quantity + 1 } : item,
+            ),
+          )
+        }
+        onDecrease={(id) =>
+          setOrderItems((current) =>
+            current
+              .map((item) =>
+                item.id === id
+                  ? { ...item, quantity: item.quantity - 1 }
+                  : item,
+              )
+              .filter((item) => item.quantity > 0),
+          )
+        }
+      />
+      {/* Modal 2: Customer Details */}
+      {showCustomerDetails &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
+            <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col overflow-hidden">
+              <div className="p-5 border-b border-[#E5E7EB] flex items-start justify-between gap-4 shrink-0">
+                <div>
+                  <h2 className="text-lg font-bold text-[#111827]">
+                    Your Details
+                  </h2>
+
+                  <p className="text-xs text-[#6B7280] mt-1">
+                    We'll use this to identify your order.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowCustomerDetails(false)}
+                  className="text-sm text-[#6B7280] hover:text-[#111827]"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#374151] mb-2">
+                    Full Name
+                  </label>
+
+                  <input
+                    type="text"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    placeholder="Chidi Adebayo"
+                    className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#22C55E]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#374151] mb-2">
+                    WhatsApp Number
+                  </label>
+
+                  <input
+                    type="text"
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    placeholder="08012345678"
+                    className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#22C55E]"
+                  />
+                </div>
+              </div>
+
+              <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#6B7280]">Order Total</span>
+
+                  <span className="text-xl font-bold text-[#111827]">
+                    ₦{orderTotal.toLocaleString()}
+                  </span>
+                </div>
+
+                {orderError && (
+                  <p className="mt-3 text-xs text-red-600">{orderError}</p>
+                )}
+
+                <button
+                  type="button"
+                  disabled={
+                    savingOrder || !customerName.trim() || !customerPhone.trim()
+                  }
+                  onClick={createOrderHandler}
+                  className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] disabled:cursor-not-allowed text-white rounded-xl font-semibold transition-colors"
+                >
+                  {savingOrder ? "Creating Order..." : "Continue to Payment"}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {/* Modal 3: Payment Details */}
+      {showPayment &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
+            <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col overflow-hidden">
+              <div className="p-5 border-b border-[#E5E7EB]">
+                <h2 className="text-lg font-bold text-[#111827]">
+                  Complete Payment
+                </h2>
+
+                <p className="text-xs text-[#6B7280] mt-1">
+                  Transfer the exact order amount to the account below.
                 </p>
               </div>
 
+              <div className="flex-1 overflow-y-auto p-5 space-y-5">
+                <div className="bg-green-50 border border-green-200 rounded-2xl p-4 text-center">
+                  <p className="text-xs text-[#6B7280]">Amount to Pay</p>
+
+                  {/* ARCHITECTURE FIX: Use frozen createdOrderTotal state */}
+                  <p className="text-3xl font-bold text-[#111827] mt-1">
+                    ₦{createdOrderTotal.toLocaleString()}
+                  </p>
+                </div>
+
+                {banks.length > 0 ? (
+                  banks.map((bank) => (
+                    <div
+                      key={bank.id}
+                      className="border border-[#E5E7EB] rounded-2xl p-4"
+                    >
+                      <p className="text-xs text-[#6B7280]">{bank.bank_name}</p>
+
+                      <p className="text-xl font-bold text-[#111827] mt-2">
+                        {bank.account_number}
+                      </p>
+
+                      {bank.account_name && (
+                        <p className="text-sm text-[#374151] mt-1">
+                          {bank.account_name}
+                        </p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-red-600">
+                    This merchant has not added a payment account.
+                  </p>
+                )}
+              </div>
+
+              <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
+                <button
+                  type="button"
+                  disabled={banks.length === 0}
+                  onClick={() => {
+                    setShowPayment(false);
+                    setShowReceiptUpload(true);
+                  }}
+                  className="w-full h-12 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] text-white rounded-xl font-semibold"
+                >
+                  I Have Paid
+                </button>
+
+                <p className="text-[11px] text-center text-[#6B7280] mt-3">
+                  Order #{createdOrderId}
+                </p>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {/* Modal 4: Receipt Upload */}
+      {showReceiptUpload &&
+        createPortal(
+          <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
+            <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-bold text-[#111827]">
+                    Upload Payment Receipt
+                  </h2>
+
+                  {/* ARCHITECTURE FIX: Use frozen createdOrderTotal state */}
+                  <p className="text-xs text-[#6B7280] mt-1">
+                    Upload the receipt for your ₦
+                    {createdOrderTotal.toLocaleString()} payment.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setShowReceiptUpload(false)}
+                  className="text-sm text-[#6B7280]"
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="mt-6">
+                <label className="block border border-dashed border-[#22C55E] rounded-2xl p-6 text-center cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    onChange={(e) =>
+                      setReceiptFile(e.target.files?.[0] || null)
+                    }
+                  />
+
+                  <span className="text-sm font-medium text-[#374151]">
+                    {receiptFile ? receiptFile.name : "Choose payment receipt"}
+                  </span>
+
+                  <span className="block text-xs text-[#6B7280] mt-1">
+                    PNG, JPG or WEBP
+                  </span>
+                </label>
+              </div>
+
+              {receiptError && (
+                <p className="mt-3 text-xs text-red-600">{receiptError}</p>
+              )}
+
               <button
                 type="button"
-                onClick={() => setShowOrderReview(true)}
-                className="h-11 px-5 bg-[#22C55E] hover:bg-[#15803D] rounded-xl text-sm font-semibold flex items-center gap-2"
+                disabled={!receiptFile || uploadingReceipt}
+                onClick={uploadReceiptHandler}
+                className="w-full h-12 mt-6 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] disabled:cursor-not-allowed text-white rounded-xl font-semibold"
               >
-                Review Items
-                <ArrowRight className="w-4 h-4" />
+                {uploadingReceipt ? "Uploading Receipt..." : "Submit Receipt"}
               </button>
             </div>
-          </div>
-
-          {/* Modal 1: Review Items */}
-          {showOrderReview &&
-            createPortal(
-              <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
-                <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col overflow-hidden">
-                  <div className="p-5 border-b border-[#E5E7EB] flex items-start justify-between gap-4 shrink-0">
-                    <div>
-                      <h2 className="text-lg font-bold text-[#111827]">
-                        Review Order
-                      </h2>
-
-                      <p className="text-xs text-[#6B7280] mt-1">
-                        {totalItems} {totalItems === 1 ? "item" : "items"}{" "}
-                        selected
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setShowOrderReview(false)}
-                      className="text-sm text-[#6B7280] hover:text-[#111827]"
-                    >
-                      Close
-                    </button>
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto p-5 space-y-3">
-                    {orderItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center justify-between gap-4 border border-[#E5E7EB] rounded-2xl p-3"
-                      >
-                        <div className="min-w-0">
-                          <p className="font-semibold text-sm text-[#111827] truncate">
-                            {item.name}
-                          </p>
-
-                          <p className="text-sm text-[#15803D] font-bold mt-1">
-                            ₦{(item.price * item.quantity).toLocaleString()}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-3 shrink-0">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setOrderItems((current) =>
-                                current
-                                  .map((product) =>
-                                    product.id === item.id
-                                      ? {
-                                          ...product,
-                                          quantity: product.quantity - 1,
-                                        }
-                                      : product,
-                                  )
-                                  .filter((product) => product.quantity > 0),
-                              )
-                            }
-                            className="w-9 h-9 border border-[#E5E7EB] rounded-xl"
-                          >
-                            −
-                          </button>
-
-                          <span className="text-sm font-bold min-w-4 text-center">
-                            {item.quantity}
-                          </span>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setOrderItems((current) =>
-                                current.map((product) =>
-                                  product.id === item.id
-                                    ? {
-                                        ...product,
-                                        quantity: product.quantity + 1,
-                                      }
-                                    : product,
-                                ),
-                              )
-                            }
-                            className="w-9 h-9 border border-[#E5E7EB] rounded-xl"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-[#6B7280]">
-                        Order Total
-                      </span>
-
-                      <span className="text-xl font-bold text-[#111827]">
-                        ₦{orderTotal.toLocaleString()}
-                      </span>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowOrderReview(false);
-                        setShowCustomerDetails(true);
-                      }}
-                      className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl font-semibold transition-colors"
-                    >
-                      Continue
-                    </button>
-                  </div>
-                </div>
-              </div>,
-              document.body,
-            )}
-
-          {/* Modal 2: Customer Details */}
-          {showCustomerDetails &&
-            createPortal(
-              <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
-                <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col overflow-hidden">
-                  <div className="p-5 border-b border-[#E5E7EB] flex items-start justify-between gap-4 shrink-0">
-                    <div>
-                      <h2 className="text-lg font-bold text-[#111827]">
-                        Your Details
-                      </h2>
-
-                      <p className="text-xs text-[#6B7280] mt-1">
-                        We'll use this to identify your order.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setShowCustomerDetails(false)}
-                      className="text-sm text-[#6B7280] hover:text-[#111827]"
-                    >
-                      Close
-                    </button>
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto p-5 space-y-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-[#374151] mb-2">
-                        Full Name
-                      </label>
-
-                      <input
-                        type="text"
-                        value={customerName}
-                        onChange={(e) => setCustomerName(e.target.value)}
-                        placeholder="Chidi Adebayo"
-                        className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#22C55E]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-[#374151] mb-2">
-                        WhatsApp Number
-                      </label>
-
-                      <input
-                        type="text"
-                        value={customerPhone}
-                        onChange={(e) => setCustomerPhone(e.target.value)}
-                        placeholder="08012345678"
-                        className="w-full h-12 px-4 border border-[#D1D5DB] rounded-xl text-sm text-[#111827] focus:outline-none focus:border-[#22C55E]"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-[#6B7280]">
-                        Order Total
-                      </span>
-
-                      <span className="text-xl font-bold text-[#111827]">
-                        ₦{orderTotal.toLocaleString()}
-                      </span>
-                    </div>
-
-                    {orderError && (
-                      <p className="mt-3 text-xs text-red-600">{orderError}</p>
-                    )}
-
-                    <button
-                      type="button"
-                      disabled={
-                        savingOrder ||
-                        !customerName.trim() ||
-                        !customerPhone.trim()
-                      }
-                      onClick={createOrder}
-                      className="w-full h-12 mt-5 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] disabled:cursor-not-allowed text-white rounded-xl font-semibold transition-colors"
-                    >
-                      {savingOrder
-                        ? "Creating Order..."
-                        : "Continue to Payment"}
-                    </button>
-                  </div>
-                </div>
-              </div>,
-              document.body,
-            )}
-
-          {/* Modal 3: Payment Details */}
-          {showPayment &&
-            createPortal(
-              <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
-                <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl max-h-[90dvh] flex flex-col overflow-hidden">
-                  <div className="p-5 border-b border-[#E5E7EB]">
-                    <h2 className="text-lg font-bold text-[#111827]">
-                      Complete Payment
-                    </h2>
-
-                    <p className="text-xs text-[#6B7280] mt-1">
-                      Transfer the exact order amount to the account below.
-                    </p>
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto p-5 space-y-5">
-                    <div className="bg-green-50 border border-green-200 rounded-2xl p-4 text-center">
-                      <p className="text-xs text-[#6B7280]">Amount to Pay</p>
-
-                      {/* ARCHITECTURE FIX: Use frozen createdOrderTotal state */}
-                      <p className="text-3xl font-bold text-[#111827] mt-1">
-                        ₦{createdOrderTotal.toLocaleString()}
-                      </p>
-                    </div>
-
-                    {banks.length > 0 ? (
-                      banks.map((bank) => (
-                        <div
-                          key={bank.id}
-                          className="border border-[#E5E7EB] rounded-2xl p-4"
-                        >
-                          <p className="text-xs text-[#6B7280]">
-                            {bank.bank_name}
-                          </p>
-
-                          <p className="text-xl font-bold text-[#111827] mt-2">
-                            {bank.account_number}
-                          </p>
-
-                          {bank.account_name && (
-                            <p className="text-sm text-[#374151] mt-1">
-                              {bank.account_name}
-                            </p>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-red-600">
-                        This merchant has not added a payment account.
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="p-5 border-t border-[#E5E7EB] bg-white shrink-0">
-                    <button
-                      type="button"
-                      disabled={banks.length === 0}
-                      onClick={() => {
-                        setShowPayment(false);
-                        setShowReceiptUpload(true);
-                      }}
-                      className="w-full h-12 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] text-white rounded-xl font-semibold"
-                    >
-                      I Have Paid
-                    </button>
-
-                    <p className="text-[11px] text-center text-[#6B7280] mt-3">
-                      Order #{createdOrderId}
-                    </p>
-                  </div>
-                </div>
-              </div>,
-              document.body,
-            )}
-
-          {/* Modal 4: Receipt Upload */}
-          {showReceiptUpload &&
-            createPortal(
-              <div className="fixed inset-0 z-[9999] bg-black/40 flex items-end sm:items-center justify-center">
-                <div className="bg-white w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <h2 className="text-lg font-bold text-[#111827]">
-                        Upload Payment Receipt
-                      </h2>
-
-                      {/* ARCHITECTURE FIX: Use frozen createdOrderTotal state */}
-                      <p className="text-xs text-[#6B7280] mt-1">
-                        Upload the receipt for your ₦
-                        {createdOrderTotal.toLocaleString()} payment.
-                      </p>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => setShowReceiptUpload(false)}
-                      className="text-sm text-[#6B7280]"
-                    >
-                      Close
-                    </button>
-                  </div>
-
-                  <div className="mt-6">
-                    <label className="block border border-dashed border-[#22C55E] rounded-2xl p-6 text-center cursor-pointer">
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/webp"
-                        className="hidden"
-                        onChange={(e) =>
-                          setReceiptFile(e.target.files?.[0] || null)
-                        }
-                      />
-
-                      <span className="text-sm font-medium text-[#374151]">
-                        {receiptFile
-                          ? receiptFile.name
-                          : "Choose payment receipt"}
-                      </span>
-
-                      <span className="block text-xs text-[#6B7280] mt-1">
-                        PNG, JPG or WEBP
-                      </span>
-                    </label>
-                  </div>
-
-                  {receiptError && (
-                    <p className="mt-3 text-xs text-red-600">{receiptError}</p>
-                  )}
-
-                  <button
-                    type="button"
-                    disabled={!receiptFile || uploadingReceipt}
-                    onClick={uploadOrderReceipt}
-                    className="w-full h-12 mt-6 bg-[#22C55E] hover:bg-[#15803D] disabled:bg-[#D1D5DB] disabled:cursor-not-allowed text-white rounded-xl font-semibold"
-                  >
-                    {uploadingReceipt
-                      ? "Uploading Receipt..."
-                      : "Submit Receipt"}
-                  </button>
-                </div>
-              </div>,
-              document.body,
-            )}
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
 
       {/* PORTAL POSITION FIX: Success Modal sits outside of the orderItems check */}
       {showOrderSuccess &&
