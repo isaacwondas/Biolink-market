@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ArrowRight, Plus } from "lucide-react";
+
+import { ArrowRight, Check, Plus } from "lucide-react";
 import { createPortal } from "react-dom";
 import { supabase } from "@/app/lib/supabase";
+import { useRouter } from "next/navigation";
 
 type Product = {
   id: number;
@@ -54,6 +56,11 @@ export default function OrderProducts({
   const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [receiptError, setReceiptError] = useState("");
 
+  const [showOrderSuccess, setShowOrderSuccess] = useState(false);
+  const [submittedReference, setSubmittedReference] = useState("");
+
+  const [submittedAmount, setSubmittedAmount] = useState(0);
+  const router = useRouter();
   const totalItems = orderItems.reduce(
     (total, item) => total + item.quantity,
     0,
@@ -207,13 +214,12 @@ export default function OrderProducts({
 
       if (transactionError) throw transactionError;
 
+      setSubmittedReference(referenceCode);
       setShowReceiptUpload(false);
+      setSubmittedAmount(orderTotal);
       setOrderItems([]);
       setReceiptFile(null);
-
-      alert(
-        `Receipt submitted successfully. Your reference is ${referenceCode}`,
-      );
+      setShowOrderSuccess(true);
     } catch (error: any) {
       console.error("RECEIPT UPLOAD ERROR:", error);
 
@@ -634,6 +640,76 @@ export default function OrderProducts({
                       ? "Uploading Receipt..."
                       : "Submit Receipt"}
                   </button>
+                </div>
+              </div>,
+              document.body,
+            )}
+          {showOrderSuccess &&
+            createPortal(
+              <div className="fixed inset-0 z-[9999] bg-white flex items-center justify-center">
+                <div className="w-full max-w-md px-6 py-10 text-center">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-green-50 border border-green-200 flex items-center justify-center">
+                    <Check className="w-7 h-7 text-[#15803D]" />
+                  </div>
+
+                  <h2 className="text-2xl font-bold text-[#111827] mt-6">
+                    Payment submitted
+                  </h2>
+
+                  <p className="text-sm text-[#6B7280] mt-2 leading-relaxed">
+                    Your receipt has been sent to the merchant for review.
+                  </p>
+
+                  <div className="mt-8 border border-[#E5E7EB] rounded-2xl p-5 text-left">
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-sm text-[#6B7280]">
+                        Order reference
+                      </span>
+
+                      <span className="text-sm font-bold text-[#111827]">
+                        {submittedReference}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4 mt-4 pt-4 border-t border-[#E5E7EB]">
+                      <span className="text-sm text-[#6B7280]">
+                        Amount submitted
+                      </span>
+
+                      <span className="text-lg font-bold text-[#111827]">
+                        ₦{submittedAmount.toLocaleString()}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-4 mt-4 pt-4 border-t border-[#E5E7EB]">
+                      <span className="text-sm text-[#6B7280]">Status</span>
+
+                      <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-full">
+                        Awaiting review
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => router.push(`/order/${submittedReference}`)}
+                    className="w-full h-12 mt-6 bg-[#22C55E] hover:bg-[#15803D] text-white rounded-xl font-semibold transition-colors"
+                  >
+                    View Order Status
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowOrderSuccess(false)}
+                    className="w-full h-12 mt-3 border border-[#D1D5DB] text-[#374151] rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+                  >
+                    Back to Store
+                  </button>
+
+                  <p className="text-xs text-[#6B7280] mt-6 leading-relaxed">
+                    Keep your order reference. You may need it when contacting
+                    the merchant.
+                  </p>
                 </div>
               </div>,
               document.body,
