@@ -107,7 +107,6 @@ export default function OrderProducts({
         .from("orders")
         .insert([
           {
-            order_id: createdOrderId,
             vendor_id: vendorId,
             vendor_email: vendorEmail,
             buyer_name: customerName.trim(),
@@ -193,6 +192,7 @@ export default function OrderProducts({
         .from("transactions")
         .insert([
           {
+            order_id: createdOrderId,
             vendor_email: vendorEmail,
             buyer_name: customerName.trim(),
             buyer_phone: customerPhone.trim(),
