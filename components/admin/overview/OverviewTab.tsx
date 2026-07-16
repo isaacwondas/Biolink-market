@@ -33,22 +33,21 @@ export default function OverviewTab({
       <WelcomeCard vendor={vendor} />
       {/* Snapshot */}
       <BusinessSnapshot
-        totalViews={structuralMetrics?.totalViews ?? 0}
-        totalProducts={structuralMetrics?.totalProducts ?? 0}
-        totalClicks={structuralMetrics?.totalSocialClicks ?? 0}
-        totalShares={structuralMetrics?.totalShares ?? 0}
+        totalViews={structuralMetrics.totalViews}
+        totalProducts={structuralMetrics.totalProducts}
+        totalClicks={structuralMetrics.totalSocialClicks}
+        totalShares={structuralMetrics.totalShares}
       />
-      {/* Quick Actions */}
+
       <QuickActions
         vendor={vendor}
         storefrontUrl={`${window.location.origin}/${vendor.username}`}
       />
-      {/* Receipt Verification */}
+
       <ReceiptVerificationCard
         initialTransactions={initialTransactions}
         onTransactionUpdate={onTransactionUpdate}
       />
-      {/* Activity */}
 
       <RecentActivityCard vendor={vendor} transactions={initialTransactions} />
     </div>

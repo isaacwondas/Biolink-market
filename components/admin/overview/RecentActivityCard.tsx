@@ -8,9 +8,32 @@ import {
   Eye,
 } from "lucide-react";
 
+// Define structured interfaces instead of 'any' to pass strict ESLint/TS checks
+interface Product {
+  id: string | number;
+  name: string;
+  price: number;
+  description?: string;
+  image_url?: string;
+}
+
+interface Transaction {
+  id: string | number;
+  customer_name?: string;
+  created_at: string | number | Date;
+  [key: string]: any;
+}
+
+interface Vendor {
+  vendor_products?: Product[];
+  total_social_clicks?: number;
+  views?: number;
+  [key: string]: any;
+}
+
 interface RecentActivityCardProps {
-  vendor: any;
-  transactions: any[];
+  vendor: Vendor;
+  transactions: Transaction[];
 }
 
 export default function RecentActivityCard({
@@ -27,7 +50,7 @@ export default function RecentActivityCard({
       color: "bg-green-100 text-green-700",
     })),
 
-    ...(vendor.vendor_products ?? []).slice(0, 2).map((product: any) => ({
+    ...(vendor.vendor_products ?? []).slice(0, 2).map((product) => ({
       id: product.id,
       icon: Package,
       title: "Product published",
@@ -68,7 +91,6 @@ export default function RecentActivityCard({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-bold text-[#111827]">Recent Activity</h2>
-
           <p className="mt-1 text-sm text-gray-500">
             Latest events happening in your business.
           </p>
@@ -81,7 +103,6 @@ export default function RecentActivityCard({
         {activities.length === 0 && (
           <div className="rounded-xl border border-dashed border-gray-200 py-12 text-center">
             <Clock3 className="mx-auto h-8 w-8 text-gray-300" />
-
             <p className="mt-3 text-sm text-gray-500">
               No recent activity yet.
             </p>
@@ -104,7 +125,6 @@ export default function RecentActivityCard({
                 <h3 className="font-semibold text-[#111827]">
                   {activity.title}
                 </h3>
-
                 <p className="mt-1 text-sm text-gray-500">
                   {activity.description}
                 </p>

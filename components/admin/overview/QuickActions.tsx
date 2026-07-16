@@ -2,9 +2,18 @@
 
 import { Copy, ExternalLink, MessageCircle, QrCode } from "lucide-react";
 
+// Replace 'any' with a structured type to keep TypeScript happy
+interface Vendor {
+  id: string | number;
+  username: string;
+  businessName?: string;
+  phone?: string;
+  [key: string]: any; // Fallback for other dynamic vendor properties
+}
+
 interface QuickActionsProps {
   storefrontUrl: string;
-  vendor: any;
+  vendor: Vendor;
 }
 
 export default function QuickActions({
@@ -12,12 +21,18 @@ export default function QuickActions({
   vendor,
 }: QuickActionsProps) {
   const copyLink = async () => {
-    await navigator.clipboard.writeText(storefrontUrl);
-    alert("Store link copied.");
+    try {
+      await navigator.clipboard.writeText(storefrontUrl);
+      alert("Store link copied.");
+    } catch (err) {
+      console.error("Failed to copy store link: ", err);
+    }
   };
 
   const shareWhatsapp = () => {
-    const message = `Check out my online store:\n${storefrontUrl}`;
+    // Dynamically personalize the message with the vendor's business name if available
+    const businessName = vendor.businessName || "my online store";
+    const message = `Check out ${businessName}:\n${storefrontUrl}`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank");
   };
@@ -27,7 +42,10 @@ export default function QuickActions({
   };
 
   const downloadQR = () => {
-    alert("QR Download coming soon.");
+    // You can later implement actual QR generation using 'qrcode.react' or similar packages
+    alert(
+      `QR Generator coming soon for ${vendor.businessName || "your store"}!`,
+    );
   };
 
   const actions = [
@@ -65,7 +83,6 @@ export default function QuickActions({
     <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
       <div className="mb-6">
         <h2 className="text-lg font-bold text-[#111827]">Quick Actions</h2>
-
         <p className="mt-1 text-sm text-gray-500">
           Frequently used tools for managing and sharing your store.
         </p>

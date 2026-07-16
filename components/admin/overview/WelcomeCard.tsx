@@ -2,8 +2,20 @@
 
 import { CheckCircle2, Circle, Sparkles } from "lucide-react";
 
+// Define structured vendor properties for strict compile type-safety
+interface Vendor {
+  business_name?: string;
+  name?: string;
+  avatar_image?: string;
+  vendor_banks?: any[];
+  whatsapp?: string;
+  instagram_handle?: string;
+  tiktok_handle?: string;
+  vendor_products?: any[];
+}
+
 interface WelcomeCardProps {
-  vendor: any;
+  vendor: Vendor;
   completionPercentage?: number;
 }
 
@@ -22,7 +34,7 @@ export default function WelcomeCard({
     },
     {
       label: "Bank Account",
-      completed: vendor.vendor_banks && vendor.vendor_banks.length > 0,
+      completed: !!(vendor.vendor_banks && vendor.vendor_banks.length > 0),
     },
     {
       label: "Social Links",
@@ -33,12 +45,13 @@ export default function WelcomeCard({
     },
     {
       label: "First Product",
-      completed: vendor.products && vendor.products.length > 0,
+      completed: (vendor.vendor_products?.length ?? 0) > 0,
     },
   ];
 
   const completedTasks = setupTasks.filter((t) => t.completed).length;
 
+  // Use the calculated percentage if completionPercentage prop is missing/undefined
   const percentage =
     completionPercentage ??
     Math.round((completedTasks / setupTasks.length) * 100);
@@ -48,12 +61,10 @@ export default function WelcomeCard({
       <div className="rounded-2xl border border-green-200 bg-green-50 p-6">
         <div className="flex items-center gap-3">
           <CheckCircle2 className="h-10 w-10 text-green-600" />
-
           <div>
             <h2 className="text-xl font-bold text-green-700">
               Your store is ready 🎉
             </h2>
-
             <p className="mt-1 text-sm text-green-600">
               Everything is set up. Start sharing your store link and receiving
               customers.
@@ -70,12 +81,11 @@ export default function WelcomeCard({
         <div>
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-[#22C55E]" />
-
             <p className="text-sm text-gray-500">Welcome back</p>
           </div>
 
           <h2 className="mt-2 text-2xl font-bold text-[#111827]">
-            {vendor.business_name || vendor.name}
+            {vendor.business_name || vendor.name || "Vendor"}
           </h2>
 
           <p className="mt-2 text-sm text-gray-500">
@@ -85,7 +95,7 @@ export default function WelcomeCard({
 
         <div className="rounded-full bg-[#22C55E]/10 px-4 py-2">
           <span className="text-sm font-bold text-[#15803D]">
-            {completionPercentage}%
+            {percentage}%
           </span>
         </div>
       </div>
@@ -95,7 +105,7 @@ export default function WelcomeCard({
           <div
             className="h-full rounded-full bg-[#22C55E] transition-all duration-500"
             style={{
-              width: `${completionPercentage}%`,
+              width: `${percentage}%`,
             }}
           />
         </div>
