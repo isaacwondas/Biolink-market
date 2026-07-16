@@ -50,25 +50,23 @@ export default function OnboardingForm() {
   >("idle");
 
   const [usernameMessage, setUsernameMessage] = useState("");
+
   // =============================================
   // LOCAL IMAGE PREVIEWS
   // =============================================
 
   const imagePreviewUrl = useMemo(() => {
     if (!imageFile) return null;
-
     return URL.createObjectURL(imageFile);
   }, [imageFile]);
 
   const avatarPreviewUrl = useMemo(() => {
     if (!avatarFile) return null;
-
     return URL.createObjectURL(avatarFile);
   }, [avatarFile]);
 
   const bannerPreviewUrl = useMemo(() => {
     if (!bannerFile) return null;
-
     return URL.createObjectURL(bannerFile);
   }, [bannerFile]);
 
@@ -139,7 +137,6 @@ export default function OnboardingForm() {
     let isMounted = true;
 
     const loadUser = async () => {
-      // Try getUser first (most reliable)
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -155,7 +152,6 @@ export default function OnboardingForm() {
         return;
       }
 
-      // Fallback to getSession
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -169,7 +165,6 @@ export default function OnboardingForm() {
           business_name: prev.business_name || email.split("@")[0],
         }));
       } else {
-        // OPTIONAL: If no user is found at all, redirect them to sign-in or show an error
         setMessage({
           type: "error",
           text: "Please log in to set up your storefront.",
@@ -179,7 +174,6 @@ export default function OnboardingForm() {
 
     loadUser();
 
-    // Listen for auth state changes cleanly without checking stale outer variables
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -210,7 +204,6 @@ export default function OnboardingForm() {
   ) => {
     const { name, value } = e.target;
 
-    // LIVE PRODUCT PRICE FORMATTING
     if (name === "product_price") {
       const numericValue = value.replace(/[^0-9]/g, "");
 
@@ -239,7 +232,6 @@ export default function OnboardingForm() {
   const handleNextStep = () => {
     setMessage(null);
 
-    // STEP 1: STORE DETAILS
     if (currentStep === 1) {
       if (!formData.username.trim() || !formData.business_name.trim()) {
         setMessage({
@@ -262,7 +254,6 @@ export default function OnboardingForm() {
       }
     }
 
-    // STEP 2: WHATSAPP
     if (currentStep === 2) {
       const phone = formData.whatsapp.replace(/\D/g, "");
 
@@ -323,19 +314,11 @@ export default function OnboardingForm() {
     setExtraLinks((prev) => prev.filter((_, i) => i !== idx));
 
   const uploadImage = async (file: File, folder: string, prefix: string) => {
-    // =============================================
-    // ALLOWED FILE TYPES
-    // =============================================
-
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
 
     if (!allowedTypes.includes(file.type)) {
       throw new Error("Only JPG, PNG and WEBP images are allowed.");
     }
-
-    // =============================================
-    // MAX SIZE = 5MB
-    // =============================================
 
     const maxSize = 5 * 1024 * 1024;
 
@@ -344,9 +327,7 @@ export default function OnboardingForm() {
     }
 
     const extension = file.name.split(".").pop();
-
     const filename = `${prefix}-${Date.now()}.${extension}`;
-
     const path = `${folder}/${filename}`;
 
     const { error } = await supabase.storage
@@ -433,7 +414,7 @@ export default function OnboardingForm() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [formData.username, userEmail, supabase]);
+  }, [formData.username, userEmail]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -472,7 +453,6 @@ export default function OnboardingForm() {
     const normalizeWhatsapp = (value: string) => {
       let phone = value.replace(/\D/g, "");
 
-      // Nigerian local number: 08012345678
       if (phone.startsWith("0") && phone.length === 11) {
         phone = `234${phone.slice(1)}`;
       }
@@ -544,7 +524,6 @@ export default function OnboardingForm() {
     // =============================================
 
     const normalizedWhatsapp = normalizeWhatsapp(formData.whatsapp);
-
     const whatsappRegex = /^\d{10,15}$/;
 
     if (!whatsappRegex.test(normalizedWhatsapp)) {
@@ -562,11 +541,8 @@ export default function OnboardingForm() {
     // =============================================
 
     const instagramHandle = cleanSocialHandle(formData.instagram_handle);
-
     const tiktokHandle = cleanSocialHandle(formData.tiktok_handle);
-
     const facebookHandle = cleanSocialHandle(formData.facebook_handle);
-
     const websiteUrl = normalizeWebsite(formData.website);
 
     try {
@@ -1057,7 +1033,7 @@ export default function OnboardingForm() {
                     <button
                       type="button"
                       onClick={handleNextStep}
-                      className="min-h-[52px] bg-[#22C55E] hover:bg-[#15803D] text-white font-bold rounded-xl"
+                      className="min-h-[52px] bg-[#22C55E] hover:bg-[#15803D] text-white font-bold rounded-xl transition-all"
                     >
                       Continue →
                     </button>
@@ -1073,99 +1049,121 @@ export default function OnboardingForm() {
                       Step 3 of 3
                     </p>
 
-                    <h2 className="text-2xl font-black mt-1">
-                      Where should customers pay?
-                    </h2>
+                    <h2 className="text-2xl font-black mt-1">Bank Setup</h2>
 
                     <p className="text-sm text-[#6B7280] mt-1">
-                      Add one bank account to receive customer transfers.
+                      Add your bank account so you can receive customer
+                      payments.
                     </p>
                   </div>
 
-                  <div className="space-y-5">
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-[#374151]">
-                        Bank Name
-                      </label>
+                  {banks.map((bank, index) => (
+                    <div
+                      key={index}
+                      className="space-y-4 p-4 border border-gray-100 rounded-2xl bg-gray-50/50"
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-bold text-gray-400">
+                          Account #{index + 1}
+                        </span>
+                        {index > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => removeBankSlot(index)}
+                            className="text-xs text-red-500 hover:underline font-medium"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
 
-                      <select
-                        value={banks[0]?.bank_name || ""}
-                        onChange={(e) =>
-                          handleBankChange(0, "bank_name", e.target.value)
-                        }
-                        className="w-full min-h-[52px] border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm bg-white focus:outline-none focus:border-[#22C55E]"
-                      >
-                        {NIGERIAN_BANKS.map((bank) => (
-                          <option key={bank} value={bank}>
-                            {bank}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-[#374151]">
+                          Bank Name
+                        </label>
+                        <select
+                          value={bank.bank_name}
+                          onChange={(e) =>
+                            handleBankChange(index, "bank_name", e.target.value)
+                          }
+                          className="w-full min-h-[52px] border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22C55E]"
+                        >
+                          {NIGERIAN_BANKS.map((b) => (
+                            <option key={b} value={b}>
+                              {b}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-[#374151]">
+                          Account Number
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={10}
+                          placeholder="0123456789"
+                          value={bank.account_number}
+                          onChange={(e) =>
+                            handleBankChange(
+                              index,
+                              "account_number",
+                              e.target.value.replace(/\D/g, ""),
+                            )
+                          }
+                          className="w-full min-h-[52px] border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22C55E]"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-[#374151]">
+                          Account Name
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="John Doe"
+                          value={bank.account_name}
+                          onChange={(e) =>
+                            handleBankChange(
+                              index,
+                              "account_name",
+                              e.target.value,
+                            )
+                          }
+                          className="w-full min-h-[52px] border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22C55E]"
+                        />
+                      </div>
                     </div>
+                  ))}
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-[#374151]">
-                        Account Number
-                      </label>
+                  {banks.length < 3 && (
+                    <button
+                      type="button"
+                      onClick={addBankSlot}
+                      className="text-xs font-bold text-[#22C55E] hover:underline"
+                    >
+                      + Add another bank account
+                    </button>
+                  )}
 
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={banks[0]?.account_number || ""}
-                        onChange={(e) =>
-                          handleBankChange(
-                            0,
-                            "account_number",
-                            e.target.value.replace(/\D/g, "").slice(0, 10),
-                          )
-                        }
-                        placeholder="0123456789"
-                        className="w-full min-h-[52px] border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20"
-                      />
-                    </div>
+                  <div className="grid grid-cols-2 gap-3 pt-4">
+                    <button
+                      type="button"
+                      onClick={handlePreviousStep}
+                      className="min-h-[52px] border border-gray-200 text-gray-600 font-semibold rounded-xl"
+                    >
+                      ← Back
+                    </button>
 
-                    <div className="space-y-2">
-                      <label className="text-sm font-semibold text-[#374151]">
-                        Account Name
-                      </label>
-
-                      <input
-                        type="text"
-                        value={banks[0]?.account_name || ""}
-                        onChange={(e) =>
-                          handleBankChange(0, "account_name", e.target.value)
-                        }
-                        placeholder="Ada Fashion Hub"
-                        className="w-full min-h-[52px] border border-[#D1D5DB] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20"
-                      />
-                    </div>
+                    <button
+                      type="submit"
+                      disabled={loading || uploading}
+                      className="min-h-[52px] bg-[#22C55E] hover:bg-[#15803D] disabled:bg-gray-200 text-white font-bold rounded-xl transition-all flex items-center justify-center"
+                    >
+                      {loading || uploading ? "Creating..." : "Launch Store 🎉"}
+                    </button>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={handlePreviousStep}
-                    className="w-full min-h-[48px] border border-gray-200 text-gray-600 font-semibold rounded-xl"
-                  >
-                    ← Back
-                  </button>
-
-                  <button
-                    type="submit"
-                    disabled={
-                      loading ||
-                      uploading ||
-                      !userEmail ||
-                      !banks[0]?.account_number.trim() ||
-                      !banks[0]?.account_name.trim()
-                    }
-                    className="w-full min-h-[54px] bg-[#22C55E] hover:bg-[#15803D] disabled:bg-gray-200 disabled:text-gray-500 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.99]"
-                  >
-                    {!userEmail
-                      ? "Loading session..."
-                      : loading
-                        ? "Launching your store..."
-                        : "🚀 Launch My Store"}
-                  </button>
                 </div>
               )}
             </div>

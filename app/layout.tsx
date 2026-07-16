@@ -1,17 +1,28 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { OrderProvider } from "@/app/context/OrderContext";
 
+// Configured with display: 'swap' to prevent layout shifts (CLS)
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
 });
+
+// Separate Viewport configuration (Next.js 15+ standard pattern)
+export const viewport: Viewport = {
+  themeColor: "#15803D", // Matches BioLink Market's brand green
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5, // Maintains accessibility while preventing extreme zoom
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://biolink-market-wondas.vercel.app"),
@@ -22,7 +33,7 @@ export const metadata: Metadata = {
   },
 
   description:
-    "Create your own online storefront in minutes. Share your products, receive payments and grow your business with BioLink Market.",
+    "Create your own online storefront in minutes. Share your products, receive payments, and grow your business with BioLink Market.",
 
   keywords: [
     "BioLink Market",
@@ -37,11 +48,8 @@ export const metadata: Metadata = {
   ],
 
   applicationName: "BioLink Market",
-
   creator: "BioLink Market",
-
   publisher: "BioLink Market",
-
   authors: [
     {
       name: "BioLink Market",
@@ -59,7 +67,7 @@ export const metadata: Metadata = {
     siteName: "BioLink Market",
     title: "BioLink Market",
     description:
-      "Build your online storefront, receive payments and share one beautiful link with customers.",
+      "Build your online storefront, receive payments, and share one beautiful link with customers.",
     images: [
       {
         url: "/og-image.png",
@@ -94,9 +102,13 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning // Prevents browser-extension class injections from breaking hydration
     >
-      <body className="min-h-full flex flex-col">
-        <OrderProvider>{children}</OrderProvider>
+      <body className="min-h-full flex flex-col font-sans bg-[#FFFFFF] text-[#111827]">
+        {/* Wrap in OrderProvider to handle cart state across store pages safely */}
+        <OrderProvider>
+          <main className="flex-grow">{children}</main>
+        </OrderProvider>
       </body>
     </html>
   );

@@ -2,18 +2,27 @@ import { supabase } from "./supabase";
 
 export async function trackSocialClick(
   vendorId: string,
-  platform: "Instagram" | "Facebook" | "TikTok",
+  platform: "whatsapp" | "instagram" | "facebook" | "tiktok" | "website",
 ) {
   try {
     await supabase.from("traffic_logs").insert({
       vendor_id: vendorId,
-      referrer: platform,
+
+      event_type: "social_click",
+
+      platform,
+
       device_type: /Mobi|Android/i.test(navigator.userAgent)
-        ? "Mobile"
-        : "Desktop",
-      is_unique: false, // Event-driven action click, not a new page visit
+        ? "mobile"
+        : "desktop",
+
+      referrer: document.referrer || null,
+
+      page: window.location.pathname,
+
+      clicked_at: new Date().toISOString(),
     });
   } catch (error) {
-    console.error("Failed to log social click telemetry:", error);
+    console.error(error);
   }
 }

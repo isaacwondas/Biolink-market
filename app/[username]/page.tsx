@@ -27,18 +27,25 @@ export default async function Storefront({ params }: PageProps) {
     );
   }
 
-  // 1. INITIALIZE SECURE SERVER-SIDE SUPABASE CLIENT WITH COOKIE CONTEXT
+  // 1. INITIALIZE SECURE SERVER-SIDE SUPABASE CLIENT (Updated for modern @supabase/ssr)
   const cookieStore = await cookies();
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name) {
-          return cookieStore.get(name)?.value;
+        getAll() {
+          return cookieStore.getAll();
         },
-        set(name, value, options) {},
-        remove(name, options) {},
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options),
+            );
+          } catch {
+            // Safe to ignore in Server Components if middleware handles refreshes
+          }
+        },
       },
     },
   );
@@ -69,8 +76,8 @@ export default async function Storefront({ params }: PageProps) {
     );
   }
 
-  // 3. ATOMIC BACKGROUND TELEMETRY ACTIONS (FIXED RACE CONDITION)
-  await supabase.rpc("increment_views", { vendor_id: vendor.id });
+  // NOTE: Server-side view increment removed.
+  // Telemetry is handled asynchronously on the client-side via <StoreTrackerTrigger />
 
   const merchantDisplayName = vendor.business_name || vendor.name;
   const locationText = vendor.location || "Lagos";
@@ -83,7 +90,7 @@ export default async function Storefront({ params }: PageProps) {
     vendor.avatar_image ||
     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80";
 
-  // 4. COMPILE BANKS LIST WITH FALLBACK
+  // 3. COMPILE BANKS LIST WITH FALLBACK
   let displayBanks = vendor.vendor_banks || [];
   if (displayBanks.length === 0 && vendor.bank_name && vendor.account_number) {
     displayBanks = [
@@ -96,7 +103,7 @@ export default async function Storefront({ params }: PageProps) {
     ];
   }
 
-  // 5. PRE-GENERATE INTERACTIVE QR CODES
+  // 4. PRE-GENERATE INTERACTIVE QR CODES
   const banksWithQrs = await Promise.all(
     displayBanks.slice(0, 3).map(async (bank: any) => {
       let qrCodeUrl = "";
@@ -181,14 +188,14 @@ export default async function Storefront({ params }: PageProps) {
                   <SocialButton
                     platform="Instagram"
                     handle={vendor.instagram_handle.trim()}
-                    vendorId={Number(vendor.id)}
+                    vendorId={vendor.id}
                   />
                 )}
               {vendor.tiktok_handle && vendor.tiktok_handle.trim() !== "" && (
                 <SocialButton
                   platform="TikTok"
                   handle={vendor.tiktok_handle.trim()}
-                  vendorId={Number(vendor.id)}
+                  vendorId={vendor.id}
                 />
               )}
               {vendor.facebook_handle &&
@@ -196,14 +203,13 @@ export default async function Storefront({ params }: PageProps) {
                   <SocialButton
                     platform="Facebook"
                     handle={vendor.facebook_handle.trim()}
-                    vendorId={Number(vendor.id)}
+                    vendorId={vendor.id}
                   />
                 )}
             </div>
           )}
 
           {/* Extra custom social links */}
-
           {vendor.social_links && vendor.social_links.length > 0 && (
             <div className="w-full mt-4 space-y-2">
               {vendor.social_links
@@ -259,7 +265,7 @@ export default async function Storefront({ params }: PageProps) {
         <div className="px-4 mt-3 space-y-3">
           {/* Section Header */}
           <div>
-            <h3 className="text-base font-bold text-[#111827]">
+            <h3 className="text-base font-bold text-[#111827] flex items-center gap-2">
               <Landmark className="w-5 h-5" />
               <span>Bank Details</span>
             </h3>
@@ -354,7 +360,7 @@ export default async function Storefront({ params }: PageProps) {
               products={vendor.vendor_products}
               vendorId={vendor.id}
               vendorEmail={vendor.email || ""}
-              banks={vendor.vendor_banks || []}
+              banks={banksWithQrs} // FIXED: Now correctly passes pre-computed legacy fallbacks + QRs
             />
           ) : (
             <div className="bg-white border border-dashed border-[#E5E7EB] rounded-2xl p-4 text-center">

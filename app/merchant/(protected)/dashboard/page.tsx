@@ -2,15 +2,26 @@ import React from "react";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import DashboardShell from "@/components/admin/DashboardShell";
 
-async function getDashboardTelemetry(supabaseClient: any, vendorId: number) {
+// =========================================================
+// HELPER FUNCTIONS
+// =========================================================
+
+async function getDashboardTelemetry(
+  supabaseClient: any,
+  vendorId: string | number,
+) {
   const { data, error } = await supabaseClient.rpc(
     "get_vendor_click_analytics",
     { target_vendor_id: vendorId, grouping_interval: "day", limit_count: 7 },
   );
-  if (error) return [];
-  return data.reverse();
+  if (error) {
+    console.error("Analytics fetch error:", error);
+    return [];
+  }
+  return data ? [...data].reverse() : [];
 }
 
 async function getVendorTransactions(supabaseClient: any, vendorEmail: string) {
@@ -29,18 +40,31 @@ async function getVendorTransactions(supabaseClient: any, vendorEmail: string) {
   return data || [];
 }
 
+// =========================================================
+// MAIN SERVER COMPONENT
+// =========================================================
+
 export default async function AdminDashboardPage() {
   const cookieStore = await cookies();
+
+  // Create secure client with updated @supabase/ssr standards
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name) {
-          return cookieStore.get(name)?.value;
+        getAll() {
+          return cookieStore.getAll();
         },
-        set() {},
-        remove() {},
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options),
+            );
+          } catch {
+            // Safe to ignore on server-side renders if handled by middleware
+          }
+        },
       },
     },
   );
@@ -48,7 +72,7 @@ export default async function AdminDashboardPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/admin/login");
+  if (!user) redirect("/login");
 
   // Fetch full vendor data including banks and products
   const { data: vendor, error: vendorError } = await supabase
@@ -57,7 +81,7 @@ export default async function AdminDashboardPage() {
     .eq("email", user.email)
     .single();
 
-  if (vendorError || !vendor) redirect("/admin/onboard");
+  if (vendorError || !vendor) redirect("/onboard");
 
   const [timelineData, transactionsQueue] = await Promise.all([
     getDashboardTelemetry(supabase, vendor.id),
@@ -65,7 +89,7 @@ export default async function AdminDashboardPage() {
   ]);
 
   const totalClicks = timelineData.reduce(
-    (acc: number, d: any) => acc + Number(d.total_clicks),
+    (acc: number, d: any) => acc + Number(d.total_clicks || 0),
     0,
   );
 
@@ -74,19 +98,19 @@ export default async function AdminDashboardPage() {
     uniqueVisitors: Math.ceil((vendor.views || 0) * 0.72),
     socialClicks: {
       instagram: timelineData.reduce(
-        (a: number, d: any) => a + Number(d.instagram_count),
+        (a: number, d: any) => a + Number(d.instagram_count || 0),
         0,
       ),
       facebook: timelineData.reduce(
-        (a: number, d: any) => a + Number(d.facebook_count),
+        (a: number, d: any) => a + Number(d.facebook_count || 0),
         0,
       ),
       tiktok: timelineData.reduce(
-        (a: number, d: any) => a + Number(d.tiktok_count),
+        (a: number, d: any) => a + Number(d.tiktok_count || 0),
         0,
       ),
       whatsapp: timelineData.reduce(
-        (a: number, d: any) => a + Number(d.whatsapp_count),
+        (a: number, d: any) => a + Number(d.whatsapp_count || 0),
         0,
       ),
     },
@@ -97,24 +121,37 @@ export default async function AdminDashboardPage() {
     },
   };
 
+  // =========================================================
+  // SERVER ACTION (DECOUPLED & CORRECTED PATHS)
+  // =========================================================
+
   async function handleTransactionUpdate(
     id: string,
     updates: { amount_paid: number; payment_status: string },
   ) {
     "use server";
-    const { revalidatePath } = await import("next/cache");
-    const cookieStore = await cookies();
+    const serverCookies = await cookies();
     const serverSupabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          get(name) {
-            return cookieStore.get(name)?.value;
+          getAll() {
+            return serverCookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                serverCookies.set(name, value, options),
+              );
+            } catch {
+              // Safe to ignore in Server Actions
+            }
           },
         },
       },
     );
+
     await serverSupabase
       .from("transactions")
       .update({
@@ -124,7 +161,9 @@ export default async function AdminDashboardPage() {
           updates.payment_status === "fully_paid" ? "approved" : "pending",
       })
       .eq("id", id);
-    revalidatePath("/admin/dashboard");
+
+    // FIXED: Revalidate the actual merchant dashboard path
+    revalidatePath("/merchant/dashboard");
   }
 
   return (

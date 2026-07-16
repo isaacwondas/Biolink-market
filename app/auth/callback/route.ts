@@ -1,10 +1,9 @@
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
-
   const code = searchParams.get("code");
 
   console.log("===== AUTH CALLBACK START =====");
@@ -18,26 +17,36 @@ export async function GET(request: Request) {
 
   const cookieStore = await cookies();
 
+  // 1. Create a dummy redirection response first so we can write cookies directly to its headers.
+  // This is critical in Next.js Route Handlers to ensure cookies aren't dropped.
+  const response = NextResponse.redirect(`${origin}/merchant/onboard`);
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
+        getAll() {
+          return cookieStore.getAll();
         },
-        set(name: string, value: string, options: CookieOptions) {
-          cookieStore.set({ name, value, ...options });
-        },
-        remove(name: string, options: CookieOptions) {
-          cookieStore.set({ name, value: "", ...options });
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              // Write to the cookie store (for server context)
+              cookieStore.set(name, value, options);
+              // Write to the redirection response (to persist back to the browser)
+              response.cookies.set(name, value, options);
+            });
+          } catch {
+            // Safe to ignore if called during render
+          }
         },
       },
     },
   );
 
+  // 2. Exchange authorization code for session
   const { error } = await supabase.auth.exchangeCodeForSession(code);
-
   console.log("Exchange Error:", error);
 
   if (error) {
@@ -46,6 +55,7 @@ export async function GET(request: Request) {
     );
   }
 
+  // 3. Fetch authenticated user safely
   const {
     data: { user },
     error: userError,
@@ -74,13 +84,31 @@ export async function GET(request: Request) {
     }
 
     if (!existingVendor) {
-      await supabase.auth.signOut();
-
-      return NextResponse.redirect(
-        `${origin}/merchant/signup?error=profile-not-found`,
+      // Brand new user → create vendor row with Upsert fallback to prevent duplication errors
+      const { error: upsertError } = await supabase.from("vendors").upsert(
+        {
+          email: normalizedEmail,
+          name:
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            user.email.split("@")[0],
+          username: null, // Keep null until onboarding complete
+          views: 0,
+          is_onboarded: false,
+        },
+        { onConflict: "email" }, // Safely handles duplicate attempts on same email
       );
+
+      if (upsertError) {
+        console.error("Vendor creation failed:", upsertError);
+        return NextResponse.redirect(
+          `${origin}/merchant/login?error=vendor-creation-failed`,
+        );
+      }
+
+      redirectPath = "/merchant/onboard";
     } else {
-      // Existing user → check if they finished onboarding
+      // Existing user → route conditionally
       redirectPath = existingVendor.is_onboarded
         ? "/merchant/dashboard"
         : "/merchant/onboard";
@@ -89,5 +117,11 @@ export async function GET(request: Request) {
 
   console.log("===== AUTH CALLBACK END =====");
 
-  return NextResponse.redirect(`${origin}${redirectPath}`);
+  // 4. Set the final redirection URL on the response with our written cookies
+  const finalRedirectUrl = new URL(redirectPath, origin);
+
+  // Clone or overwrite url destination keeping the existing response headers (cookies)
+  return NextResponse.redirect(finalRedirectUrl.toString(), {
+    headers: response.headers,
+  });
 }

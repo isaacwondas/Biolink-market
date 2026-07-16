@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useCallback,
+} from "react";
 
 export interface OrderItem {
   id: number;
@@ -26,7 +32,8 @@ const OrderContext = createContext<OrderContextType | null>(null);
 export function OrderProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<OrderItem[]>([]);
 
-  const addItem = (product: Omit<OrderItem, "quantity">) => {
+  // Wrapped in useCallback to keep the function reference stable
+  const addItem = useCallback((product: Omit<OrderItem, "quantity">) => {
     setItems((prev) => {
       const existing = prev.find((p) => p.id === product.id);
 
@@ -38,29 +45,35 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
 
       return [...prev, { ...product, quantity: 1 }];
     });
-  };
+  }, []);
 
-  const increase = (id: number) =>
+  const increase = useCallback((id: number) => {
     setItems((prev) =>
       prev.map((p) => (p.id === id ? { ...p, quantity: p.quantity + 1 } : p)),
     );
+  }, []);
 
-  const decrease = (id: number) =>
+  const decrease = useCallback((id: number) => {
     setItems((prev) =>
       prev
         .map((p) => (p.id === id ? { ...p, quantity: p.quantity - 1 } : p))
         .filter((p) => p.quantity > 0),
     );
+  }, []);
 
-  const removeItem = (id: number) =>
+  const removeItem = useCallback((id: number) => {
     setItems((prev) => prev.filter((p) => p.id !== id));
+  }, []);
 
-  const clearOrder = () => setItems([]);
+  const clearOrder = useCallback(() => {
+    setItems([]);
+  }, []);
 
   const totalItems = items.reduce((a, b) => a + b.quantity, 0);
 
   const totalPrice = items.reduce((a, b) => a + b.quantity * b.price, 0);
 
+  // All dependencies are now strictly declared and stable
   const value = useMemo(
     () => ({
       items,
@@ -72,7 +85,16 @@ export function OrderProvider({ children }: { children: React.ReactNode }) {
       totalItems,
       totalPrice,
     }),
-    [items],
+    [
+      items,
+      addItem,
+      removeItem,
+      increase,
+      decrease,
+      clearOrder,
+      totalItems,
+      totalPrice,
+    ],
   );
 
   return (
