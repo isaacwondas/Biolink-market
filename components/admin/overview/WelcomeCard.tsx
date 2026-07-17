@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { CheckCircle2, Circle, Sparkles } from "lucide-react";
 
 // Define structured vendor properties for strict compile type-safety
@@ -23,6 +24,12 @@ export default function WelcomeCard({
   vendor,
   completionPercentage,
 }: WelcomeCardProps) {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const setupTasks = [
     {
       label: "Business Name",
@@ -55,6 +62,13 @@ export default function WelcomeCard({
   const percentage =
     completionPercentage ??
     Math.round((completedTasks / setupTasks.length) * 100);
+
+  // Return a clean loading container placeholder on the server to prevent any hydration mismatch
+  if (!isMounted) {
+    return (
+      <div className="h-[200px] w-full animate-pulse rounded-2xl border border-gray-100 bg-gray-50" />
+    );
+  }
 
   if (percentage >= 100) {
     return (
