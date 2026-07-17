@@ -59,26 +59,27 @@ export default function RecentActivityCard({
       color: "bg-orange-100 text-orange-700",
     })),
 
-    ...(vendor.total_social_clicks
+    ...(vendor?.total_social_clicks !== undefined &&
+    vendor?.total_social_clicks !== null
       ? [
           {
             id: "clicks",
             icon: MousePointerClick,
             title: "Social links clicked",
-            description: `${vendor.total_social_clicks.toLocaleString()} total social link clicks.`,
+            description: `${Number(vendor.total_social_clicks).toLocaleString()} total social link clicks.`,
             time: "Today",
             color: "bg-blue-100 text-blue-700",
           },
         ]
       : []),
 
-    ...(vendor.views
+    ...(vendor?.views !== undefined && vendor?.views !== null
       ? [
           {
             id: "views",
             icon: Eye,
             title: "Store viewed",
-            description: `${vendor.views.toLocaleString()} people have viewed your storefront.`,
+            description: `${Number(vendor.views).toLocaleString()} people have viewed your storefront.`,
             time: "Today",
             color: "bg-purple-100 text-purple-700",
           },

@@ -18,28 +18,28 @@ export default function BusinessSnapshot({
   const cards = [
     {
       title: "Store Views",
-      value: totalViews.toLocaleString(),
+      value: (totalViews ?? 0).toLocaleString(),
       icon: Eye,
       color: "text-blue-600",
       bg: "bg-blue-50",
     },
     {
       title: "Products",
-      value: totalProducts.toString(),
+      value: (totalProducts ?? 0).toString(),
       icon: Package,
       color: "text-orange-600",
       bg: "bg-orange-50",
     },
     {
       title: "Social Clicks",
-      value: totalClicks.toLocaleString(),
+      value: (totalClicks ?? 0).toLocaleString(),
       icon: MousePointerClick,
       color: "text-green-600",
       bg: "bg-green-50",
     },
     {
       title: "Store Shares",
-      value: totalShares.toLocaleString(),
+      value: (totalShares ?? 0).toLocaleString(),
       icon: Share2,
       color: "text-purple-600",
       bg: "bg-purple-50",
