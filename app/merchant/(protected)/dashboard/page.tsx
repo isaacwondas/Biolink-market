@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import DashboardShell from "@/components/admin/DashboardShell";
+import { getOverviewMetrics } from "@/app/lib/analytics/analytics.service";
 
 // =========================================================
 // HELPER FUNCTIONS
@@ -83,9 +84,10 @@ export default async function AdminDashboardPage() {
 
   if (vendorError || !vendor) redirect("/onboard");
 
-  const [timelineData, transactionsQueue] = await Promise.all([
+  const [timelineData, transactionsQueue, overviewMetrics] = await Promise.all([
     getDashboardTelemetry(supabase, vendor.id),
     getVendorTransactions(supabase, vendor.email || ""),
+    getOverviewMetrics(supabase, vendor.id),
   ]);
 
   const totalClicks = timelineData.reduce(
@@ -94,9 +96,9 @@ export default async function AdminDashboardPage() {
   );
 
   const structuralMetrics = {
-    totalViews: vendor.views || 0,
+    totalViews: overviewMetrics.totalViews,
 
-    uniqueVisitors: Math.ceil((vendor.views || 0) * 0.72),
+    uniqueVisitors: overviewMetrics.uniqueVisitors,
 
     totalProducts: vendor.vendor_products?.length || 0,
 
