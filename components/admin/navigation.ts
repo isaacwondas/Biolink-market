@@ -1,4 +1,11 @@
-import { BarChart3, User, Building2, Package, Link2 } from "lucide-react";
+import {
+  BarChart3,
+  User,
+  Building2,
+  Package,
+  Link2,
+  LayoutDashboard,
+} from "lucide-react";
 
 export type DashboardTab =
   | "overview"
@@ -12,7 +19,7 @@ export const NAV = [
   {
     id: "overview",
     label: "Overview",
-    icon: BarChart3,
+    icon: LayoutDashboard,
   },
   {
     id: "analytics",

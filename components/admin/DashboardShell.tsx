@@ -10,7 +10,7 @@ import ProductsTab from "./products/ProductsTab";
 import SocialTab from "@/components/admin/social/SocialTab";
 import AnalyticsTab from "@/components/admin/analytics/AnalyticsTab";
 
-import { LogOut, ExternalLink, Menu } from "lucide-react";
+import { LogOut, ExternalLink, Menu, Icon } from "lucide-react";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
