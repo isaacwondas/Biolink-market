@@ -3,7 +3,7 @@
 import { useStoreTracker } from "../hooks/useStoreTracker";
 
 interface TrackerProps {
-  vendorId: string;
+  vendorId: number;
 }
 
 export default function StoreTrackerTrigger({ vendorId }: TrackerProps) {

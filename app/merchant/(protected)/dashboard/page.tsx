@@ -95,28 +95,42 @@ export default async function AdminDashboardPage() {
 
   const structuralMetrics = {
     totalViews: vendor.views || 0,
+
     uniqueVisitors: Math.ceil((vendor.views || 0) * 0.72),
+
+    totalProducts: vendor.vendor_products?.length || 0,
+
+    totalSocialClicks: totalClicks,
+
+    totalShares: 0,
+
     socialClicks: {
       instagram: timelineData.reduce(
         (a: number, d: any) => a + Number(d.instagram_count || 0),
         0,
       ),
+
       facebook: timelineData.reduce(
         (a: number, d: any) => a + Number(d.facebook_count || 0),
         0,
       ),
+
       tiktok: timelineData.reduce(
         (a: number, d: any) => a + Number(d.tiktok_count || 0),
         0,
       ),
+
       whatsapp: timelineData.reduce(
         (a: number, d: any) => a + Number(d.whatsapp_count || 0),
         0,
       ),
     },
+
     deviceBreakdown: {
       mobile: Math.ceil(totalClicks * 0.85),
+
       desktop: Math.ceil(totalClicks * 0.12),
+
       tablet: Math.ceil(totalClicks * 0.03),
     },
   };

@@ -1,12 +1,19 @@
 export interface AnalyticsMetrics {
   totalViews: number;
+
   uniqueVisitors: number;
 
   totalProducts: number;
 
+  productViews: number;
+
   totalSocialClicks: number;
 
   totalShares: number;
+
+  bankCopies: number;
+
+  qrScans: number;
 
   socialClicks: {
     whatsapp: number;
