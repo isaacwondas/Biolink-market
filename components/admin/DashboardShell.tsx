@@ -8,6 +8,7 @@ import ProfileTab from "@/components/admin/profile/ProfileTab";
 import BanksTab from "@/components/admin/banks/BanksTab";
 import ProductsTab from "./products/ProductsTab";
 import SocialTab from "@/components/admin/social/SocialTab";
+import AnalyticsTab from "@/components/admin/analytics/AnalyticsTab";
 
 import { LogOut, ExternalLink, Menu } from "lucide-react";
 
@@ -166,6 +167,13 @@ export default function DashboardShell({
                 timelineData={timelineData}
                 initialTransactions={initialTransactions ?? []}
                 onTransactionUpdate={onTransactionUpdate}
+              />
+            )}
+
+            {activeTab === "analytics" && (
+              <AnalyticsTab
+                vendor={vendor}
+                structuralMetrics={structuralMetrics}
               />
             )}
 
