@@ -44,11 +44,20 @@ export default function DashboardShell({
       {/* ── Sidebar ── */}
       <aside
         className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col
-        transform transition-transform duration-200
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:relative lg:translate-x-0 lg:flex
-      `}
+    fixed left-0 top-0 z-50
+    h-screen
+    w-64
+    bg-white
+    border-r border-gray-200
+    flex flex-col
+    transform transition-transform duration-200
+    ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+    lg:sticky
+    lg:top-0
+    lg:translate-x-0
+    lg:h-screen
+    lg:flex
+  `}
       >
         {/* Logo / store identity */}
         <div className="p-5 border-b border-gray-200 space-y-1">
@@ -130,7 +139,7 @@ export default function DashboardShell({
       )}
 
       {/* ── Main content ── */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
         {/* Mobile top bar */}
         <div className="lg:hidden flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
           <button
@@ -148,7 +157,7 @@ export default function DashboardShell({
         </div>
 
         {/* Page content */}
-        <main className="flex-1 p-4 md:p-8 overflow-auto">
+        <main className="flex-1 overflow-y-auto p-6 md:p-8">
           <div className="max-w-7xl mx-auto w-full">
             {activeTab === "overview" && (
               <OverviewTab

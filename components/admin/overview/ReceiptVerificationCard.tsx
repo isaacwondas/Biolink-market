@@ -9,11 +9,11 @@ import { TransactionApprovalCard } from "@/components/admin/TransactionApprovalC
 interface Receipt {
   id: string;
   customer_name: string;
-  customer_email: string;
+  vendor_email: string;
   buyer_name?: string;
   buyer_phone?: string;
-  order_reference?: string;
-  receipt_image_url: string;
+  reference_code?: string;
+  receipt_url: string;
   created_at: string;
   amount_paid: number;
   total_order_amount: number;
@@ -55,7 +55,7 @@ export default function ReceiptVerificationCard({
 
   async function handleDecline(id: string) {
     const { error } = await supabase
-      .from("receipt_submissions")
+      .from("transactions")
       .update({
         status: "declined",
       })
@@ -65,7 +65,7 @@ export default function ReceiptVerificationCard({
 
     setLocalReceipts((prev) =>
       prev.map((receipt) =>
-        receipt.id === id
+        receipt.reference_code === receipt.reference_code
           ? {
               ...receipt,
               status: "declined",
@@ -88,7 +88,7 @@ export default function ReceiptVerificationCard({
 
     setLocalReceipts((prev) =>
       prev.map((receipt) =>
-        receipt.id === id
+        receipt.reference_code === receipt.reference_code
           ? {
               ...receipt,
               ...updates,
@@ -228,7 +228,7 @@ export default function ReceiptVerificationCard({
               <div className="flex items-center gap-4">
                 <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-gray-200">
                   <Image
-                    src={receipt.receipt_image_url}
+                    src={receipt.receipt_url}
                     alt="Receipt"
                     fill
                     className="object-cover"
@@ -238,15 +238,15 @@ export default function ReceiptVerificationCard({
 
                 <div>
                   <h3 className="font-semibold text-[#111827]">
-                    {receipt.customer_name || "Unknown Customer"}
+                    {receipt.buyer_name || "Unknown Customer"}
                   </h3>
 
                   <p className="text-sm text-gray-500">
-                    {receipt.customer_email}
+                    {receipt.vendor_email}
                   </p>
 
                   <p className="mt-1 text-xs text-gray-400">
-                    #{receipt.order_reference || "NO-REF"}
+                    #{receipt.reference_code || "NO-REF"}
                   </p>
                 </div>
               </div>
