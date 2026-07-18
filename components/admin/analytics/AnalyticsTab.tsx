@@ -8,12 +8,23 @@ import RecentActivityCard from "./RecentActivityCard";
 
 import type { AnalyticsMetrics } from "./types";
 
+interface VisitorPoint {
+  date: string;
+  visitors: number;
+}
+
 interface Props {
   vendor: any;
   structuralMetrics: any;
+  visitorTrend: VisitorPoint[];
 }
 
-export default function AnalyticsTab({ vendor, structuralMetrics }: Props) {
+export default function AnalyticsTab({
+  vendor,
+  structuralMetrics,
+  visitorTrend,
+}: Props) {
+  console.log("Visitor Trend:", visitorTrend);
   const metrics: AnalyticsMetrics = {
     totalViews: structuralMetrics.totalViews ?? 0,
 
@@ -69,9 +80,9 @@ export default function AnalyticsTab({ vendor, structuralMetrics }: Props) {
       {/* KPI Cards */}
       <SummaryCards metrics={metrics} />
       {/* Charts */}
-      /*
-      <VisitorChart />
-      */
+
+      <VisitorChart data={visitorTrend} />
+
       {/* Bottom Grid */}
       <div className="grid gap-6 lg:grid-cols-2">
         <TopLinksCard metrics={metrics} />

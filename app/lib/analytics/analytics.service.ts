@@ -50,6 +50,50 @@ export async function getOverviewMetrics(
   };
 }
 
+export async function getVisitorTrend(
+  supabase: SupabaseClient,
+  vendorId: number,
+  days = 7,
+) {
+  const start = new Date();
+  start.setDate(start.getDate() - (days - 1));
+
+  const { data, error } = await supabase
+    .from("traffic_logs")
+    .select("viewed_at")
+    .eq("vendor_id", vendorId)
+    .eq("event_type", "store_view")
+    .gte("viewed_at", start.toISOString());
+
+  if (error) throw error;
+
+  const grouped: Record<string, number> = {};
+
+  for (let i = 0; i < days; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+
+    grouped[d.toISOString().split("T")[0]] = 0;
+  }
+
+  data?.forEach((row) => {
+    if (!row.viewed_at) return;
+
+    const key = row.viewed_at.split("T")[0];
+
+    if (grouped[key] !== undefined) {
+      grouped[key]++;
+    }
+  });
+
+  return Object.entries(grouped).map(([date, visitors]) => ({
+    date: new Date(date).toLocaleDateString("en-US", {
+      weekday: "short",
+    }),
+    visitors,
+  }));
+}
+
 export async function getLinkAnalytics(
   supabase: SupabaseClient,
   vendorId: number,

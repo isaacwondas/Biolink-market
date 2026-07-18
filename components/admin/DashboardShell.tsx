@@ -22,12 +22,14 @@ export default function DashboardShell({
   initialTransactions,
   structuralMetrics,
   onTransactionUpdate,
+  visitorTrend,
 }: {
   vendor: any;
   timelineData: any[];
   initialTransactions: any[];
   structuralMetrics: any;
   onTransactionUpdate: any;
+  visitorTrend: any;
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
@@ -174,6 +176,7 @@ export default function DashboardShell({
               <AnalyticsTab
                 vendor={vendor}
                 structuralMetrics={structuralMetrics}
+                visitorTrend={visitorTrend}
               />
             )}
 

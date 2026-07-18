@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import DashboardShell from "@/components/admin/DashboardShell";
 import { getOverviewMetrics } from "@/app/lib/analytics/analytics.service";
+import { getVisitorTrend } from "@/app/lib/analytics/analytics.service";
 
 // =========================================================
 // HELPER FUNCTIONS
@@ -84,11 +85,13 @@ export default async function AdminDashboardPage() {
 
   if (vendorError || !vendor) redirect("/onboard");
 
-  const [timelineData, transactionsQueue, overviewMetrics] = await Promise.all([
-    getDashboardTelemetry(supabase, vendor.id),
-    getVendorTransactions(supabase, vendor.email || ""),
-    getOverviewMetrics(supabase, vendor.id),
-  ]);
+  const [timelineData, transactionsQueue, overviewMetrics, visitorTrend] =
+    await Promise.all([
+      getDashboardTelemetry(supabase, vendor.id),
+      getVendorTransactions(supabase, vendor.email || ""),
+      getOverviewMetrics(supabase, vendor.id),
+      getVisitorTrend(supabase, vendor.id),
+    ]);
 
   const totalClicks = timelineData.reduce(
     (acc: number, d: any) => acc + Number(d.total_clicks || 0),
@@ -188,6 +191,7 @@ export default async function AdminDashboardPage() {
       timelineData={timelineData}
       initialTransactions={transactionsQueue}
       structuralMetrics={structuralMetrics}
+      visitorTrend={visitorTrend}
       onTransactionUpdate={handleTransactionUpdate}
     />
   );
