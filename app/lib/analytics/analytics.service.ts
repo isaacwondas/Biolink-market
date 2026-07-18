@@ -1,13 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-
-export interface OverviewMetrics {
-  totalViews: number;
-  uniqueVisitors: number;
-  productViews: number;
-  totalLinkClicks: number;
-  bankCopies: number;
-  qrScans: number;
-}
+import type { OverviewMetrics } from "./analytics.types";
 
 export async function getOverviewMetrics(
   supabase: SupabaseClient,
@@ -22,7 +14,7 @@ export async function getOverviewMetrics(
       is_unique,
       viewed_at,
       product_id
-      `,
+    `,
     )
     .eq("vendor_id", vendorId);
 
@@ -33,6 +25,28 @@ export async function getOverviewMetrics(
 
   const rows = data ?? [];
 
+  const socialClicks = {
+    whatsapp: rows.filter(
+      (r) => r.event_type === "social_click" && r.platform === "whatsapp",
+    ).length,
+
+    instagram: rows.filter(
+      (r) => r.event_type === "social_click" && r.platform === "instagram",
+    ).length,
+
+    facebook: rows.filter(
+      (r) => r.event_type === "social_click" && r.platform === "facebook",
+    ).length,
+
+    tiktok: rows.filter(
+      (r) => r.event_type === "social_click" && r.platform === "tiktok",
+    ).length,
+
+    website: rows.filter(
+      (r) => r.event_type === "social_click" && r.platform === "website",
+    ).length,
+  };
+
   return {
     totalViews: rows.filter((r) => r.event_type === "store_view").length,
 
@@ -42,11 +56,14 @@ export async function getOverviewMetrics(
 
     productViews: rows.filter((r) => r.event_type === "product_view").length,
 
-    totalLinkClicks: rows.filter((r) => r.event_type === "social_click").length,
-
     bankCopies: rows.filter((r) => r.event_type === "bank_copy").length,
 
     qrScans: rows.filter((r) => r.event_type === "qr_scan").length,
+
+    socialClicks,
+
+    // Placeholder for now. We'll replace this with real data later.
+    topProducts: [],
   };
 }
 
@@ -85,12 +102,42 @@ export async function getVisitorTrend(
       grouped[key]++;
     }
   });
-
   return Object.entries(grouped).map(([date, visitors]) => ({
     date: new Date(date).toLocaleDateString("en-US", {
       weekday: "short",
     }),
     visitors,
+  }));
+}
+
+export async function getRecentActivity(
+  supabase: SupabaseClient,
+  vendorId: number,
+  limit = 20,
+) {
+  const { data, error } = await supabase
+    .from("traffic_logs")
+    .select(
+      `
+      id,
+      event_type,
+      platform,
+      product_id,
+      viewed_at
+    `,
+    )
+    .eq("vendor_id", vendorId)
+    .order("viewed_at", { ascending: false })
+    .limit(limit);
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => ({
+    id: row.id,
+    event: row.event_type ?? "unknown",
+    product: row.product_id ? `Product #${row.product_id}` : undefined,
+    platform: row.platform ?? undefined,
+    created_at: row.viewed_at,
   }));
 }
 

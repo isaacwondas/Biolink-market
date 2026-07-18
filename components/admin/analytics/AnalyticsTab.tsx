@@ -4,9 +4,9 @@ import SummaryCards from "./SummaryCards";
 import VisitorChart from "./VisitorChart";
 import TopLinksCard from "./TopLinksCard";
 import TopProductsCard from "./TopProductsCard";
-import RecentActivityCard from "./RecentActivityCard";
-
 import type { AnalyticsMetrics } from "./types";
+
+import RecentActivityCard, { type Activity } from "./RecentActivityCard";
 
 interface VisitorPoint {
   date: string;
@@ -17,12 +17,14 @@ interface Props {
   vendor: any;
   structuralMetrics: any;
   visitorTrend: VisitorPoint[];
+  recentActivity: Activity[];
 }
 
 export default function AnalyticsTab({
   vendor,
   structuralMetrics,
   visitorTrend,
+  recentActivity,
 }: Props) {
   console.log("Visitor Trend:", visitorTrend);
   const metrics: AnalyticsMetrics = {
@@ -93,7 +95,7 @@ export default function AnalyticsTab({
         />
       </div>
       {/* Activity */}
-      <RecentActivityCard activities={[]} />
+      <RecentActivityCard activities={recentActivity} />
     </div>
   );
 }

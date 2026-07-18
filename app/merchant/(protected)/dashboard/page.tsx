@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import DashboardShell from "@/components/admin/DashboardShell";
 import { getOverviewMetrics } from "@/app/lib/analytics/analytics.service";
 import { getVisitorTrend } from "@/app/lib/analytics/analytics.service";
+import { getRecentActivity } from "@/app/lib/analytics/analytics.service";
 
 // =========================================================
 // HELPER FUNCTIONS
@@ -85,14 +86,19 @@ export default async function AdminDashboardPage() {
 
   if (vendorError || !vendor) redirect("/onboard");
 
-  const [timelineData, transactionsQueue, overviewMetrics, visitorTrend] =
-    await Promise.all([
-      getDashboardTelemetry(supabase, vendor.id),
-      getVendorTransactions(supabase, vendor.email || ""),
-      getOverviewMetrics(supabase, vendor.id),
-      getVisitorTrend(supabase, vendor.id),
-    ]);
-
+  const [
+    timelineData,
+    transactionsQueue,
+    overviewMetrics,
+    visitorTrend,
+    recentActivity,
+  ] = await Promise.all([
+    getDashboardTelemetry(supabase, vendor.id),
+    getVendorTransactions(supabase, vendor.email),
+    getOverviewMetrics(supabase, vendor.id),
+    getVisitorTrend(supabase, vendor.id),
+    getRecentActivity(supabase, vendor.id),
+  ]);
   const totalClicks = timelineData.reduce(
     (acc: number, d: any) => acc + Number(d.total_clicks || 0),
     0,
@@ -104,6 +110,14 @@ export default async function AdminDashboardPage() {
     uniqueVisitors: overviewMetrics.uniqueVisitors,
 
     totalProducts: vendor.vendor_products?.length || 0,
+
+    productViews: overviewMetrics.productViews,
+
+    bankCopies: overviewMetrics.bankCopies,
+
+    qrScans: overviewMetrics.qrScans,
+
+    topProducts: overviewMetrics.topProducts ?? [],
 
     totalSocialClicks: totalClicks,
 
@@ -129,13 +143,13 @@ export default async function AdminDashboardPage() {
         (a: number, d: any) => a + Number(d.whatsapp_count || 0),
         0,
       ),
+
+      website: overviewMetrics.socialClicks?.website ?? 0,
     },
 
     deviceBreakdown: {
       mobile: Math.ceil(totalClicks * 0.85),
-
       desktop: Math.ceil(totalClicks * 0.12),
-
       tablet: Math.ceil(totalClicks * 0.03),
     },
   };
@@ -192,6 +206,7 @@ export default async function AdminDashboardPage() {
       initialTransactions={transactionsQueue}
       structuralMetrics={structuralMetrics}
       visitorTrend={visitorTrend}
+      recentActivity={recentActivity}
       onTransactionUpdate={handleTransactionUpdate}
     />
   );
