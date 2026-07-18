@@ -1,5 +1,5 @@
 "use client";
-
+import { useProductViewTracker } from "@/hooks/useProductViewTracker";
 import { useState } from "react";
 import Image from "next/image";
 
@@ -7,6 +7,7 @@ import { ArrowRight, Check, Plus } from "lucide-react";
 import { createPortal } from "react-dom";
 import { createOrder, uploadReceipt } from "./checkout/service";
 import { useRouter } from "next/navigation";
+import { trackProductClick } from "@/app/lib/trackClick";
 import {
   StickyCart,
   ReviewOrderModal,
@@ -16,6 +17,51 @@ import {
   OrderSuccessModal,
 } from "@/components/storefront/checkout";
 import type { Product, OrderItem, VendorBank } from "./checkout/types";
+
+function ProductCard({
+  product,
+  vendorId,
+  addToOrder,
+}: {
+  product: any;
+  vendorId: number;
+  addToOrder: (product: any) => void;
+}) {
+  const ref = useProductViewTracker(vendorId, product.id);
+
+  const productImage = product.image_url || product.image;
+
+  return (
+    <div ref={ref} className="bg-white border border-[#E5E7EB] rounded-2xl p-4">
+      {productImage && (
+        <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-gray-100">
+          <Image
+            src={productImage}
+            alt={product.name}
+            fill
+            className="object-cover"
+            unoptimized
+          />
+        </div>
+      )}
+
+      <h3 className="mt-3 font-semibold text-[#111827]">{product.name}</h3>
+
+      <p className="mt-1 font-bold text-[#111827]">
+        ₦{Number(product.price).toLocaleString()}
+      </p>
+
+      <button
+        type="button"
+        onClick={() => addToOrder(product)}
+        className="mt-4 w-full h-10 border border-[#22C55E] rounded-2xl text-[#15803D] font-medium text-sm hover:bg-[#22C55E] hover:text-white transition-colors flex items-center justify-center gap-2"
+      >
+        <Plus className="w-4 h-4" />
+        <span>Add to Order</span>
+      </button>
+    </div>
+  );
+}
 
 export default function OrderProducts({
   products,
@@ -160,45 +206,14 @@ export default function OrderProducts({
     <>
       {/* Products Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-32">
-        {products.map((product) => {
-          const productImage = product.image_url || product.image;
-
-          return (
-            <div
-              key={product.id}
-              className="bg-white border border-[#E5E7EB] rounded-2xl p-4"
-            >
-              {productImage && (
-                <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-gray-100">
-                  <Image
-                    src={productImage}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-              )}
-
-              <h3 className="mt-3 font-semibold text-[#111827]">
-                {product.name}
-              </h3>
-
-              <p className="mt-1 font-bold text-[#111827]">
-                ₦{Number(product.price).toLocaleString()}
-              </p>
-
-              <button
-                type="button"
-                onClick={() => addToOrder(product)}
-                className="mt-4 w-full h-10 border border-[#22C55E] rounded-2xl text-[#15803D] font-medium text-sm hover:bg-[#22C55E] hover:text-white transition-colors flex items-center justify-center gap-2"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Add to Order</span>
-              </button>
-            </div>
-          );
-        })}
+        {products.map((product) => (
+          <ProductCard
+            key={product.id}
+            product={product}
+            vendorId={vendorId}
+            addToOrder={addToOrder}
+          />
+        ))}
       </div>
 
       {/* Cart Container (Only mounts when there are products in the cart) */}
