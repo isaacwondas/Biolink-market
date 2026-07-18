@@ -25,6 +25,22 @@ export async function getOverviewMetrics(
 
   const rows = data ?? [];
 
+  const { data: products } = await supabase
+    .from("vendor_products")
+    .select("id, product_name")
+    .eq("vendor_id", vendorId);
+
+  const topProducts = (products ?? [])
+    .map((product) => ({
+      id: product.id,
+      name: product.product_name,
+      views: rows.filter(
+        (r) => r.event_type === "product_view" && r.product_id === product.id,
+      ).length,
+    }))
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 5);
+
   const socialClicks = {
     whatsapp: rows.filter(
       (r) => r.event_type === "social_click" && r.platform === "whatsapp",
@@ -63,7 +79,7 @@ export async function getOverviewMetrics(
     socialClicks,
 
     // Placeholder for now. We'll replace this with real data later.
-    topProducts: [],
+    topProducts,
   };
 }
 
