@@ -53,7 +53,6 @@ export default function AnalyticsTab({ vendor, structuralMetrics }: Props) {
   return (
     <div className="space-y-8">
       {/* Header */}
-
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Analytics</h1>
@@ -67,17 +66,13 @@ export default function AnalyticsTab({ vendor, structuralMetrics }: Props) {
           Last 30 Days
         </button>
       </div>
-
       {/* KPI Cards */}
-
       <SummaryCards metrics={metrics} />
-
       {/* Charts */}
-
+      /*
       <VisitorChart />
-
+      */
       {/* Bottom Grid */}
-
       <div className="grid gap-6 lg:grid-cols-2">
         <TopLinksCard metrics={metrics} />
 
@@ -86,9 +81,7 @@ export default function AnalyticsTab({ vendor, structuralMetrics }: Props) {
           businessName={vendor.business_name || vendor.name}
         />
       </div>
-
       {/* Activity */}
-
       <RecentActivityCard activities={[]} />
     </div>
   );
