@@ -125,3 +125,42 @@ export async function trackQRScan(vendorId: number) {
     console.error(error);
   }
 }
+export async function trackCheckoutStarted(vendorId: number) {
+  try {
+    await supabase.from("traffic_logs").insert({
+      vendor_id: vendorId,
+
+      event_type: "checkout_started",
+
+      device_type: getDeviceType(),
+
+      referrer: document.referrer || null,
+
+      page: window.location.pathname,
+
+      viewed_at: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function trackOrderSubmitted(vendorId: number) {
+  try {
+    await supabase.from("traffic_logs").insert({
+      vendor_id: vendorId,
+
+      event_type: "order_submitted",
+
+      device_type: getDeviceType(),
+
+      referrer: document.referrer || null,
+
+      page: window.location.pathname,
+
+      viewed_at: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}

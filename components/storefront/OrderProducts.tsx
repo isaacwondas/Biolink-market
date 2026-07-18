@@ -7,7 +7,7 @@ import { ArrowRight, Check, Plus } from "lucide-react";
 import { createPortal } from "react-dom";
 import { createOrder, uploadReceipt } from "./checkout/service";
 import { useRouter } from "next/navigation";
-import { trackProductClick } from "@/app/lib/trackClick";
+import { trackCheckoutStarted, trackProductClick } from "@/app/lib/trackClick";
 import {
   StickyCart,
   ReviewOrderModal,
@@ -230,7 +230,9 @@ export default function OrderProducts({
         totalItems={totalItems}
         orderTotal={orderTotal}
         onClose={() => setShowOrderReview(false)}
-        onContinue={() => {
+        onContinue={async () => {
+          await trackCheckoutStarted(vendorId);
+
           setShowOrderReview(false);
           setShowCustomerDetails(true);
         }}

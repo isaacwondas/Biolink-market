@@ -1,15 +1,19 @@
 "use client";
 import Toast from "@/components/admin/ui/Toast";
-
+import ProductImageUploader from "./ProductImageUploader";
 import { supabase } from "@/app/lib/supabase";
 import { useState } from "react";
 import { Product } from "./types";
 import { uploadImage } from "@/app/lib/uploadImage";
-import { updateProduct } from "./product.service";
 import ProductGrid from "./ProductGrid";
 import DeleteProductDialog from "./DeleteProductDialog";
 import EditProductModal from "./EditProductModal";
 import { Trash2, Plus } from "lucide-react";
+
+import {
+  createProduct,
+  updateProduct,
+} from "@/app/lib/products/product.service";
 
 export default function ProductsTab({ vendor }: { vendor: any }) {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -62,7 +66,7 @@ export default function ProductsTab({ vendor }: { vendor: any }) {
     price: "",
     description: "",
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [images, setImages] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState<{
     type: "success" | "error";
@@ -77,28 +81,24 @@ export default function ProductsTab({ vendor }: { vendor: any }) {
     setLoading(true);
     setMsg(null);
     try {
-      let imageUrl = "";
-      if (imageFile) {
-        imageUrl = await uploadImage(imageFile, "products", vendor.username);
-      }
-      const row = {
-        vendor_id: vendor.id,
-        name: newProduct.name.trim(),
-        price: newProduct.price
-          ? Number(newProduct.price.replace(/[^0-9]/g, ""))
-          : 0,
-        description: newProduct.description,
-        image_url: imageUrl || undefined,
-      };
-      const { data, error } = await supabase
-        .from("vendor_products")
-        .insert([row])
-        .select()
-        .single();
-      if (error) throw error;
-      setProducts((prev) => [...prev, data]);
+      const product = await createProduct({
+        vendor: {
+          id: vendor.id,
+          username: vendor.username,
+        },
+        values: {
+          name: newProduct.name.trim(),
+          description: newProduct.description,
+          price: newProduct.price
+            ? Number(newProduct.price.replace(/[^0-9]/g, ""))
+            : 0,
+        },
+        images,
+      });
+
+      setProducts((prev) => [...prev, product]);
       setNewProduct({ name: "", price: "", description: "" });
-      setImageFile(null);
+      setImages([]);
       setMsg({
         type: "success",
         text: "Product added! It's now live on your storefront.",
@@ -222,11 +222,11 @@ export default function ProductsTab({ vendor }: { vendor: any }) {
           <label className="text-[11px] text-[#6B7280] font-medium uppercase">
             Product Image
           </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => e.target.files && setImageFile(e.target.files[0])}
-            className="w-full text-xs text-[#4B5563] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-[#374151]"
+          <ProductImageUploader
+            files={images}
+            onChange={setImages}
+            max={5}
+            //className="w-full text-xs text-[#4B5563] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-gray-100 file:text-[#374151]"
           />
         </div>
         <button
