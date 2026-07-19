@@ -25,6 +25,9 @@ export async function createProduct({
   values,
   images,
 }: CreateProductInput) {
+  if (images.length === 0) {
+    throw new Error("Please add at least one product image.");
+  }
   const uploadedImages = await uploadProductImages(images, vendor.username);
 
   const imageUrl = uploadedImages[0];
@@ -44,13 +47,17 @@ export async function createProduct({
   if (error) {
     throw error;
   }
-  await supabase.from("product_images").insert(
+  const { error: galleryError } = await supabase.from("product_images").insert(
     uploadedImages.map((imageUrl, index) => ({
       product_id: product.id,
       image_url: imageUrl,
       position: index,
     })),
   );
+
+  if (galleryError) {
+    throw galleryError;
+  }
   return product;
 }
 
@@ -91,7 +98,6 @@ export async function updateProduct({
   if (image) {
     const imageUrl = await uploadProductImage(image, vendorUsername);
 
-    await supabase.from("vendor_products");
     await supabase
       .from("vendor_products")
       .update({

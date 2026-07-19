@@ -4,7 +4,7 @@ import ProductImageUploader from "./ProductImageUploader";
 import { supabase } from "@/app/lib/supabase";
 import { useState } from "react";
 import { Product } from "./types";
-import { uploadImage } from "@/app/lib/uploadImage";
+
 import ProductGrid from "./ProductGrid";
 import DeleteProductDialog from "./DeleteProductDialog";
 import EditProductModal from "./EditProductModal";
@@ -76,6 +76,13 @@ export default function ProductsTab({ vendor }: { vendor: any }) {
   const handleAddProduct = async () => {
     if (!newProduct.name.trim()) {
       setMsg({ type: "error", text: "Product name is required." });
+      return;
+    }
+    if (images.length === 0) {
+      setMsg({
+        type: "error",
+        text: "Please add at least one product image.",
+      });
       return;
     }
     setLoading(true);
