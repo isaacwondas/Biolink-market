@@ -87,16 +87,17 @@ export async function GET(request: Request) {
       // Brand new user → create vendor row with Upsert fallback to prevent duplication errors
       const { error: upsertError } = await supabase.from("vendors").upsert(
         {
+          auth_user_id: user.id,
           email: normalizedEmail,
           name:
             user.user_metadata?.full_name ||
             user.user_metadata?.name ||
             user.email.split("@")[0],
-          username: null, // Keep null until onboarding complete
+          username: null,
           views: 0,
           is_onboarded: false,
         },
-        { onConflict: "email" }, // Safely handles duplicate attempts on same email
+        { onConflict: "email" },
       );
 
       if (upsertError) {
