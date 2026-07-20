@@ -96,14 +96,6 @@ export async function updateProduct({
   if (error) {
     throw error;
   }
-  const { data: existingImages, error: existingError } = await supabase
-    .from("product_images")
-    .select("storage_path")
-    .eq("product_id", productId);
-
-  if (existingError) {
-    throw existingError;
-  }
 
   const paths = existingImages
     .map((img) => img.storage_path)
@@ -122,6 +114,15 @@ export async function updateProduct({
   }
   // Only replace the gallery if new images were selected
   if (images.length > 0) {
+    const { data: existingImages, error: existingError } = await supabase
+      .from("product_images")
+      .select("storage_path")
+      .eq("product_id", productId);
+
+    if (existingError) {
+      throw existingError;
+    }
+
     // Delete existing gallery records
     const { error: deleteError } = await supabase
       .from("product_images")
@@ -139,9 +140,10 @@ export async function updateProduct({
     const { error: galleryError } = await supabase
       .from("product_images")
       .insert(
-        uploadedImages.map((imageUrl, index) => ({
+        uploadedImages.map((image, index) => ({
           product_id: productId,
-          image_url: imageUrl,
+          image_url: image.publicUrl,
+          storage_path: image.storagePath,
           position: index,
         })),
       );
@@ -154,7 +156,7 @@ export async function updateProduct({
     const { error: coverError } = await supabase
       .from("vendor_products")
       .update({
-        image_url: uploadedImages[0],
+        image_url: uploadedImages[0].publicUrl,
       })
       .eq("id", productId);
 
@@ -162,7 +164,7 @@ export async function updateProduct({
       throw coverError;
     }
 
-    data.image_url = uploadedImages[0];
+    data.image_url = uploadedImages[0].publicUrl;
   }
 
   return data;
