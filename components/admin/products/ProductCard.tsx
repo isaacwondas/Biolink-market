@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Pencil, Trash2, BadgeCheck } from "lucide-react";
 import type { Product } from "./types";
+import { getProductCover } from "./getProductCover";
 
 interface ProductCardProps {
   product: Product;
@@ -15,7 +16,10 @@ export default function ProductCard({
   onEdit,
   onDelete,
 }: ProductCardProps) {
-  const image = product.image_url || product.image;
+  const image = product.product_images?.length
+    ? product.product_images.sort((a, b) => a.position - b.position)[0]
+        .image_url
+    : getProductCover(product);
 
   return (
     <div className="group overflow-hidden rounded-3xl border border-gray-200 bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">

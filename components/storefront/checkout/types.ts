@@ -6,15 +6,22 @@ export type CheckoutStep =
   | "receipt"
   | "success";
 
+export interface ProductImage {
+  id: number;
+  image_url: string;
+  position: number;
+}
+
 export interface Product {
   id: number;
   name: string;
-  description?: string | null;
   price: number;
-  image?: string | null;
+  description?: string | null;
   image_url?: string | null;
-}
+  image?: string | null;
 
+  product_images?: ProductImage[];
+}
 export interface OrderItem {
   id: number;
   name: string;

@@ -1,8 +1,18 @@
+export interface ProductImage {
+  id: number;
+  image_url: string;
+  position: number;
+}
+
 export interface Product {
-  id?: number;
+  id: number;
   name: string;
-  description?: string | null;
   price: number;
+  description?: string | null;
+
+  // Cover image
   image_url?: string | null;
-  image?: string | null;
+
+  // Gallery
+  product_images?: ProductImage[];
 }

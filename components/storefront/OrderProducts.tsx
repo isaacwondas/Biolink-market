@@ -17,6 +17,7 @@ import {
   OrderSuccessModal,
 } from "@/components/storefront/checkout";
 import type { Product, OrderItem, VendorBank } from "./checkout/types";
+import { getProductCover } from "../admin/products/getProductCover";
 
 function ProductCard({
   product,
@@ -142,7 +143,7 @@ export default function OrderProducts({
           name: product.name,
           price: Number(product.price),
           description: product.description || "",
-          image: product.image_url || product.image || null,
+          image: getProductCover(product) || null,
           quantity: 1,
         },
       ];
