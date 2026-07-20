@@ -56,6 +56,8 @@ export async function createProduct({
   );
 
   if (galleryError) {
+    await supabase.from("vendor_products").delete().eq("id", product.id);
+
     throw galleryError;
   }
   return product;
