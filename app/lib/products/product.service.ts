@@ -1,10 +1,6 @@
 import { supabase } from "@/app/lib/supabase";
 
-import {
-  uploadProductImage,
-  uploadProductImages,
-} from "@/app/lib/products/product-media";
-
+import { uploadProductImages } from "@/app/lib/products/product-media";
 export interface CreateProductInput {
   vendor: {
     id: string;
@@ -97,23 +93,9 @@ export async function updateProduct({
     throw error;
   }
 
-  const paths = existingImages
-    .map((img) => img.storage_path)
-    .filter(
-      (path): path is string => typeof path === "string" && path.length > 0,
-    );
-
-  if (paths.length) {
-    const { error: storageError } = await supabase.storage
-      .from("product-images")
-      .remove(paths);
-
-    if (storageError) {
-      throw storageError;
-    }
-  }
   // Only replace the gallery if new images were selected
   if (images.length > 0) {
+    // Read the existing images
     const { data: existingImages, error: existingError } = await supabase
       .from("product_images")
       .select("storage_path")
@@ -123,7 +105,25 @@ export async function updateProduct({
       throw existingError;
     }
 
-    // Delete existing gallery records
+    // Build valid storage paths
+    const paths = existingImages
+      .map((img) => img.storage_path)
+      .filter(
+        (path): path is string => typeof path === "string" && path.length > 0,
+      );
+
+    // Delete old files from Storage
+    if (paths.length) {
+      const { error: storageError } = await supabase.storage
+        .from("product-images")
+        .remove(paths);
+
+      if (storageError) {
+        throw storageError;
+      }
+    }
+
+    // Delete old gallery records
     const { error: deleteError } = await supabase
       .from("product_images")
       .delete()
@@ -133,7 +133,7 @@ export async function updateProduct({
       throw deleteError;
     }
 
-    // Upload the new images
+    // Upload new images
     const uploadedImages = await uploadProductImages(images, vendorUsername);
 
     // Save the new gallery
@@ -152,7 +152,7 @@ export async function updateProduct({
       throw galleryError;
     }
 
-    // Update the cover image
+    // Update cover image
     const { error: coverError } = await supabase
       .from("vendor_products")
       .update({
