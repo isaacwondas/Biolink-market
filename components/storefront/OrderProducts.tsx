@@ -29,27 +29,43 @@ function ProductCard({
 }) {
   const ref = useProductViewTracker(vendorId, product.id);
 
-  const productImage = product.image_url || product.image;
+  const productImage =
+    product.product_images?.length > 0
+      ? product.product_images[0].image_url
+      : product.image_url || product.image;
 
   return (
     <div ref={ref} className="bg-white border border-[#E5E7EB] rounded-2xl p-4">
-      {productImage && (
-        <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-gray-100">
-          <Image
-            src={productImage}
-            alt={product.name}
-            fill
-            className="object-cover"
-            unoptimized
-          />
-        </div>
-      )}
+      <div className="flex gap-2 overflow-x-auto rounded-xl">
+        {(product.product_images?.length
+          ? product.product_images
+          : [{ image_url: product.image_url || product.image }]
+        ).map((image: any, index: number) => (
+          <div
+            key={index}
+            className="relative min-w-full aspect-square rounded-xl overflow-hidden bg-gray-100"
+          >
+            <Image
+              src={image.image_url}
+              alt={`${product.name} ${index + 1}`}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          </div>
+        ))}
+      </div>
 
       <h3 className="mt-3 font-semibold text-[#111827]">{product.name}</h3>
 
       <p className="mt-1 font-bold text-[#111827]">
         ₦{Number(product.price).toLocaleString()}
       </p>
+      {product.description && (
+        <p className="mt-2 text-sm text-[#6B7280] line-clamp-2">
+          {product.description}
+        </p>
+      )}
 
       <button
         type="button"
@@ -125,6 +141,7 @@ export default function OrderProducts({
           id: product.id,
           name: product.name,
           price: Number(product.price),
+          description: product.description || "",
           image: product.image_url || product.image || null,
           quantity: 1,
         },
