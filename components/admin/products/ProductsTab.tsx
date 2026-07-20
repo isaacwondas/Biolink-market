@@ -131,7 +131,7 @@ export default function ProductsTab({ vendor }: { vendor: any }) {
       price: number;
       description: string;
     },
-    image: File | null,
+    images: File[],
   ) => {
     if (!editingProduct?.id) return;
 
@@ -142,7 +142,7 @@ export default function ProductsTab({ vendor }: { vendor: any }) {
         productId: editingProduct.id,
         vendorUsername: vendor.username,
         values,
-        image,
+        images,
       });
 
       setProducts((current) =>

@@ -71,14 +71,14 @@ export interface UpdateProductInput {
     price: number;
     description: string;
   };
-  image: File | null;
+  images: File[];
 }
 
 export async function updateProduct({
   productId,
   vendorUsername,
   values,
-  image,
+  images,
 }: UpdateProductInput) {
   const updates = {
     name: values.name,
@@ -97,17 +97,33 @@ export async function updateProduct({
     throw error;
   }
 
-  if (image) {
-    const imageUrl = await uploadProductImage(image, vendorUsername);
+  if (images.length > 0) {
+    const uploadedImages = await uploadProductImages(images, vendorUsername);
 
+    // Update the cover image
     await supabase
       .from("vendor_products")
       .update({
-        image_url: imageUrl,
+        image_url: uploadedImages[0],
       })
       .eq("id", productId);
 
-    data.image_url = imageUrl;
+    // Add new gallery images
+    const { error: galleryError } = await supabase
+      .from("product_images")
+      .insert(
+        uploadedImages.map((imageUrl, index) => ({
+          product_id: productId,
+          image_url: imageUrl,
+          position: index,
+        })),
+      );
+
+    if (galleryError) {
+      throw galleryError;
+    }
+
+    data.image_url = uploadedImages[0];
   }
 
   return data;

@@ -3,13 +3,19 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Pencil, X } from "lucide-react";
-
+import ProductImageUploader from "./ProductImageUploader";
 interface Product {
   id?: number;
   name: string;
   price: number;
   description?: string | null;
   image_url?: string | null;
+
+  product_images?: {
+    id: number;
+    image_url: string;
+    position: number;
+  }[];
 }
 
 interface EditProductModalProps {
@@ -23,7 +29,7 @@ interface EditProductModalProps {
       price: number;
       description: string;
     },
-    image: File | null,
+    images: File[],
   ) => void;
 }
 
@@ -37,7 +43,7 @@ export default function EditProductModal({
   const [name, setName] = useState("");
   const [price, setPrice] = useState(0);
   const [description, setDescription] = useState("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [newImages, setNewImages] = useState<File[]>([]);
 
   useEffect(() => {
     if (!product) return;
@@ -45,7 +51,7 @@ export default function EditProductModal({
     setName(product.name);
     setPrice(product.price);
     setDescription(product.description || "");
-    setImageFile(null);
+    setNewImages([]);
   }, [product]);
 
   if (!open || !product) return null;
@@ -66,18 +72,42 @@ export default function EditProductModal({
         </div>
 
         <div className="p-6 space-y-5">
-          {product.image_url && (
-            <div className="relative w-32 h-32 rounded-2xl overflow-hidden mx-auto">
-              <Image
-                src={product.image_url}
-                alt={product.name}
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            </div>
-          )}
+          {product.product_images?.length ? (
+            <div>
+              <label className="text-xs font-semibold">Current Images</label>
 
+              <div className="mt-3 grid grid-cols-4 gap-2">
+                {product.product_images
+                  .sort((a, b) => a.position - b.position)
+                  .map((image) => (
+                    <div
+                      key={image.id}
+                      className="relative aspect-square rounded-xl overflow-hidden border"
+                    >
+                      <Image
+                        src={image.image_url}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                  ))}
+              </div>
+            </div>
+          ) : (
+            product.image_url && (
+              <div className="relative w-32 h-32 rounded-2xl overflow-hidden mx-auto">
+                <Image
+                  src={product.image_url}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              </div>
+            )
+          )}
           <div>
             <label className="text-xs font-semibold">Product Name</label>
 
@@ -112,12 +142,17 @@ export default function EditProductModal({
           <div>
             <label className="text-xs font-semibold">Replace Image</label>
 
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-              className="mt-2 block w-full text-sm"
-            />
+            <div>
+              <label className="text-xs font-semibold">Add More Images</label>
+
+              <div className="mt-2">
+                <ProductImageUploader
+                  files={newImages}
+                  onChange={setNewImages}
+                  max={5}
+                />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -135,7 +170,7 @@ export default function EditProductModal({
                   price,
                   description,
                 },
-                imageFile,
+                newImages,
               )
             }
             className="flex-1 h-11 bg-[#22C55E] text-white rounded-xl font-semibold disabled:bg-gray-300"
