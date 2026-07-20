@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Pencil, X } from "lucide-react";
 import ProductImageUploader from "./ProductImageUploader";
+import ProductGallery from "./ProductGallery";
 interface Product {
   id?: number;
   name: string;
@@ -58,7 +59,7 @@ export default function EditProductModal({
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black/40 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden">
+      <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
         <div className="flex items-center justify-between p-5 border-b">
           <div className="flex items-center gap-3">
             <Pencil className="w-5 h-5 text-[#22C55E]" />
@@ -71,7 +72,7 @@ export default function EditProductModal({
           </button>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="flex-1 overflow-y-auto p-6 space-y-5">
           {product.product_images?.length ? (
             <div>
               <label className="text-xs font-semibold">Current Images</label>
@@ -84,12 +85,10 @@ export default function EditProductModal({
                       key={image.id}
                       className="relative aspect-square rounded-xl overflow-hidden border"
                     >
-                      <Image
-                        src={image.image_url}
+                      <ProductGallery
+                        images={product.product_images}
+                        fallback={product.image_url}
                         alt={product.name}
-                        fill
-                        className="object-cover"
-                        unoptimized
                       />
                     </div>
                   ))}
@@ -98,12 +97,10 @@ export default function EditProductModal({
           ) : (
             product.image_url && (
               <div className="relative w-32 h-32 rounded-2xl overflow-hidden mx-auto">
-                <Image
-                  src={product.image_url}
+                <ProductGallery
+                  images={product.product_images}
+                  fallback={product.image_url}
                   alt={product.name}
-                  fill
-                  className="object-cover"
-                  unoptimized
                 />
               </div>
             )
@@ -156,7 +153,7 @@ export default function EditProductModal({
           </div>
         </div>
 
-        <div className="border-t p-5 flex gap-3">
+        <div className="border-t p-5 flex gap-3 shrink-0 bg-white">
           <button onClick={onClose} className="flex-1 h-11 border rounded-xl">
             Cancel
           </button>
