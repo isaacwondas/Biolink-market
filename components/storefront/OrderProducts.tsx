@@ -33,14 +33,14 @@ function ProductCard({
   const productImage =
     product.product_images?.length > 0
       ? product.product_images[0].image_url
-      : product.image_url || product.image;
+      : getProductCover(product);
 
   return (
     <div ref={ref} className="bg-white border border-[#E5E7EB] rounded-2xl p-4">
       <div className="flex gap-2 overflow-x-auto rounded-xl">
         {(product.product_images?.length
           ? product.product_images
-          : [{ image_url: product.image_url || product.image }]
+          : [{ image_url: getProductCover(product) }]
         ).map((image: any, index: number) => (
           <div
             key={index}

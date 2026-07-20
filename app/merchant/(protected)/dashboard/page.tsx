@@ -80,7 +80,16 @@ export default async function AdminDashboardPage() {
   // Fetch full vendor data including banks and products
   const { data: vendor, error: vendorError } = await supabase
     .from("vendors")
-    .select(`*, vendor_banks(*), vendor_products(*)`)
+    .select(
+      `*, vendor_banks(*), vendor_products (
+    *,
+    product_images (
+        id,
+        image_url,
+        position
+    )
+)`,
+    )
     .eq("email", user.email)
     .single();
 

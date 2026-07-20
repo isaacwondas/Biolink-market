@@ -61,7 +61,7 @@ export default function ProductImageUploader({
   return (
     <div className="space-y-4">
       <label className="block text-[11px] font-medium uppercase text-gray-500">
-        Product Images
+        ....
       </label>
 
       {/* Upload Area */}

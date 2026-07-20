@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Pencil, Trash2 } from "lucide-react";
 import { Product } from "./types";
+import { getProductCover } from "./getProductCover";
 
 interface ProductGridProps {
   products: Product[];
