@@ -55,14 +55,20 @@ export default async function Storefront({ params }: PageProps) {
     .from("vendors")
     .select(
       `
+    *,
+    vendor_products (
       *,
-      vendor_products (*),
-      vendor_banks (*)
-    `,
+      product_images (
+        id,
+        image_url,
+        position
+      )
+    ),
+    vendor_banks (*)
+  `,
     )
     .eq("username", username.toLowerCase().trim())
     .maybeSingle();
-
   if (error || !vendor) {
     return (
       <div className="min-h-screen bg-[#FFFFFF] text-[#111827] flex items-center justify-center p-4">
