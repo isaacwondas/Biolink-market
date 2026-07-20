@@ -13,6 +13,11 @@ export async function uploadImage(file: File, folder: string, prefix: string) {
 
   if (error) throw error;
 
-  return supabase.storage.from("product-images").getPublicUrl(path).data
-    .publicUrl;
+  const publicUrl = supabase.storage.from("product-images").getPublicUrl(path)
+    .data.publicUrl;
+
+  return {
+    publicUrl,
+    storagePath: path,
+  };
 }

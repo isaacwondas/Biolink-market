@@ -30,7 +30,7 @@ export async function createProduct({
   }
   const uploadedImages = await uploadProductImages(images, vendor.username);
 
-  const imageUrl = uploadedImages[0];
+  const coverImage = uploadedImages[0];
   const { data: product, error } = await supabase
     .from("vendor_products")
     .insert({
@@ -38,7 +38,7 @@ export async function createProduct({
       name: values.name,
       description: values.description,
       price: values.price,
-      image_url: imageUrl,
+      image_url: coverImage.publicUrl,
     })
 
     .select()
@@ -48,9 +48,10 @@ export async function createProduct({
     throw error;
   }
   const { error: galleryError } = await supabase.from("product_images").insert(
-    uploadedImages.map((imageUrl, index) => ({
+    uploadedImages.map((image, index) => ({
       product_id: product.id,
-      image_url: imageUrl,
+      image_url: image.publicUrl,
+      storage_path: image.storagePath,
       position: index,
     })),
   );
@@ -80,15 +81,14 @@ export async function updateProduct({
   values,
   images,
 }: UpdateProductInput) {
-  const updates = {
-    name: values.name,
-    price: values.price,
-    description: values.description,
-  };
-
+  // Update product details
   const { data, error } = await supabase
     .from("vendor_products")
-    .update(updates)
+    .update({
+      name: values.name,
+      price: values.price,
+      description: values.description,
+    })
     .eq("id", productId)
     .select()
     .single();
@@ -96,19 +96,46 @@ export async function updateProduct({
   if (error) {
     throw error;
   }
+  const { data: existingImages, error: existingError } = await supabase
+    .from("product_images")
+    .select("storage_path")
+    .eq("product_id", productId);
 
+  if (existingError) {
+    throw existingError;
+  }
+
+  const paths = existingImages
+    .map((img) => img.storage_path)
+    .filter(
+      (path): path is string => typeof path === "string" && path.length > 0,
+    );
+
+  if (paths.length) {
+    const { error: storageError } = await supabase.storage
+      .from("product-images")
+      .remove(paths);
+
+    if (storageError) {
+      throw storageError;
+    }
+  }
+  // Only replace the gallery if new images were selected
   if (images.length > 0) {
+    // Delete existing gallery records
+    const { error: deleteError } = await supabase
+      .from("product_images")
+      .delete()
+      .eq("product_id", productId);
+
+    if (deleteError) {
+      throw deleteError;
+    }
+
+    // Upload the new images
     const uploadedImages = await uploadProductImages(images, vendorUsername);
 
-    // Update the cover image
-    await supabase
-      .from("vendor_products")
-      .update({
-        image_url: uploadedImages[0],
-      })
-      .eq("id", productId);
-
-    // Add new gallery images
+    // Save the new gallery
     const { error: galleryError } = await supabase
       .from("product_images")
       .insert(
@@ -121,6 +148,18 @@ export async function updateProduct({
 
     if (galleryError) {
       throw galleryError;
+    }
+
+    // Update the cover image
+    const { error: coverError } = await supabase
+      .from("vendor_products")
+      .update({
+        image_url: uploadedImages[0],
+      })
+      .eq("id", productId);
+
+    if (coverError) {
+      throw coverError;
     }
 
     data.image_url = uploadedImages[0];

@@ -41,18 +41,18 @@ function ProfileTab({ vendor }: { vendor: any }) {
       const updates: VendorUpdate = {
         ...form,
       };
-      if (avatarFile)
-        updates.avatar_image = await uploadImage(
-          avatarFile,
-          "avatars",
-          form.username,
-        );
-      if (bannerFile)
-        updates.banner_image = await uploadImage(
-          bannerFile,
-          "banners",
-          form.username,
-        );
+
+      if (avatarFile) {
+        const avatar = await uploadImage(avatarFile, "avatars", form.username);
+
+        updates.avatar_image = avatar.publicUrl;
+      }
+
+      if (bannerFile) {
+        const banner = await uploadImage(bannerFile, "banners", form.username);
+
+        updates.banner_image = banner.publicUrl;
+      }
 
       const { error } = await supabase
         .from("vendors")
