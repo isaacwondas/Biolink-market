@@ -78,20 +78,11 @@ export default function EditProductModal({
               <label className="text-xs font-semibold">Current Images</label>
 
               <div className="mt-3 grid grid-cols-4 gap-2">
-                {product.product_images
-                  .sort((a, b) => a.position - b.position)
-                  .map((image) => (
-                    <div
-                      key={image.id}
-                      className="relative aspect-square rounded-xl overflow-hidden border"
-                    >
-                      <ProductGallery
-                        images={product.product_images}
-                        fallback={product.image_url}
-                        alt={product.name}
-                      />
-                    </div>
-                  ))}
+                <ProductGallery
+                  images={product.product_images}
+                  fallback={product.image_url}
+                  alt={product.name}
+                />
               </div>
             </div>
           ) : (

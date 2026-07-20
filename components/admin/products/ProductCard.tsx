@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Pencil, Trash2, BadgeCheck } from "lucide-react";
 import type { Product } from "./types";
-import { getProductCover } from "./getProductCover";
+//import { getProductCover } from "./getProductCover";
 import ProductGallery from "./ProductGallery";
 
 interface ProductCardProps {

@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { Pencil, Trash2 } from "lucide-react";
 import { Product } from "./types";
-import { getProductCover } from "./getProductCover";
+
+import ProductGallery from "./ProductGallery";
 
 interface ProductGridProps {
   products: Product[];
@@ -23,22 +23,11 @@ export default function ProductGrid({
           key={product.id}
           className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm"
         >
-          <div className="relative h-44 bg-gray-100">
-            {product.image_url ? (
-              <Image
-                src={product.image_url}
-                alt={product.name}
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
-                No Image
-              </div>
-            )}
-          </div>
-
+          <ProductGallery
+            images={product.product_images}
+            fallback={product.image_url}
+            alt={product.name}
+          />
           <div className="p-4 space-y-2">
             <h3 className="font-semibold text-[#111827] truncate">
               {product.name}
