@@ -23,7 +23,7 @@ export default function HeroScene() {
       {/* Merchants */}
 
       <FloatingMerchant
-        image="/landing/merchants/fashion.jpg"
+        image="/landing/merchants/fashion.JPG"
         name="Ada Fashion"
         category="Fashion Designer"
         className="-left-20 top-10"
@@ -31,7 +31,7 @@ export default function HeroScene() {
       />
 
       <FloatingMerchant
-        image="/landing/merchants/makeup.jpg"
+        image="/landing/merchants/makeup.JPG"
         name="Glow Beauty"
         category="Makeup Artist"
         className="-right-20 top-24"
@@ -39,7 +39,7 @@ export default function HeroScene() {
       />
 
       <FloatingMerchant
-        image="/landing/merchants/pottery.jpg"
+        image="/landing/merchants/pottery.JPG"
         name="Clay House"
         category="Pottery"
         className="-left-16 bottom-28"
@@ -47,7 +47,7 @@ export default function HeroScene() {
       />
 
       <FloatingMerchant
-        image="/landing/merchants/tailor.jpg"
+        image="/landing/merchants/tailor.JPG"
         name="Elegant Stitch"
         category="Tailor"
         className="-right-14 bottom-10"
