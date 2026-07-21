@@ -2,32 +2,56 @@
 
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
+import {
+  colors,
+  radius,
+  shadows,
+  spacing,
+  typography,
+} from "@/app/lib/design-tokens";
 
 export default function FinalCTA() {
   return (
-    <section className="py-20 bg-gradient-to-b from-white via-emerald-50/50 to-emerald-100/50">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-semibold">
-          <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Get Started Today</span>
-        </div>
+    <section
+      className={`${spacing.section} bg-gradient-to-b from-white via-slate-50 to-white`}
+    >
+      <div className={spacing.container}>
+        <div
+          className={`mx-auto max-w-5xl ${radius.xl} ${shadows.floating} border border-slate-200 bg-white px-8 py-16 text-center lg:px-16`}
+        >
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-700">
+            <Sparkles className="h-4 w-4" />
+            Get Started Today
+          </div>
 
-        <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">
-          Ready to turn your followers into paying customers?
-        </h2>
-
-        <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-600">
-          Join thousands of merchants using BioLink Market to receive direct
-          payments and grow their business.
-        </p>
-
-        <div className="pt-4">
-          <Link
-            href="/signup"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-8 py-4 text-sm font-bold text-white shadow-xl hover:bg-emerald-700 transition"
+          <h2
+            className={`${typography.title} mx-auto mt-6 max-w-3xl text-slate-900`}
           >
-            Create Storefront Now <ArrowRight className="w-4 h-4" />
-          </Link>
+            Ready to turn your followers into paying customers?
+          </h2>
+
+          <p
+            className={`${typography.body} mx-auto mt-5 max-w-2xl text-slate-600`}
+          >
+            Join thousands of merchants using BioLink Market to receive direct
+            payments, showcase products, and grow their business—all from one
+            simple storefront.
+          </p>
+
+          <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <Link
+              href="/signup"
+              style={{ backgroundColor: colors.brand }}
+              className={`inline-flex items-center justify-center gap-2 ${radius.lg} px-8 py-4 text-sm font-bold text-white transition-transform duration-200 hover:-translate-y-0.5`}
+            >
+              Create Storefront Free
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+
+            <p className="text-sm text-slate-500">
+              No credit card • Setup in under 2 minutes
+            </p>
+          </div>
         </div>
       </div>
     </section>

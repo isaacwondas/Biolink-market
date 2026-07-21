@@ -2,6 +2,15 @@
 
 import { motion } from "framer-motion";
 import {
+  colors,
+  fadeUp,
+  radius,
+  shadows,
+  spacing,
+  transition,
+  typography,
+} from "@/app/lib/design-tokens";
+import {
   TrendingUp,
   ShoppingBag,
   Wallet,
@@ -69,19 +78,19 @@ export default function AnalyticsSection() {
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Heading */}
 
-        <div className="mx-auto mb-16 max-w-3xl text-center">
-          <span className="rounded-full bg-emerald-100 px-4 py-1 text-xs font-bold uppercase tracking-widest text-emerald-700">
+        <div className={`${components.sectionHeading} mb-16`}>
+          <div className={`${components.badge} ${colors.badge}`}>
             Business Insights
-          </span>
+          </div>
 
-          <h2 className="mt-5 text-4xl font-extrabold text-slate-900">
+          <h2 className={`${typography.title} mt-6`}>
             Monitor every sale
             <span className="block text-emerald-600">
               and grow with confidence.
             </span>
           </h2>
 
-          <p className="mt-5 text-slate-600">
+          <p className={`${components.sectionBody} ${typography.body}`}>
             Get a clear overview of your revenue, customer activity and business
             performance from one simple dashboard.
           </p>
@@ -94,7 +103,7 @@ export default function AnalyticsSection() {
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-xl lg:col-span-2"
+            className="radius.xl border border-slate-200 bg-white p-8 shadow-xl lg:col-span-2"
           >
             {/* KPI Cards */}
 
@@ -109,7 +118,7 @@ export default function AnalyticsSection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.1 }}
-                    className="rounded-2xl border border-slate-100 bg-slate-50 p-5"
+                    className={`${radius.lg} border ${colors.borderLight} ${colors.backgroundAlt} p-5`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="rounded-xl bg-emerald-100 p-3 text-emerald-600">
@@ -172,7 +181,7 @@ export default function AnalyticsSection() {
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-xl"
+            className={`${components.card} ${radius.xl} ${shadows.floating} ${spacing.cardPaddingLg}`}
           >
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-bold text-slate-900">
@@ -193,7 +202,7 @@ export default function AnalyticsSection() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.08 }}
-                  className="flex items-center gap-4 rounded-2xl border border-slate-100 p-4 hover:bg-slate-50 transition"
+                  className="flex items-center gap-4 rounded-2xl border border-slate-100 p-4 hover:bg-slate-50 transition-all duration-200"
                 >
                   <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-100 font-bold text-emerald-700">
                     {activity.customer.charAt(0)}
@@ -222,7 +231,7 @@ export default function AnalyticsSection() {
               ))}
             </div>
 
-            <div className="mt-8 rounded-2xl bg-emerald-600 p-6 text-white">
+            <div className="mt-8 rounded-2xl colors.brand p-6 text-white">
               <div className="text-sm opacity-90">Total Revenue This Month</div>
 
               <div className="mt-2 text-4xl font-extrabold">₦2.48M</div>
@@ -237,3 +246,24 @@ export default function AnalyticsSection() {
     </section>
   );
 }
+
+colors.brand;
+export const components = {
+  card: "border border-slate-200 bg-white",
+
+  darkCard: "border border-slate-700 bg-slate-800/90",
+
+  dashboardCard: "border border-slate-200 bg-white shadow-xl rounded-3xl",
+
+  statCard: "border border-slate-100 bg-slate-50 rounded-2xl",
+
+  badge:
+    "inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-wider",
+
+  button:
+    "inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200",
+
+  sectionHeading: "mx-auto max-w-3xl text-center",
+
+  sectionBody: "mx-auto mt-4 max-w-2xl",
+};

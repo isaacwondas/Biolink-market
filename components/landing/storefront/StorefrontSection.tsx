@@ -2,6 +2,17 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+
+import {
+  colors,
+  radius,
+  shadows,
+  typography,
+  spacing,
+  components,
+  fadeUp,
+} from "@/app/lib/design-tokens";
+
 import {
   ExternalLink,
   Heart,
@@ -30,10 +41,12 @@ const products = [
 
 export default function StorefrontSection() {
   return (
-    <section className="relative overflow-hidden bg-slate-50 py-24">
+    <section
+      className={`relative overflow-hidden ${colors.backgroundAlt} ${spacing.section}`}
+    >
       <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-transparent to-cyan-50" />
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className={`relative ${spacing.container}`}>
         <div className="grid items-center gap-20 lg:grid-cols-2">
           {/* Left */}
           <motion.div
@@ -41,15 +54,15 @@ export default function StorefrontSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <span className="rounded-full bg-emerald-100 px-4 py-1 text-xs font-bold uppercase tracking-wider text-emerald-700">
+            <div className={`${components.badge} ${colors.badge}`}>
               Your Digital Store
-            </span>
+            </div>
 
-            <h2 className="mt-5 text-4xl font-extrabold text-slate-900">
+            <h2 className={`${typography.title} ${colors.text} mt-6`}>
               A beautiful storefront your customers will love.
             </h2>
 
-            <p className="mt-5 text-slate-600 leading-8">
+            <p className={`${typography.body} mt-5`}>
               Every merchant gets a fast, mobile-first storefront with product
               listings, WhatsApp checkout, payment verification and a shareable
               bio link that works everywhere.
@@ -64,7 +77,7 @@ export default function StorefrontSection() {
               ].map((item) => (
                 <div
                   key={item}
-                  className="flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm"
+                  className={`${components.card} ${radius.lg} ${shadows.card} flex items-center gap-4 p-4`}
                 >
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
                     ✓
@@ -108,7 +121,7 @@ export default function StorefrontSection() {
                 <div className="flex items-center gap-4">
                   <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-slate-200">
                     <Image
-                      src="/landing/merchants/fashion.jpg"
+                      src="/landing/merchants/fashion.JPG"
                       alt="Merchant"
                       width={96}
                       height={96}
@@ -132,7 +145,7 @@ export default function StorefrontSection() {
                     <motion.div
                       key={product.name}
                       whileHover={{ scale: 1.02 }}
-                      className="flex items-center gap-4 rounded-2xl border border-slate-100 p-3"
+                      className="flex items-center gap-4 className={`${radius.lg} border ${colors.borderLight} p-3 transition-transform`}"
                     >
                       <div className="h-16 w-16 overflow-hidden rounded-xl bg-slate-100">
                         <Image

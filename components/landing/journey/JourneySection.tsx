@@ -9,6 +9,17 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+import {
+  colors,
+  components,
+  fadeUp,
+  radius,
+  shadows,
+  spacing,
+  transition,
+  typography,
+} from "@/app/lib/design-tokens";
+
 const steps = [
   {
     icon: Store,
@@ -38,26 +49,32 @@ const steps = [
 
 export default function JourneySection() {
   return (
-    <section className="relative overflow-hidden bg-white py-24">
+    <section
+      className={`relative overflow-hidden ${colors.background} ${spacing.section}`}
+    >
       <div className="absolute inset-0 bg-gradient-to-b from-white via-emerald-50/40 to-white" />
 
-      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mx-auto mb-20 max-w-3xl text-center">
-          <span className="rounded-full bg-emerald-50 px-4 py-1 text-xs font-bold uppercase tracking-widest text-emerald-600">
+      <div className={`relative ${spacing.container}`}>
+        {/* Heading */}
+        <div className={`${components.sectionHeading} mb-20`}>
+          <div className={`${components.badge} ${colors.badge}`}>
             Simple Journey
-          </span>
+          </div>
 
-          <h2 className="mt-5 text-3xl font-extrabold text-slate-900 sm:text-5xl">
+          <h2 className={`${typography.title} ${colors.text} mt-6`}>
             Launch your online business
-            <span className="block text-emerald-600">in under one minute.</span>
+            <span className={`block ${colors.brandText}`}>
+              in under one minute.
+            </span>
           </h2>
 
-          <p className="mt-5 text-base leading-relaxed text-slate-600">
+          <p className={`${components.sectionBody} ${typography.body}`}>
             No website. No coding. No complicated setup. Just four simple steps
             and you're ready to receive orders from anywhere.
           </p>
         </div>
 
+        {/* Timeline */}
         <div className="relative">
           <div className="absolute left-0 right-0 top-14 hidden h-0.5 bg-gradient-to-r from-emerald-200 via-emerald-400 to-emerald-200 lg:block" />
 
@@ -68,36 +85,43 @@ export default function JourneySection() {
               return (
                 <motion.div
                   key={step.title}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
                   viewport={{ once: true }}
                   transition={{
+                    ...transition.default,
                     delay: index * 0.15,
-                    duration: 0.5,
                   }}
                   className="relative"
                 >
+                  {/* Icon */}
                   <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border border-emerald-100 bg-white shadow-lg">
                     <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600">
                       <Icon className="h-8 w-8" />
                     </div>
                   </div>
 
-                  <div className="mt-8 rounded-3xl border border-slate-100 bg-white p-7 shadow-sm transition hover:-translate-y-2 hover:shadow-xl">
-                    <div className="mb-4 inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
+                  {/* Card */}
+                  <div
+                    className={`${components.card} ${radius.xl} ${shadows.card} mt-8 p-7 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl`}
+                  >
+                    <div
+                      className={`mb-5 flex h-10 w-10 items-center justify-center ${radius.full} ${colors.brand} text-sm font-bold text-white`}
+                    >
                       {index + 1}
                     </div>
 
-                    <h3 className="text-xl font-bold text-slate-900">
-                      {step.title}
-                    </h3>
+                    <h3 className={typography.cardTitle}>{step.title}</h3>
 
-                    <p className="mt-3 text-sm leading-7 text-slate-600">
+                    <p className={`${typography.cardBody} mt-3`}>
                       {step.description}
                     </p>
 
                     {index !== steps.length - 1 && (
-                      <div className="mt-6 flex items-center text-sm font-semibold text-emerald-600 lg:hidden">
+                      <div
+                        className={`mt-6 flex items-center text-sm font-semibold ${colors.brandText} lg:hidden`}
+                      >
                         Next
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </div>

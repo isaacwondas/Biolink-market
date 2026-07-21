@@ -1,66 +1,92 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, HelpCircle } from "lucide-react";
+import { radius, shadows, spacing, typography } from "@/app/lib/design-tokens";
 
 const faqs = [
   {
     q: "How do I receive payments from my customers?",
-    a: "Your store displays your direct bank details (OPay, GTB, Zenith, etc.) and a dynamic QR code. Customers transfer directly to your bank account with zero platform middleman delays.",
+    a: "Your storefront displays your preferred bank accounts (OPay, GTBank, Zenith, PalmPay and others) alongside a QR code. Customers pay you directly, so there are no platform delays or middlemen.",
   },
   {
     q: "Do I need a laptop or coding knowledge?",
-    a: "Not at all! You can set up and manage your entire BioLink Market storefront directly from your mobile phone in under 2 minutes.",
+    a: "No. BioLink Market is designed for mobile-first entrepreneurs. You can create, manage and update your storefront entirely from your phone.",
   },
   {
     q: "Can I connect my WhatsApp number?",
-    a: "Yes! Every store includes a prominent 'Chat Now' button that routes buyers directly into your WhatsApp chat with product inquiries.",
+    a: "Yes. Every storefront includes a WhatsApp chat button so customers can contact you instantly before placing an order.",
   },
   {
     q: "Are there any hidden transaction charges?",
-    a: "No. BioLink Market charges ₦0 monthly subscription and 0% commission on direct bank transfer orders.",
+    a: "No. Creating a storefront is free, and BioLink Market does not charge commission on payments sent directly to your bank account.",
   },
 ];
 
 export default function FAQSection() {
-  const [openIdx, setOpenIdx] = useState<number | null>(0);
+  const [openIdx, setOpenIdx] = useState(0);
 
   return (
-    <section className="py-20 bg-slate-50/50">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-extrabold text-slate-900">
+    <section id="faq" className={`${spacing.section} bg-slate-50`}>
+      <div className={`${spacing.container} max-w-4xl`}>
+        <div className="mb-14 text-center">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-700">
+            <HelpCircle className="h-4 w-4" />
             Frequently Asked Questions
+          </div>
+
+          <h2 className={`${typography.title} mt-6 text-slate-900`}>
+            Everything you need to know
           </h2>
-          <p className="mt-2 text-xs sm:text-sm text-slate-500">
-            Got questions? We've got answers.
+
+          <p
+            className={`${typography.body} mx-auto mt-4 max-w-2xl text-slate-600`}
+          >
+            Here are answers to the questions merchants ask before launching
+            their BioLink Market storefront.
           </p>
         </div>
 
-        <div className="space-y-4">
-          {faqs.map((faq, idx) => (
-            <div
-              key={idx}
-              className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm"
-            >
-              <button
-                onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
-                className="w-full text-left p-5 flex items-center justify-between text-sm font-bold text-slate-900"
+        <div className="space-y-5">
+          {faqs.map((faq, index) => {
+            const isOpen = openIdx === index;
+
+            return (
+              <div
+                key={index}
+                className={`${radius.xl} ${shadows.card} overflow-hidden border border-slate-200 bg-white transition-all duration-300`}
               >
-                <span>{faq.q}</span>
-                <ChevronDown
-                  className={`w-4 h-4 text-slate-400 transition-transform ${
-                    openIdx === idx ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              {openIdx === idx && (
-                <div className="px-5 pb-5 text-xs sm:text-sm text-slate-500 leading-relaxed border-t border-slate-50 pt-3">
-                  {faq.a}
-                </div>
-              )}
-            </div>
-          ))}
+                <button
+                  onClick={() => setOpenIdx(isOpen ? -1 : index)}
+                  className="flex w-full items-center justify-between px-6 py-5 text-left"
+                >
+                  <span
+                    className={`font-semibold transition-colors ${
+                      isOpen ? "text-emerald-600" : "text-slate-900"
+                    }`}
+                  >
+                    {faq.q}
+                  </span>
+
+                  <ChevronDown
+                    className={`h-5 w-5 text-slate-400 transition-transform duration-300 ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {isOpen && (
+                  <div className="border-t border-slate-100 px-6 py-5">
+                    <p
+                      className={`${typography.body} leading-7 text-slate-600`}
+                    >
+                      {faq.a}
+                    </p>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
