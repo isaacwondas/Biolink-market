@@ -44,7 +44,7 @@ export default function StorefrontSection() {
     <section
       className={`relative overflow-hidden ${colors.backgroundAlt} ${spacing.section}`}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-transparent to-cyan-50" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#22C55E]/10 via-transparent to-[#0A2E1C]/5" />
 
       <div className={`relative ${spacing.container}`}>
         <div className="grid items-center gap-20 lg:grid-cols-2">
@@ -54,7 +54,9 @@ export default function StorefrontSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <div className={`${components.badge} ${colors.badge}`}>
+            <div
+              className={`${components.badge} bg-[#22C55E]/10 text-[#1A9F49]`}
+            >
               Your Digital Store
             </div>
 
@@ -79,7 +81,7 @@ export default function StorefrontSection() {
                   key={item}
                   className={`${components.card} ${radius.lg} ${shadows.card} flex items-center gap-4 p-4`}
                 >
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#22C55E]/10 text-[#22C55E]">
                     ✓
                   </div>
 
@@ -105,7 +107,7 @@ export default function StorefrontSection() {
               }}
               className="absolute -left-8 top-8 z-20 rounded-2xl border bg-white px-5 py-4 shadow-xl"
             >
-              <div className="text-sm font-bold text-slate-900">
+              <div className="text-sm font-bold text-[#0A2E1C]">
                 🎉 New Order
               </div>
               <div className="text-xs text-slate-500">₦18,500 received</div>
@@ -114,7 +116,7 @@ export default function StorefrontSection() {
             {/* Store Card */}
             <div className="overflow-hidden rounded-[36px] border border-slate-200 bg-white shadow-2xl">
               {/* Cover */}
-              <div className="h-44 bg-gradient-to-r from-emerald-500 via-green-500 to-cyan-500" />
+              <div className="h-44 bg-gradient-to-tr from-[#1A9F49] to-[#22C55E]" />
 
               {/* Profile */}
               <div className="-mt-12 px-8 pb-8">
@@ -130,7 +132,9 @@ export default function StorefrontSection() {
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-bold">Ada Fashion Hub</h3>
+                    <h3 className="text-xl font-bold text-[#0A2E1C]">
+                      Ada Fashion Hub
+                    </h3>
 
                     <div className="mt-1 flex items-center gap-2 text-sm text-slate-500">
                       <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
@@ -145,7 +149,7 @@ export default function StorefrontSection() {
                     <motion.div
                       key={product.name}
                       whileHover={{ scale: 1.02 }}
-                      className="flex items-center gap-4 className={`${radius.lg} border ${colors.borderLight} p-3 transition-transform`}"
+                      className={`flex items-center gap-4 ${radius.lg} border ${colors.borderLight} p-3 transition-transform`}
                     >
                       <div className="h-16 w-16 overflow-hidden rounded-xl bg-slate-100">
                         <Image
@@ -158,11 +162,11 @@ export default function StorefrontSection() {
                       </div>
 
                       <div className="flex-1">
-                        <div className="font-semibold text-slate-900">
+                        <div className="font-semibold text-[#0A2E1C]">
                           {product.name}
                         </div>
 
-                        <div className="text-sm text-emerald-600 font-bold">
+                        <div className="text-sm text-[#22C55E] font-bold">
                           {product.price}
                         </div>
                       </div>
@@ -174,7 +178,7 @@ export default function StorefrontSection() {
 
                 {/* Actions */}
                 <div className="mt-8 flex gap-3">
-                  <button className="flex-1 rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white hover:bg-emerald-700 transition">
+                  <button className="flex-1 rounded-xl bg-[#22C55E] py-3 text-sm font-bold text-white hover:bg-[#1A9F49] transition">
                     Shop Now
                   </button>
 
@@ -200,7 +204,7 @@ export default function StorefrontSection() {
                 repeat: Infinity,
                 duration: 4,
               }}
-              className="absolute -right-8 bottom-10 rounded-2xl bg-emerald-600 px-5 py-4 text-white shadow-xl"
+              className="absolute -right-8 bottom-10 rounded-2xl bg-[#0A2E1C] px-5 py-4 text-white shadow-xl"
             >
               <div className="text-lg font-bold">328</div>
               <div className="text-xs opacity-90">Visitors Today</div>
