@@ -117,7 +117,7 @@ export default function AnalyticsSection() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ delay: index * 0.1 }}
+                    transition={{ delay: index * 0.2 }}
                     className={`${radius.lg} border ${colors.borderLight} ${colors.backgroundAlt} p-5`}
                   >
                     <div className="flex items-center justify-between">
@@ -162,7 +162,7 @@ export default function AnalyticsSection() {
                     whileInView={{ height: value }}
                     viewport={{ once: true }}
                     transition={{
-                      duration: 0.6,
+                      duration: 0.8,
                       delay: index * 0.08,
                     }}
                     className="flex-1 rounded-full bg-gradient-to-t from-emerald-600 to-emerald-300"
@@ -201,7 +201,7 @@ export default function AnalyticsSection() {
                   initial={{ opacity: 0, x: 20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: index * 0.08 }}
+                  transition={{ delay: index * 0.1 }}
                   className="flex items-center gap-4 rounded-2xl border border-slate-100 p-4 hover:bg-slate-50 transition-all duration-200"
                 >
                   <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-100 font-bold text-emerald-700">

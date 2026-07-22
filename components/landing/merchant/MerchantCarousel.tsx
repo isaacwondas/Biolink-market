@@ -37,7 +37,7 @@ export default function MerchantCarousel() {
             scale: 0.95,
           }}
           transition={{
-            duration: 0.55,
+            duration: 0.8,
           }}
           className="absolute"
         >

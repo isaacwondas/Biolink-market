@@ -77,7 +77,7 @@ export default function FeaturesSection() {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              transition={{ delay: idx * 0.1 }}
+              transition={{ delay: idx * 0.2 }}
               className={`${components.card} ${radius.xl} ${shadows.card} p-6`}
             >
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#16a34a] flex items-center justify-center">

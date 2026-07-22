@@ -14,7 +14,7 @@ export default function HeroBackground() {
           scale: [1, 1.15, 1],
         }}
         transition={{
-          duration: 16,
+          duration: 18,
           repeat: Infinity,
           ease: "easeInOut",
         }}
@@ -30,7 +30,7 @@ export default function HeroBackground() {
           scale: [1.1, 1, 1.1],
         }}
         transition={{
-          duration: 20,
+          duration: 24,
           repeat: Infinity,
           ease: "easeInOut",
         }}
@@ -45,7 +45,7 @@ export default function HeroBackground() {
           rotate: [0, 180, 360],
         }}
         transition={{
-          duration: 28,
+          duration: 30,
           repeat: Infinity,
           ease: "linear",
         }}

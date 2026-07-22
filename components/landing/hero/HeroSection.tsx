@@ -15,7 +15,7 @@ export default function HeroSection() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.8 }}
             className="lg:col-span-6"
           >
             <div className="inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-1.5 text-xs font-semibold text-green-800">
@@ -75,7 +75,7 @@ export default function HeroSection() {
           {/* Animated Floating Pill (Payment Success Notification) */}
           <motion.div
             animate={{ y: [0, -8, 0] }}
-            transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+            transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
             className="absolute -bottom-4 left-4 z-10 flex items-center gap-3 rounded-2xl bg-white p-4 shadow-2xl border border-gray-100"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-green-600">

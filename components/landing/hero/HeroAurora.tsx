@@ -10,7 +10,7 @@ export default function HeroAurora() {
           rotate: [0, 360],
         }}
         transition={{
-          duration: 80,
+          duration: 90,
 
           repeat: Infinity,
 

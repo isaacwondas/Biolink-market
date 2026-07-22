@@ -110,7 +110,7 @@ export default function OnboardingDemo() {
             x: -40,
           }}
           transition={{
-            duration: 0.45,
+            duration: 0.8,
           }}
           className="h-full"
         >
@@ -263,7 +263,7 @@ function Input({ label, value }: { label: string; value: string }) {
           }}
           transition={{
             repeat: Infinity,
-            duration: 0.8,
+            duration: 1,
           }}
         >
           |
@@ -284,7 +284,7 @@ function ContinueButton() {
       }}
       transition={{
         repeat: Infinity,
-        duration: 1.8,
+        duration: 2,
       }}
       className="w-full rounded-xl bg-emerald-600 py-3 text-white font-semibold"
     >

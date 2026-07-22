@@ -21,7 +21,7 @@ export default function LiveActivity({
         y: [0, -10, 0],
       }}
       transition={{
-        duration: 4,
+        duration: 6,
         repeat: Infinity,
       }}
       className={`absolute rounded-2xl backdrop-blur-xl

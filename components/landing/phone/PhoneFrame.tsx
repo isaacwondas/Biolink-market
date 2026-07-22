@@ -15,13 +15,27 @@ export default function PhoneFrame({ children, overlay }: PhoneFrameProps) {
       initial={{ opacity: 0, scale: 0.92 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{
-        duration: 0.8,
+        duration: 1,
         ease: "easeOut",
       }}
       className="relative mx-auto"
     >
       {/* Glow */}
-      <div className="absolute inset-0 rounded-[48px] bg-emerald-400/20 blur-3xl" />
+      {/*<div className="absolute inset-0 rounded-[48px] bg-emerald-400/20 blur-3xl" />*/}
+      <div
+        className="
+        absolute
+        left-1/2
+        top-1/2
+        h-[500px]
+        w-[500px]
+        -translate-x-1/2
+        -translate-y-1/2
+        rounded-full
+        bg-emerald-200/40
+        blur-[120px]
+    "
+      />
 
       {/* Phone */}
       <div className="relative w-[330px] h-[680px] rounded-[42px] bg-zinc-950 border-[10px] border-black shadow-2xl overflow-hidden">

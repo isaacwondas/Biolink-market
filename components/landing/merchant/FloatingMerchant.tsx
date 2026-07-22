@@ -29,7 +29,7 @@ export default function FloatingMerchant({
         y: [0, -12, 0],
       }}
       transition={{
-        duration: 5,
+        duration: 8,
         repeat: Infinity,
         delay,
         ease: "easeInOut",

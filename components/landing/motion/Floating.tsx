@@ -20,7 +20,7 @@ export default function Floating({
         y: [0, -distance, 0],
       }}
       transition={{
-        duration: 5,
+        duration: 8,
         repeat: Infinity,
         delay,
         ease: "easeInOut",
