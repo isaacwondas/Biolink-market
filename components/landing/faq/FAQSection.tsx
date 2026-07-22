@@ -27,15 +27,15 @@ export default function FAQSection() {
   const [openIdx, setOpenIdx] = useState(0);
 
   return (
-    <section id="faq" className={`${spacing.section} bg-slate-50`}>
+    <section id="faq" className={`${spacing.section} bg-[#FAFAFA]`}>
       <div className={`${spacing.container} max-w-4xl`}>
         <div className="mb-14 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-700">
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#22C55E]/10 px-4 py-2 text-xs font-semibold text-[#1A9F49]">
             <HelpCircle className="h-4 w-4" />
             Frequently Asked Questions
           </div>
 
-          <h2 className={`${typography.title} mt-6 text-slate-900`}>
+          <h2 className={`${typography.title} mt-6 text-[#0A2E1C]`}>
             Everything you need to know
           </h2>
 
@@ -54,7 +54,7 @@ export default function FAQSection() {
             return (
               <div
                 key={index}
-                className={`${radius.xl} ${shadows.card} overflow-hidden border border-slate-200 bg-white transition-all duration-300`}
+                className={`${radius.xl} ${shadows.card} overflow-hidden border border-gray-100 bg-white transition-all duration-300`}
               >
                 <button
                   onClick={() => setOpenIdx(isOpen ? -1 : index)}
@@ -62,7 +62,7 @@ export default function FAQSection() {
                 >
                   <span
                     className={`font-semibold transition-colors ${
-                      isOpen ? "text-emerald-600" : "text-slate-900"
+                      isOpen ? "text-[#22C55E]" : "text-[#0A2E1C]"
                     }`}
                   >
                     {faq.q}
@@ -76,7 +76,7 @@ export default function FAQSection() {
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-slate-100 px-6 py-5">
+                  <div className="border-t border-gray-100 px-6 py-5">
                     <p
                       className={`${typography.body} leading-7 text-slate-600`}
                     >
