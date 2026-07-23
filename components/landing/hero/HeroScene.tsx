@@ -74,7 +74,7 @@ export default function HeroScene() {
         icon="💬"
         title="2 WhatsApp Messages"
         subtitle="Reply now"
-        className="z-30 hidden sm:block sm:bottom-2 sm:left-4 bottom-8 right-2"
+        className="bottom-8 right-2"
       />
     </div>
   );

@@ -37,7 +37,7 @@ export default function HeroSection() {
             {/* CTAs */}
             <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
               <Link
-                href="/signup"
+                href="merchant/signup"
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#22C55E] px-6 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-[#1A9F49] hover:shadow-xl"
               >
                 Create Your Free Store

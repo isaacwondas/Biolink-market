@@ -40,7 +40,7 @@ export default function FinalCTA() {
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              href="/signup"
+              href="merchant/signup"
               className={`inline-flex items-center justify-center gap-2 ${radius.lg} bg-white px-8 py-4 text-sm font-bold text-[#1A9F49] transition-transform duration-200 hover:-translate-y-0.5`}
             >
               Create Storefront Free
