@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { Check, Sparkles } from "lucide-react";
 
 const features = [
   "1 Custom Storefront Link",
@@ -34,22 +34,23 @@ export default function PricingSection() {
         </div>
 
         {/* Pricing Card */}
-        <div className="relative mx-auto max-w-md overflow-hidden border border-emerald-900/60 bg-[#072919] rounded-2xl p-8 md:p-10 shadow-2xl transition-shadow duration-300">
+        <div className="relative mx-auto max-w-md border border-emerald-900/60 bg-[#072919] rounded-2xl p-8 md:p-10 pt-10 shadow-2xl transition-shadow duration-300">
           {/* Badge */}
-          <div className="absolute right-8 top-0 -translate-y-1/2 rounded-full bg-[#22C55E] px-4 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-lg">
+          <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1.5 rounded-full bg-[#22C55E] px-5 py-2 text-[11px] font-black uppercase tracking-[0.15em] text-white shadow-lg shadow-[#22C55E]/30 ring-4 ring-[#041E12]">
+            <Sparkles className="h-3.5 w-3.5" />
             Most Popular
           </div>
 
-          <h3 className="text-2xl md:text-3xl font-black text-white">
+          <h3 className="text-2xl md:text-3xl font-black text-white text-center mt-2">
             Starter Plan
           </h3>
 
-          <p className="mt-2 text-sm text-emerald-100/60">
+          <p className="mt-2 text-sm text-emerald-100/60 text-center">
             Perfect for Instagram, TikTok, Facebook and WhatsApp businesses.
           </p>
 
           {/* Price */}
-          <div className="mt-8 flex items-end gap-2">
+          <div className="mt-8 flex items-end justify-center gap-2">
             <span className="text-5xl md:text-6xl font-black tracking-tight text-white">
               ₦0
             </span>
