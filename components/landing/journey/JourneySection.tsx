@@ -42,7 +42,7 @@ const steps = [
   {
     title: "Start Selling",
     description:
-      "Share your storefront on Instagram, TikTok, Facebook and WhatsApp.",
+      "Share your storefront on Instagram, TikTok, Facebook, Twitter and WhatsApp.",
     icon: Rocket,
   },
 ];

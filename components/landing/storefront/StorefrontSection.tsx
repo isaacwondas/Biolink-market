@@ -104,12 +104,16 @@ export default function StorefrontSection() {
             {/* Store Card */}
             <div className="overflow-hidden rounded-3xl border border-[#E5E7EB] bg-white shadow-2xl">
               {/* Cover */}
-              <div className="h-44 bg-gradient-to-tr from-[#15803D] to-[#22C55E]" />
+              <div className="relative h-44 bg-gradient-to-tr from-[#15803D] to-[#22C55E]">
+                <span className="absolute left-6 top-5 text-sm font-black tracking-tight text-white">
+                  BioLink<span className="text-white/70">.Market</span>
+                </span>
+              </div>
 
               {/* Profile */}
-              <div className="-mt-12 px-8 pb-8">
-                <div className="flex items-center gap-4">
-                  <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-[#E5E7EB] flex-shrink-0">
+              <div className="-mt-16 px-8 pb-8">
+                <div className="flex items-end gap-4">
+                  <div className="h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-[#E5E7EB] flex-shrink-0 shadow-md">
                     <Image
                       src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop"
                       alt="Merchant"
@@ -120,13 +124,13 @@ export default function StorefrontSection() {
                     />
                   </div>
 
-                  <div>
-                    <h3 className="text-xl font-black text-[#111827]">
+                  <div className="pb-1">
+                    <h3 className="text-xl font-black text-white drop-shadow-sm">
                       Zainab's Designs
                     </h3>
 
-                    <div className="mt-1 flex items-center gap-2 text-sm text-[#6B7280]">
-                      <Star className="h-4 w-4 fill-[#22C55E] text-[#22C55E]" />
+                    <div className="mt-1 flex items-center gap-2 text-sm text-white/90">
+                      <Star className="h-4 w-4 fill-white text-white" />
                       4.9 Rating
                     </div>
                   </div>
