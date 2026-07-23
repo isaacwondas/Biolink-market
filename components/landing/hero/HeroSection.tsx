@@ -76,16 +76,16 @@ export default function HeroSection() {
             <motion.div
               animate={{ y: [0, -8, 0] }}
               transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-              className="absolute -bottom-4 left-4 z-10 flex items-center gap-3 rounded-2xl bg-white p-4 shadow-2xl border border-gray-100"
+              className="absolute -bottom-3 left-2 z-10 flex max-w-[85%] items-center gap-2 rounded-xl bg-white p-2.5 shadow-2xl border border-gray-100 sm:-bottom-4 sm:left-4 sm:max-w-none sm:gap-3 sm:rounded-2xl sm:p-4"
             >
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#22C55E]/10 text-[#22C55E]">
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#22C55E]/10 text-[#22C55E] sm:h-10 sm:w-10">
                 ⚡
               </div>
-              <div>
-                <p className="text-xs font-bold text-[#0A2E1C]">
+              <div className="min-w-0">
+                <p className="truncate text-[11px] font-bold text-[#0A2E1C] sm:text-xs">
                   Payment Verified!
                 </p>
-                <p className="text-[11px] text-gray-500">
+                <p className="truncate text-[10px] text-gray-500 sm:text-[11px]">
                   ₦25,000 via OPay • Just now
                 </p>
               </div>
