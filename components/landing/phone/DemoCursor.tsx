@@ -40,7 +40,7 @@ export default function DemoCursor({
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: [0, 1.4, 0] }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0 }}
           className="absolute left-2 top-2 h-5 w-5 rounded-full border-2 border-emerald-500"
         />
       )}
