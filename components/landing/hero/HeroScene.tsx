@@ -26,7 +26,7 @@ export default function HeroScene() {
         image="/landing/merchants/fashion.JPG"
         name="Ada Fashion"
         category="Fashion Designer"
-        className="hidden lg:block lg:-left-20 lg:top-10"
+        className="z-30 hidden lg:block lg:-left-20 lg:top-10"
         delay={0}
       />
 
@@ -34,7 +34,7 @@ export default function HeroScene() {
         image="/landing/merchants/makeup.JPG"
         name="Glow Beauty"
         category="Makeup Artist"
-        className="hidden lg:block lg:-right-20 lg:top-24"
+        className="z-30 hidden lg:block lg:-right-20 lg:top-24"
         delay={1}
       />
 
@@ -42,7 +42,7 @@ export default function HeroScene() {
         image="/landing/merchants/pottery.JPG"
         name="Clay House"
         category="Pottery"
-        className="hidden lg:block lg:-left-16 lg:bottom-28"
+        className="z-30 hidden lg:block lg:-left-16 lg:bottom-28"
         delay={2}
       />
 
@@ -50,7 +50,7 @@ export default function HeroScene() {
         image="/landing/merchants/tailor.JPG"
         name="Elegant Stitch"
         category="Tailor"
-        className="hidden lg:block lg:-right-14 lg:bottom-10"
+        className="z-30 hidden lg:block lg:-right-14 lg:bottom-10"
         delay={3}
       />
 
@@ -60,21 +60,21 @@ export default function HeroScene() {
         icon="💰"
         title="Payment Received"
         subtitle="₦18,500"
-        className="hidden sm:block sm:top-2 sm:right-4 lg:-top-6 lg:right-24"
+        className="z-30 hidden sm:block sm:top-2 sm:right-4 lg:-top-6 lg:right-24"
       />
 
       <LiveActivity
         icon="📦"
         title="New Order"
         subtitle="Wedding Dress"
-        className="hidden lg:block lg:left-4 lg:top-80"
+        className="z-30 hidden lg:block lg:left-4 lg:top-80"
       />
 
       <LiveActivity
         icon="💬"
         title="2 WhatsApp Messages"
         subtitle="Reply now"
-        className="hidden sm:block sm:bottom-2 sm:left-4 lg:bottom-8 lg:right-2"
+        className="z-30 hidden sm:block sm:bottom-2 sm:left-4 lg:bottom-8 lg:right-2"
       />
     </div>
   );
