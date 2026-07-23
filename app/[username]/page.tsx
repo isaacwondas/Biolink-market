@@ -69,7 +69,9 @@ export default async function Storefront({ params }: PageProps) {
     )
     .eq("username", username.toLowerCase().trim())
     .maybeSingle();
+  console.log(vendor, error);
   if (error || !vendor) {
+    console.log(vendor, error);
     return (
       <div className="min-h-screen bg-[#FFFFFF] text-[#111827] flex items-center justify-center p-4">
         <div className="text-center space-y-2">
