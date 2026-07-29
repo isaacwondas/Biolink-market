@@ -19,7 +19,7 @@ const products = [
   },
   {
     name: "Premium Leather Bag",
-    price: "₦27,000",
+    price: "₦15,400",
     image:
       "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=200&q=80",
   },
@@ -38,7 +38,7 @@ export default function StorefrontSection() {
 
       <div className="relative max-w-7xl mx-auto">
         <div className="grid items-center gap-20 lg:grid-cols-2">
-          {/* Left */}
+          {/* Left Column */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -79,7 +79,7 @@ export default function StorefrontSection() {
             </div>
           </motion.div>
 
-          {/* Right */}
+          {/* Right Column */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -103,41 +103,38 @@ export default function StorefrontSection() {
 
             {/* Store Card */}
             <div className="overflow-hidden rounded-3xl border border-[#E5E7EB] bg-white shadow-2xl">
-              {/* Cover */}
+              {/* Cover Banner */}
               <div className="relative h-48 bg-gradient-to-tr from-[#15803D] to-[#22C55E] px-8 pt-6">
                 <span className="text-sm font-black tracking-tight text-white">
                   BioLink<span className="text-white/70">.Market</span>
                 </span>
 
-                {/* Avatar + Name, anchored to the bottom of the cover */}
+                {/* Avatar + Brand Name */}
                 <div className="absolute bottom-0 left-8 flex translate-y-1/2 items-end gap-4">
-  {/* Avatar Container */}
-  <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-full border-4 border-white bg-[#0A2E1C] shadow-md">
-    <img 
-      src="https://images.unsplash.com/photo-1748336125116-a28fe94de59e?w=200&q=200" 
-      alt="Zainab's Designs Logo" 
-      className="h-full w-full object-cover"
-    />
-  </div>
+                  {/* Avatar Container */}
+                  <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-full border-4 border-white bg-[#0A2E1C] shadow-md">
+                    <img
+                      src="https://images.unsplash.com/photo-1748336125116-a28fe94de59e?w=200&q=200"
+                      alt="Zainab's Designs Logo"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
 
-  <div className="pb-3">
-    <h3 className="text-xl font-black text-[#0A2E1C] drop-shadow-sm">
-      Zainab's Designs
-    </h3>
-  </div>
-</div>
-
-                    <div className="mt-1 flex items-center gap-2 text-sm text-white/90">
-                      <Star className="h-4 w-4 fill-white text-white" />
-                      4.9 Rating
+                  <div className="pb-3">
+                    <h3 className="text-xl font-black text-[#0A2E1C] drop-shadow-sm">
+                      Zainab's Designs
+                    </h3>
+                    <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-[#0A2E1C]/80">
+                      <Star className="h-3.5 w-3.5 fill-[#0A2E1C] text-[#0A2E1C]" />
+                      <span>4.9 Rating</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Profile */}
-              <div className="px-8 pb-8 pt-14">
-                {/* Products */}
+              {/* Profile Body */}
+              <div className="px-8 pb-8 pt-16">
+                {/* Products Grid */}
                 <div className="grid gap-4">
                   {products.map((product) => (
                     <motion.div
@@ -171,7 +168,7 @@ export default function StorefrontSection() {
                   ))}
                 </div>
 
-                {/* Actions */}
+                {/* Action Buttons */}
                 <div className="mt-8 flex gap-3">
                   <button className="flex-1 rounded-xl bg-[#22C55E] hover:bg-[#15803D] py-3 text-sm font-bold text-white transition-colors">
                     Shop Now
