@@ -103,16 +103,16 @@ export default function StorefrontSection() {
 
             {/* Store Card */}
             <div className="overflow-hidden rounded-3xl border border-[#E5E7EB] bg-white shadow-2xl">
-              {/* Cover Banner */}
-              <div className="relative h-48 bg-gradient-to-tr from-[#15803D] to-[#22C55E] px-8 pt-6">
+              {/* Cover Banner (Tall enough to encapsulate avatar + text) */}
+              <div className="relative h-60 bg-gradient-to-tr from-[#15803D] to-[#22C55E] px-8 pt-6 pb-6 flex flex-col justify-between">
                 <span className="text-sm font-black tracking-tight text-white">
                   BioLink<span className="text-white/70">.Market</span>
                 </span>
 
-                {/* Avatar + Brand Name */}
-                <div className="absolute bottom-0 left-8 flex translate-y-1/2 items-end gap-4">
+                {/* Avatar + Brand Name anchored inside the green header */}
+                <div className="flex items-center gap-4">
                   {/* Avatar Container */}
-                  <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-full border-4 border-white bg-[#0A2E1C] shadow-md">
+                  <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full border-4 border-white/20 bg-[#0A2E1C] shadow-md">
                     <img
                       src="https://images.unsplash.com/photo-1748336125116-a28fe94de59e?w=200&q=200"
                       alt="Zainab's Designs Logo"
@@ -120,12 +120,12 @@ export default function StorefrontSection() {
                     />
                   </div>
 
-                  <div className="pb-3">
-                    <h3 className="text-xl font-black text-[#0A2E1C] drop-shadow-sm">
+                  <div>
+                    <h3 className="text-2xl font-black text-white drop-shadow-sm">
                       Zainab's Designs
                     </h3>
-                    <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-[#0A2E1C]/80">
-                      <Star className="h-3.5 w-3.5 fill-[#0A2E1C] text-[#0A2E1C]" />
+                    <div className="mt-1 flex items-center gap-1.5 text-xs font-semibold text-white/90">
+                      <Star className="h-3.5 w-3.5 fill-white text-white" />
                       <span>4.9 Rating</span>
                     </div>
                   </div>
@@ -133,7 +133,7 @@ export default function StorefrontSection() {
               </div>
 
               {/* Profile Body */}
-              <div className="px-8 pb-8 pt-16">
+              <div className="px-8 pb-8 pt-8">
                 {/* Products Grid */}
                 <div className="grid gap-4">
                   {products.map((product) => (
