@@ -104,14 +104,16 @@ export default function StorefrontSection() {
             {/* Store Card */}
             <div className="overflow-hidden rounded-3xl border border-[#E5E7EB] bg-white shadow-2xl">
               {/* Cover Banner (Tall enough to encapsulate avatar + text) */}
-              <div className="relative h-44 bg-gradient-to-tr from-[#15803D] to-[#22C55E] px-8 pt-4 pb-4 flex flex-col justify-between">
-                <span className="text-sm font-black tracking-tight text-white">
-                  BioLink<span className="text-white/70">.Market</span>
-                </span>
+              <div className="relative h-44 bg-gradient-to-tr from-[#15803D] to-[#22C55E] px-8 pt-6 pb-4 flex flex-col justify-between">
+                {/* Positioned on top-right so it's not hidden behind the floating badge */}
+                <div className="flex justify-end">
+                  <span className="text-sm font-black tracking-tight text-white">
+                    BioLink<span className="text-white/70">.Market</span>
+                  </span>
+                </div>
 
-                {/* Avatar + Brand Name anchored inside the green header */}
+                {/* Avatar + Brand Name */}
                 <div className="flex items-center gap-4">
-                  {/* Avatar Container */}
                   <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-full border-2 border-white/20 bg-[#0A2E1C] shadow-md">
                     <img
                       src="https://images.unsplash.com/photo-1748336125116-a28fe94de59e?w=200&q=200"
@@ -131,7 +133,6 @@ export default function StorefrontSection() {
                   </div>
                 </div>
               </div>
-
               {/* Profile Body */}
               <div className="px-8 pb-8 pt-8">
                 {/* Products Grid */}
