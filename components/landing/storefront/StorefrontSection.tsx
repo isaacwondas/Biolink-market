@@ -15,7 +15,7 @@ const products = [
     name: "Luxury Ankara Gown",
     price: "₦18,500",
     image:
-      "https://images.unsplash.com/photo-1595777712802-52d44cebc6ff?w=200&q=80",
+      "https://images.unsplash.com/photo-1731101024659-f4165dd345cc?w=200&q=80",
   },
   {
     name: "Premium Leather Bag",
@@ -27,7 +27,7 @@ const products = [
     name: "Classic Heels",
     price: "₦15,000",
     image:
-      "https://images.unsplash.com/photo-1543163521-9a539c45dd15?w=200&q=80",
+      "https://plus.unsplash.com/premium_photo-1671632777077-3fefe4004192?w=200&q=80",
   },
 ];
 
