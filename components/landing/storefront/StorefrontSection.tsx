@@ -111,14 +111,21 @@ export default function StorefrontSection() {
 
                 {/* Avatar + Name, anchored to the bottom of the cover */}
                 <div className="absolute bottom-0 left-8 flex translate-y-1/2 items-end gap-4">
-                  <div className="flex h-24 w-24 flex-shrink-0 items-center justify-center rounded-full border-4 border-white bg-[#0A2E1C] text-2xl font-black text-white shadow-md">
-                    ZD
-                  </div>
+  {/* Avatar Container */}
+  <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-full border-4 border-white bg-[#0A2E1C] shadow-md">
+    <img 
+      src="https://images.unsplash.com/photo-1748336125116-a28fe94de59e?w=200&q=200" 
+      alt="Zainab's Designs Logo" 
+      className="h-full w-full object-cover"
+    />
+  </div>
 
-                  <div className="pb-3">
-                    <h3 className="text-xl font-black text-white drop-shadow-sm">
-                      Zainab's Designs
-                    </h3>
+  <div className="pb-3">
+    <h3 className="text-xl font-black text-[#0A2E1C] drop-shadow-sm">
+      Zainab's Designs
+    </h3>
+  </div>
+</div>
 
                     <div className="mt-1 flex items-center gap-2 text-sm text-white/90">
                       <Star className="h-4 w-4 fill-white text-white" />
