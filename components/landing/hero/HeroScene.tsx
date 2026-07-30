@@ -9,9 +9,12 @@ import HeroBackground from "./HeroBackground";
 
 export default function HeroScene() {
   return (
-    <div className="relative flex items-center justify-center min-h-[420px] overflow-visible sm:min-h-[560px] lg:min-h-[760px]">
-      <HeroBackground />
-      <HeroAurora />
+    <div className="relative flex items-center justify-center min-h-[420px] sm:min-h-[560px] lg:min-h-[760px]">
+      {/* Background Glow Wrapper - Hidden on mobile or constrained to prevent shadow bleed */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none rounded-3xl lg:overflow-visible">
+        <HeroBackground />
+        <HeroAurora />
+      </div>
 
       {/* Phone */}
       <div className="relative z-20">
@@ -20,8 +23,7 @@ export default function HeroScene() {
         </Parallax>
       </div>
 
-      {/* Merchants — decorative, hidden on mobile/tablet where the
-          negative offsets would overflow the section's clipped bounds */}
+      {/* Merchants — hidden on mobile */}
       <FloatingMerchant
         image="/landing/merchants/fashion.JPG"
         name="Ada Fashion"
@@ -54,8 +56,7 @@ export default function HeroScene() {
         delay={3}
       />
 
-      {/* Live Activity — same treatment; kept inside safe bounds on mobile,
-          full positions restored at the lg breakpoint */}
+      {/* Live Activity */}
       <LiveActivity
         icon="💰"
         title="Payment Received"
@@ -70,11 +71,12 @@ export default function HeroScene() {
         className="z-30 hidden lg:block lg:left-4 lg:top-80"
       />
 
+      {/* Made WhatsApp notification hidden on mobile to stop screen edge overlap */}
       <LiveActivity
         icon="💬"
         title="2 WhatsApp Messages"
         subtitle="Reply now"
-        className="bottom-8 right-2"
+        className="z-30 hidden sm:block sm:bottom-8 sm:right-2"
       />
     </div>
   );
