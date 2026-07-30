@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function HeroAurora() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none [color-scheme:light]">
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
       <motion.div
         animate={{
           rotate: [0, 360],
