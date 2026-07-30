@@ -14,7 +14,6 @@ export default function HeroAurora() {
           repeat: Infinity,
           ease: "linear",
         }}
-        {/* Changed dark #0A2E1C15 to light green #22c55e10, and reduced mobile dimensions to stop full-screen dark bleed */}
         className="absolute left-1/2 top-1/2 h-[350px] w-[350px] sm:h-[600px] sm:w-[600px] lg:h-[900px] lg:w-[900px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[conic-gradient(at_center,#22c55e20,#22c55e10,#ffffff00,#22c55e20)] blur-2xl sm:blur-3xl"
       />
     </div>
