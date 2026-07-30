@@ -8,15 +8,15 @@ import HeroScene from "./HeroScene";
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#22C55E]/5 via-white to-white py-20 lg:py-28">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#22C55E]/5 via-white to-white py-16 sm:py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-16 lg:grid-cols-12">
+        <div className="grid items-center gap-12 lg:gap-16 lg:grid-cols-12">
           {/* Left Column: Copy & CTAs */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="lg:col-span-6"
+            className="lg:col-span-6 z-10"
           >
             <div className="inline-flex items-center gap-2 rounded-full bg-[#22C55E]/10 px-4 py-1.5 text-xs font-semibold text-[#1A9F49]">
               <Sparkles className="h-4 w-4 text-[#22C55E]" />
@@ -52,7 +52,7 @@ export default function HeroSection() {
             </div>
 
             {/* Feature Highlights */}
-            <div className="mt-8 flex items-center gap-6 text-xs font-medium text-gray-500">
+            <div className="mt-8 flex flex-wrap items-center gap-4 sm:gap-6 text-xs font-medium text-gray-500">
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="h-4 w-4 text-[#22C55E]" /> No coding
                 needed
@@ -69,27 +69,28 @@ export default function HeroSection() {
           </motion.div>
 
           {/* Right Column: Visual Grid with Floating Badges */}
-          <div className="relative lg:col-span-6">
+          <div className="relative mt-8 lg:mt-0 lg:col-span-6">
             <HeroScene />
+
+            {/* Animated Floating Pill (Moved safely inside the right column container) */}
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
+              className="absolute -bottom-6 left-2 z-10 flex max-w-[85%] items-center gap-2 rounded-xl bg-white p-2.5 shadow-xl border border-gray-100 sm:left-4 sm:max-w-none sm:gap-3 sm:rounded-2xl sm:p-4"
+            >
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#22C55E]/10 text-[#22C55E] sm:h-10 sm:w-10">
+                ⚡
+              </div>
+              <div>
+                <p className="truncate text-[11px] font-bold text-[#0A2E1C] sm:text-xs">
+                  Payment Verified!
+                </p>
+                <p className="text-[11px] text-gray-500">
+                  ₦25,000 via OPay • Just now
+                </p>
+              </div>
+            </motion.div>
           </div>
-          {/* Animated Floating Pill (Payment Success Notification) */}
-          <motion.div
-            animate={{ y: [0, -8, 0] }}
-            transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-            className="absolute -bottom-3 left-2 z-10 flex max-w-[85%] items-center gap-2 rounded-xl bg-white p-2.5 shadow-2xl border border-gray-100 sm:-bottom-4 sm:left-4 sm:max-w-none sm:gap-3 sm:rounded-2xl sm:p-4"
-          >
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#22C55E]/10 text-[#22C55E] sm:h-10 sm:w-10">
-              ⚡
-            </div>
-            <div>
-              <p className="truncate text-[11px] font-bold text-[#0A2E1C] sm:text-xs">
-                Payment Verified!
-              </p>
-              <p className="text-[11px] text-gray-500">
-                ₦25,000 via OPay • Just now
-              </p>
-            </div>
-          </motion.div>
         </div>
       </div>
     </section>
