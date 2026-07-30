@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export default function HeroBackground() {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 overflow-hidden">
       {/* Glow 1 */}
       <motion.div
         animate={{
@@ -17,10 +17,10 @@ export default function HeroBackground() {
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="absolute left-4 top-8 h-40 w-40 rounded-full bg-[#22C55E]/20 blur-2xl sm:left-12 sm:top-16 sm:h-56 sm:w-56 sm:blur-3xl lg:left-20 lg:h-72 lg:w-72"
+        className="absolute left-4 top-8 h-40 w-40 rounded-full bg-[#DCFCE7] blur-2xl sm:left-12 sm:top-16 sm:h-56 sm:w-56 sm:blur-3xl lg:left-20 lg:h-72 lg:w-72"
       />
 
-      {/* Glow 2 - Changed #0A2E1C/15 to light green #22C55E/10 */}
+      {/* Glow 2 */}
       <motion.div
         animate={{
           x: [40, -30, 40],
@@ -32,7 +32,7 @@ export default function HeroBackground() {
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="absolute right-4 bottom-8 h-44 w-44 rounded-full bg-[#22C55E]/10 blur-2xl sm:right-8 sm:bottom-16 sm:h-64 sm:w-64 sm:blur-3xl lg:right-12 lg:h-80 lg:w-80"
+        className="absolute right-4 bottom-8 h-44 w-44 rounded-full bg-[#22C55E]/12 blur-2xl sm:right-8 sm:bottom-16 sm:h-64 sm:w-64 sm:blur-3xl lg:right-12 lg:h-80 lg:w-80"
       />
 
       {/* Glow 3 */}

@@ -19,6 +19,7 @@ const geistMono = Geist_Mono({
 // Separate Viewport configuration (Next.js 15+ standard pattern)
 export const viewport: Viewport = {
   themeColor: "#15803D", // Matches BioLink Market's brand green
+  colorScheme: "light",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5, // Maintains accessibility while preventing extreme zoom

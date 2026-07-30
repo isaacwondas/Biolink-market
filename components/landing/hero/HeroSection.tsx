@@ -8,7 +8,7 @@ import HeroScene from "./HeroScene";
 
 export default function HeroSection() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[#22C55E]/5 via-white to-white py-16 sm:py-20 lg:py-28 [color-scheme:light]">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#22C55E]/5 via-white to-white py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-16 lg:grid-cols-12">
           {/* Left Column: Copy & CTAs */}
